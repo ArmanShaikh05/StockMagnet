@@ -1,8 +1,16 @@
+import { Button } from "@/components/ui/button";
+import { AlignJustify } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Hamburger } from "lucide-react";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const NavItem = ({ href, label }: { href: string; label: string }) => {
   return (
@@ -19,9 +27,8 @@ const Header = () => {
   return (
     <header className="w-full">
       <div className="md:mt-4">
-        <div className="mx-2 md:mx-10 -x px-6">
+        <div className="mx-2 md:mx-10 -x md:px-6">
           <div className="flex justify-between items-center w-full py-4 border-b">
-
             <div className="flex-1">
               <Link href={"/"} className="flex items-center gap-3">
                 <Image
@@ -55,9 +62,51 @@ const Header = () => {
             </div>
 
             <div className="flex md:hidden">
-              <Hamburger />
-            </div>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <AlignJustify />
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle></SheetTitle>
+                    <SheetDescription></SheetDescription>
+                  </SheetHeader>
 
+                  <div className="py-4">
+                    <nav className="flex flex-col gap-1 pt-2 px-2">
+                      <Link
+                        href={"/"}
+                        className="flex w-full text-sm  cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        About
+                      </Link>
+                      <Link
+                        href={"/"}
+                        className="flex w-full  text-sm cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        Docs
+                      </Link>
+                      <Link
+                        href={"/"}
+                        className="flex w-full  text-sm cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        Blog
+                      </Link>
+                      <Link
+                        href={"/"}
+                        className="flex w-full  text-sm cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        Pricing
+                      </Link>
+
+                      <Button size={"lg"} className="mt-2 w-full">
+                        <Link href={"/"}>Get Started</Link>
+                      </Button>
+                    </nav>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
