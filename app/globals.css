@@ -40,8 +40,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-main: #ff895b;
+  --color-main-accent: rgb(255, 237, 222);
+  --breakpoint-xs: 25rem;
 }
-
 
 :root {
   --radius: 0.625rem;
@@ -63,19 +64,19 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-1: 17, 100%, 68%;
+  --chart-2: 17, 100%, 68%;
+  --chart-3: 350 80% 72%;
+  --chart-4: 351 83% 82%;
+  --chart-5: 349 77% 62%;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-primary: #ff895b;
+  --sidebar-primary-foreground: rgb(255, 237, 222);
+  --sidebar-accent: rgb(255, 237, 222);
+  --sidebar-accent-foreground: #ff895b;
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: rgb(255, 237, 222);
 }
 
 .dark {
@@ -97,19 +98,19 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
+  --chart-1: 17, 100%, 68%;
+  --chart-2: 17, 100%, 68%;
+  --chart-3: 350 80% 72%;
+  --chart-4: 351 83% 82%;
+  --chart-5: 352 83% 91%;
   --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-foreground: rgb(255, 237, 222);
   --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: rgb(255, 237, 222);
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: hsl(17, 100%, 68%);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: rgb(255, 237, 222);
 }
 
 @layer base {
@@ -159,3 +160,10 @@
   }
 }
 
+@layer components {
+  @media (min-width: 25rem) {
+    .container {
+      max-width: 35rem;
+    }
+  }
+}

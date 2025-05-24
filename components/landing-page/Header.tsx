@@ -56,7 +56,7 @@ const Header = () => {
                   <Link href={"/"}>Log In</Link>
                 </Button>
                 <Button variant={"default"} className="font-semibold">
-                  <Link href={"/"}>Get Started</Link>
+                  <Link href={"/dashboard"}>Get Started</Link>
                 </Button>
               </div>
             </div>
@@ -100,7 +100,7 @@ const Header = () => {
                       </Link>
 
                       <Button size={"lg"} className="mt-2 w-full">
-                        <Link href={"/"}>Get Started</Link>
+                        <Link href={"/dashboard"}>Get Started</Link>
                       </Button>
                     </nav>
                   </div>
