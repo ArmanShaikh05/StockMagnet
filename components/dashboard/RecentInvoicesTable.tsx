@@ -9,10 +9,15 @@ import {
 import { Button } from "../ui/button";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { DataTable } from "@/components/tables/invoices/InvoicesTable";
+import { columns } from "@/components/tables/invoices/Columns";
+import { InvoicesData } from "@/utils/data";
+
+
 
 const RecentInvoicesTable = () => {
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-lg">
       <CardHeader className="flex w-full justify-between items-center">
         <div>
           <CardTitle>Recent Invoices</CardTitle>
@@ -30,16 +35,8 @@ const RecentInvoicesTable = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="w-full">
-        <div className="w-full grid grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto_auto] border border-red-500">
-          <p className="border">Hello</p>
-          <p className="border">Hello</p>
-          <p className="border">Hello</p>
-          <p className="border">Hello</p>
-          <p className="border">Hello</p>
-          <p className="border">Hello</p>
-          <p className="border">Hello</p>
-        </div>
+      <CardContent className="w-full overflow-auto ">
+        <DataTable columns={columns} data={InvoicesData} />
       </CardContent>
     </Card>
   );
