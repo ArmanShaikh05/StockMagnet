@@ -23,11 +23,13 @@ const page = () => {
           <div className="flex items-center gap-2">
             <Button variant={"outline"}>
               <FileSpreadsheet size={16} />
-              <span>Export CSV</span>
+              <span className="hidden xs:block">Export CSV</span>
+              <span className="xs:hidden">Export</span>
             </Button>
             <Button>
               <Plus size={16} />
-              <span>Add Product</span>
+              <span className="hidden xs:block">Add Product</span>
+              <span className="xs:hidden">Add</span>
             </Button>
           </div>
         </div>
