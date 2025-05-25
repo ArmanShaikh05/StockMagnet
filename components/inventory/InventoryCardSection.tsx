@@ -1,6 +1,5 @@
 import React from "react";
-
-import StatCard from "@/components/common/StatCard";
+import StatCard from "../common/StatCard";
 import { DollarSign } from "lucide-react";
 import { CardDataType } from "@/types/types";
 
@@ -39,7 +38,7 @@ const cardData: CardDataType[] = [
   },
 ];
 
-const CardsSection = () => {
+const InventoryCardSection = () => {
   return (
     <div className="grid grid-cols-1 xs:grid-cols-2 column gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cardData.map((card) => (
@@ -57,4 +56,4 @@ const CardsSection = () => {
   );
 };
 
-export default CardsSection;
+export default InventoryCardSection;

@@ -10,7 +10,7 @@ import Footer from "@/components/landing-page/Footer";
 
 export default function Home() {
   return (
-    <div className="container  mx-auto px-4 sm:px-0 ">
+    <div className="  mx-auto px-4 sm:px-0 ">
       <Header />
       <HeroSection />
       <Details />

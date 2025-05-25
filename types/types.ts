@@ -24,3 +24,25 @@ export type InvoiceTableType = {
   payment: "UPI" | "Cash" | "Bank";
   gstBill: boolean;
 };
+
+export type CardDataType = {
+  icon: React.ElementType;
+  title: string;
+  value: string;
+  percentChange: string;
+  positiveChange: boolean;
+  theme: "green" | "blue" | "orange" | "red";
+};
+
+export type ProductsTableType = {
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  image: string;
+  category: string;
+  lastUpdated: string;
+  brand: string;
+  totalValue: number;
+  status: "Available" | "LowStock" | "Unavailable";
+};
