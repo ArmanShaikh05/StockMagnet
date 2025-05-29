@@ -85,3 +85,17 @@ export type InvoiceProductsTableType = {
   sellingPrice: number;
   totalValue: number;
 };
+
+export type BranchesType = {
+  id: string;
+  branchName: string;
+  branchAddress: string;
+  branchImage: string;
+  createdAt: string;
+  userData: {
+    userId: string;
+    firstName: string;
+    lastName: string;
+  };
+  isPrimaryBranch: boolean;
+};
