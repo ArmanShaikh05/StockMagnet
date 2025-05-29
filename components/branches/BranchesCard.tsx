@@ -1,3 +1,5 @@
+"use client";
+
 import { BranchesType } from "@/types/types";
 import { Edit, Ellipsis, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -12,8 +14,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
+  const router = useRouter();
+
   return (
     <Card>
       <CardContent>
@@ -39,10 +44,14 @@ const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
           </div>
           <p className="text-sm mb-6">{branchData.branchAddress}</p>
           <div className="flex w-full items-center justify-between">
-            <Button size={"sm"} className="text-xs">
+            <Button
+              size={"sm"}
+              className="text-xs"
+              onClick={() => router.push(`/branches/${branchData.id}`)}
+            >
               View Branch
             </Button>
-            <DropdownMenu >
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-main/20 transition duration-200">
                   <Ellipsis size={16} />

@@ -3,14 +3,13 @@
 import {
   Check,
   ChevronsUpDown,
-  GalleryVerticalEnd,
   GitFork,
   LayoutDashboard,
   Package,
   ReceiptText,
 } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 
 import {
   DropdownMenu,
@@ -31,6 +30,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
+import { BranchesType } from "@/types/types";
+import { mockBranches } from "@/utils/data";
 
 const navData: { title: string; url: string; icon: React.ElementType }[] = [
   {
@@ -58,6 +59,9 @@ const navData: { title: string; url: string; icon: React.ElementType }[] = [
 const AppSidebar = () => {
   const { open } = useSidebar();
   const pathName = usePathname();
+  const [activeBranch, setActiveBranch] = useState<BranchesType>(
+    mockBranches[0]
+  );
 
   return (
     <Sidebar collapsible="icon">
@@ -87,30 +91,48 @@ const AppSidebar = () => {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <GalleryVerticalEnd className="size-4" />
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg ">
+                    <Image
+                      alt={activeBranch.branchName}
+                      src={activeBranch.branchImage}
+                      width={40}
+                      height={40}
+                      placeholder="empty"
+                      className="rounded-lg w-full h-full border-main border-2 "
+                    />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">Documentation</span>
-                    <span>v1.0.1</span>
+                    <span className="font-semibold">
+                      {activeBranch.branchName}
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-[--radix-dropdown-menu-trigger-width]"
-              >
-                <DropdownMenuItem key="1.0.1">
-                  v1.0.1
-                  <Check className="ml-auto" />
-                </DropdownMenuItem>
-                <DropdownMenuItem key="1.1.0-alpha">
-                  v1.1.0-alpha
-                </DropdownMenuItem>
-                <DropdownMenuItem key="2.0.0-beta1">
-                  v2.0.0-beta1
-                </DropdownMenuItem>
+              <DropdownMenuContent align="start" className="w-[13rem]">
+                {mockBranches.map((branch, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={() => setActiveBranch(branch)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image
+                        alt={branch.branchName}
+                        src={branch.branchImage}
+                        width={30}
+                        height={30}
+                        placeholder="empty"
+                        className="rounded-full"
+                      />
+                      <span className="text-xs line-clamp-1">
+                        {branch.branchName}
+                      </span>
+                    </div>
+                    {activeBranch.id === branch.id && (
+                      <Check className="ml-auto" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

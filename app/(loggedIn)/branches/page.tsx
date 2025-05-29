@@ -13,6 +13,8 @@ import { mockBranches } from "@/utils/data";
 import BranchesCard from "@/components/branches/BranchesCard";
 
 const Branches = () => {
+
+  
   return (
     <section className="my-2 mt-6 w-full  flex flex-col items-center">
       <div className=" w-full ">
