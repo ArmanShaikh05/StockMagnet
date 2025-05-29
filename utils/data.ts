@@ -1,4 +1,8 @@
-import { InvoiceTableType, ProductsTableType } from "@/types/types";
+import type {
+  FullInvoiceTableType,
+  InvoiceTableType,
+  ProductsTableType,
+} from "@/types/types";
 
 export const InvoicesData: InvoiceTableType[] = [
   {
@@ -353,3 +357,200 @@ export const ProductsData: ProductsTableType[] = [
     status: "Available",
   },
 ];
+
+export const mockInvoices: FullInvoiceTableType[] = [
+  {
+    id: "1",
+    date: "2025-05-01",
+    customer: {
+      name: "Arjun Mehta",
+      mobile: "9876543210",
+      address: "123, MG Road, Mumbai",
+    },
+    quantity: 3,
+    amount: 4500,
+    payment: "UPI",
+    gstBill: true,
+    status: "Full-Paid",
+    products: [
+      {
+        id: "p001",
+        image: "/stock.png",
+        name: "Bluetooth Speaker",
+        category: "Electronics",
+        brand: "JBL",
+        price: 1500,
+        quantity: 3,
+        sellingPrice: 1500,
+        totalValue: 4500,
+      },
+      {
+        id: "p002",
+        image: "/stock.png",
+        name: "Alexa Amazon",
+        category: "Electronics",
+        brand: "JBL",
+        price: 1400,
+        quantity: 5,
+        sellingPrice: 1200,
+        totalValue: 6000,
+      },
+    ],
+    discount: 0,
+  },
+  {
+    id: "2",
+    date: "2025-05-03",
+    customer: {
+      name: "Sneha Kapoor",
+      mobile: "9898989898",
+      address: "C-204, Green Residency, Pune",
+    },
+    quantity: 2,
+    amount: 3000,
+    payment: "Cash",
+    gstBill: false,
+    status: "Credited",
+    products: [
+      {
+        id: "p002",
+        image: "/stock.png",
+        name: "Running Shoes",
+        category: "Footwear",
+        brand: "Nike",
+        price: 2000,
+        quantity: 2,
+        sellingPrice: 1500,
+        totalValue: 3000,
+      },
+    ],
+    discount: 1000,
+  },
+  {
+    id: "3",
+    date: "2025-04-25",
+    customer: {
+      name: "Ravi Shankar",
+      mobile: "9123456780",
+      address: "44B, Anna Nagar, Chennai",
+    },
+    quantity: 5,
+    amount: 7500,
+    payment: "Bank",
+    gstBill: true,
+    status: "Full-Paid",
+    products: [
+      {
+        id: "p003",
+        image: "/stock.png",
+        name: "LED Tube Light",
+        category: "Home Appliances",
+        brand: "Philips",
+        price: 1500,
+        quantity: 5,
+        sellingPrice: 1500,
+        totalValue: 7500,
+      },
+    ],
+  },
+  {
+    id: "4",
+    date: "2025-04-28",
+    customer: {
+      name: "Neha Verma",
+      mobile: "9876541230",
+      address: "5th Block, Sector 62, Noida",
+    },
+    quantity: 1,
+    amount: 45000,
+    payment: "Bank",
+    gstBill: true,
+    status: "Not-Paid",
+    products: [
+      {
+        id: "p004",
+        image: "/stock.png",
+        name: "Smartphone",
+        category: "Electronics",
+        brand: "OnePlus",
+        price: 48000,
+        quantity: 1,
+        sellingPrice: 45000,
+        totalValue: 45000,
+      },
+    ],
+    oldItemDiscount: 3000,
+  },
+  {
+    id: "5",
+    date: "2025-05-06",
+    customer: {
+      name: "Kunal Roy",
+      mobile: "9988776655",
+      address: "Salt Lake, Kolkata",
+    },
+    quantity: 2,
+    amount: 2600,
+    payment: "UPI",
+    gstBill: false,
+    status: "Full-Paid",
+    products: [
+      {
+        id: "p005",
+        image: "/stock.png",
+        name: "Wrist Watch",
+        category: "Accessories",
+        brand: "Titan",
+        price: 1300,
+        quantity: 2,
+        sellingPrice: 1300,
+        totalValue: 2600,
+      },
+    ],
+  },
+
+  // Additional 15 mock entries with string IDs
+  ...Array.from({ length: 15 }, (_, i) => {
+    const invoiceId = (6 + i).toString();
+    const productId = `pid${6 + i}`;
+    const quantity = (i % 4) + 1;
+    const amount = 1000 * quantity;
+    const gstBill = i % 2 === 0;
+    const status = ["Full-Paid", "Credited", "Not-Paid"][i % 3] as
+      | "Full-Paid"
+      | "Credited"
+      | "Not-Paid";
+    const payment = ["UPI", "Cash", "Bank"][i % 3] as "UPI" | "Cash" | "Bank";
+
+    return {
+      id: invoiceId,
+      date: `2025-05-${(7 + i).toString().padStart(2, "0")}`,
+      customer: {
+        name: `Customer ${i + 1}`,
+        mobile: `90000000${(10 + i).toString().padStart(2, "0")}`,
+        address: `Address ${i + 1}, India`,
+      },
+      quantity,
+      amount,
+      payment,
+      gstBill,
+      status,
+      products: [
+        {
+          id: productId,
+          image: "/stock.png",
+          name: `Product ${i + 1}`,
+          category: ["Gadgets", "Furniture", "Clothing"][i % 3],
+          brand: ["Samsung", "Ikea", "Zara"][i % 3],
+          price: amount,
+          quantity,
+          sellingPrice: amount,
+          totalValue: amount,
+        },
+      ],
+      ...(i % 2 === 0 ? { discount: 200 } : {}),
+      ...(i % 4 === 0 ? { oldItemDiscount: 500 } : {}),
+    };
+  }),
+];
+

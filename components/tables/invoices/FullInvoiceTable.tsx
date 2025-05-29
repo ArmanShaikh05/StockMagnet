@@ -2,12 +2,14 @@
 
 import {
   ColumnDef,
+  ExpandedState,
   flexRender,
-  SortingState,
   getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
+  getExpandedRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -19,24 +21,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { FullInvoiceTableType } from "@/types/types";
 import { Trash2 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Pagination } from "../Pagination";
+import ExpandedRows from "./expandedRows/ExpandedRows";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchString?: string;
-  showPagination?: boolean;
 }
 
-const ProductsTable = <TData, TValue>({
+const FullInvoiceTable = <TValue,>({
   columns,
   data,
-  showPagination = true,
-}: DataTableProps<TData, TValue>) => {
+}: DataTableProps<FullInvoiceTableType, TValue>) => {
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const table = useReactTable({
     data,
@@ -46,9 +49,12 @@ const ProductsTable = <TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    onExpandedChange: setExpanded,
     state: {
       rowSelection,
       sorting,
+      expanded,
     },
   });
 
@@ -76,7 +82,7 @@ const ProductsTable = <TData, TValue>({
           </div>
         )}
       </div>
-      <div className="rounded-md">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -99,20 +105,31 @@ const ProductsTable = <TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="data-[state=selected]:bg-main/10"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <React.Fragment key={row.id}>
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    className="data-[state=selected]:bg-main/10"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+
+                  {row.getIsExpanded() && (
+                    <TableRow className="bg-main/20 transition-all duration-300 ease-in-out hover:bg-main/20">
+                      <TableCell colSpan={row.getVisibleCells().length}>
+                        <div className="p-4 text-sm text-gray-700">
+                          <ExpandedRows rowData={row.original} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))
             ) : (
               <TableRow>
@@ -127,13 +144,11 @@ const ProductsTable = <TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {showPagination && (
-        <div className="w-full flex justify-end items-center mt-2">
-          <Pagination table={table} />
-        </div>
-      )}
+      <div className="w-full flex justify-end items-center mt-2">
+        <Pagination table={table} />
+      </div>
     </div>
   );
 };
 
-export default ProductsTable;
+export default FullInvoiceTable;

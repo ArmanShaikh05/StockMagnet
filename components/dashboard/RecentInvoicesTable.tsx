@@ -9,8 +9,8 @@ import {
 import { Button } from "../ui/button";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { DataTable } from "@/components/tables/invoices/InvoicesTable";
-import { columns } from "@/components/tables/invoices/Columns";
+import { DataTable } from "@/components/tables/recentInvoices/InvoicesTable";
+import { columns } from "@/components/tables/recentInvoices/Columns";
 import { InvoicesData } from "@/utils/data";
 
 

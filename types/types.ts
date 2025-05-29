@@ -46,3 +46,42 @@ export type ProductsTableType = {
   totalValue: number;
   status: "Available" | "LowStock" | "Unavailable";
 };
+
+export type FullInvoiceTableType = {
+  id: string;
+  date: string;
+  customer: {
+    name: string;
+    mobile: string;
+    address: string;
+  };
+  quantity: number;
+  amount: number;
+  payment: "UPI" | "Cash" | "Bank";
+  gstBill: boolean;
+  status: "Full-Paid" | "Credited" | "Not-Paid";
+  products: Array<{
+    id: string;
+    image: string;
+    name: string;
+    category: string;
+    brand: string;
+    price: number;
+    quantity: number;
+    sellingPrice: number;
+    totalValue: number;
+  }>;
+  discount?: number;
+  oldItemDiscount?: number;
+};
+
+export type InvoiceProductsTableType = {
+  id: string;
+  image: string;
+  name: string;
+  category: string;
+  price: number;
+  quantity: number;
+  sellingPrice: number;
+  totalValue: number;
+};
