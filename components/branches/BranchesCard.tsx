@@ -30,21 +30,25 @@ const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
             <h1 className="text-xl grow text-balance">
               {branchData.branchName}
             </h1>
-            <Badge variant={"default"}>
-              <Star />
-              <span>primary</span>
-            </Badge>
+            {branchData.isPrimaryBranch && (
+              <Badge variant={"default"}>
+                <Star />
+                <span>primary</span>
+              </Badge>
+            )}
           </div>
           <p className="text-sm mb-6">{branchData.branchAddress}</p>
           <div className="flex w-full items-center justify-between">
-            <Button size={"sm"} className="text-xs">View Branch</Button>
-            <DropdownMenu>
+            <Button size={"sm"} className="text-xs">
+              View Branch
+            </Button>
+            <DropdownMenu >
               <DropdownMenuTrigger asChild>
                 <div className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-main/20 transition duration-200">
                   <Ellipsis size={16} />
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent sideOffset={4}>
                 <DropdownMenuLabel>Branch Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -53,16 +57,17 @@ const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
                     <span className="text-xs">Edit</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <div className="w-full flex items-center gap-2">
-                    <Trash2 size={14} />
-                    <span className="text-xs">Delete</span>
-                  </div>
-                </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
                   <div className="w-full flex items-center gap-2">
                     <Star size={14} />
                     <span className="text-xs">Make Primary</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild variant="destructive">
+                  <div className="w-full flex items-center gap-2">
+                    <Trash2 size={14} />
+                    <span className="text-xs">Delete</span>
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
