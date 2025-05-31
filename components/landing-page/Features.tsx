@@ -25,7 +25,7 @@ const SmallFeatureCrad = ({
 
 const Features = () => {
   return (
-    <section className="relative overflow-hidden bg-background py-20">
+    <section className="relative overflow-hidden bg-background py-20 sm:px-6">
       <div className="container max-w-7xl mx-auto  flex gap-20 flex-col lg:flex-row lg:items-end">
         <div className="flex-1 flex flex-col gap-7">
           <div className="flex  flex-col gap-2">

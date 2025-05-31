@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const HeroSection = () => {
   return (
-    <section className="pb-10">
+    <section className="pb-10 sm:px-6">
       <div className="">
         <div className="flex flex-col  items-center gap-6 pt-20  mx-2 md:mx-10 relative">
           <Badge variant={"secondary"}>

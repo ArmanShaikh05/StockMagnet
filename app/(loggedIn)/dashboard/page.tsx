@@ -14,7 +14,8 @@ import RevenueChart from "@/components/dashboard/RevenueChart";
 import LowStockProducts from "@/components/dashboard/LowStockProducts";
 import StockSummaryChart from "@/components/dashboard/StockSummaryChart";
 import RecentInvoicesTable from "@/components/dashboard/RecentInvoicesTable";
-
+import { ComparisonRevenueChart } from "@/components/dashboard/ComparisonRevenueChart";
+import { StocksComparisonChart } from "@/components/dashboard/StocksComaprisonChart";
 
 const Dashboard = () => {
   return (
@@ -54,7 +55,11 @@ const Dashboard = () => {
             <StockSummaryChart />
             <RecentInvoicesTable />
           </div>
-          
+
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 ">
+            <ComparisonRevenueChart />
+            <StocksComparisonChart />
+          </div>
         </div>
       </div>
     </section>

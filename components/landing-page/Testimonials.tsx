@@ -40,7 +40,7 @@ const TestimonialCard = ({
 
 const Testimonials = () => {
   return (
-    <section className="py-20">
+    <section className="py-20 sm:px-6">
       <div className="container max-w-7xl mx-auto flex flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-2">
           <span className="font-bold text-main">Testimonials</span>

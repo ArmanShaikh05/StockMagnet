@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const CTASection = () => {
   return (
-    <section className="py-20">
+    <section className="py-20 sm:px-6">
       <div className="container max-w-7xl mx-auto">
         <div className="flex flex-col items-center bg-card px-10 rounded-2xl py-20 gap-x-6 md:flex-row gap-y-14 border">
           <div className="flex items-start  flex-col basis-3/5 gap-6">

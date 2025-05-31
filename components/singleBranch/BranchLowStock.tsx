@@ -26,20 +26,6 @@ const lowStockData: LowStockProductTypes[] = [
     stock: 10,
     image: "/stock.png",
   },
-  {
-    name: "Nike Air Max 170",
-    category: "Battery",
-    price: 17000,
-    stock: 10,
-    image: "/stock.png",
-  },
-  {
-    name: "Nike Air Max 170",
-    category: "Battery",
-    price: 17000,
-    stock: 10,
-    image: "/stock.png",
-  },
 ];
 
 const ProductCard = ({
@@ -64,7 +50,9 @@ const ProductCard = ({
             <h4 className="text-sm font-bold leading-4 ">{name}</h4>
             <p className="text-xs font-normal uppercase">{category}</p>
           </div>
-          <h2 className="text-[16px] font-bold">{formatToINRCurrency(price)}</h2>
+          <h2 className="text-[16px] font-bold">
+            {formatToINRCurrency(price)}
+          </h2>
         </div>
       </div>
       <div className="bg-gray-200 flex justify-center items-center w-14 h-12 rounded-full">

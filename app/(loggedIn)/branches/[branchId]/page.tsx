@@ -20,6 +20,8 @@ import BranchDetails from "@/components/singleBranch/BranchDetails";
 import BranchStockSummaryChart from "@/components/singleBranch/BranchStockSummaryChart";
 import BranchRecentInvoicesTable from "@/components/singleBranch/BranchRecentInvoicesTable";
 import Link from "next/link";
+import { BranchProfitMargin } from "@/components/singleBranch/BranchProfitMargin";
+import { PerformanceScore } from "@/components/singleBranch/PerformanceScore";
 
 const SingleBranchPage = () => {
   const { branchId } = useParams();
@@ -64,8 +66,14 @@ const SingleBranchPage = () => {
           <CardsSection />
 
           <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 ">
-            <BranchDetails singleBranchData={singleBranchData} />
-            <BranchLowStocks />
+            <div className="flex flex-col gap-4 ">
+              <BranchDetails singleBranchData={singleBranchData} />
+              <BranchProfitMargin />
+            </div>
+            <div className="flex flex-col gap-2">
+              <BranchLowStocks />
+              <PerformanceScore />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4">
