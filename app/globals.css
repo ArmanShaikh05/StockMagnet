@@ -167,3 +167,8 @@
     }
   }
 }
+
+
+html {
+  scroll-behavior: smooth;
+}

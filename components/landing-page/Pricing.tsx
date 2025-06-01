@@ -107,7 +107,7 @@ const PricingCard = ({
 
 const Pricing = () => {
   return (
-    <section className="py-20 sm:px-6">
+    <section className="py-20 sm:px-6" id="pricing">
       <div className="max-w-7xl mx-auto flex flex-col items-center gap-6 container">
         <div className="flex flex-col gap-2">
           <span className="font-bold text-main text-center">Pricing</span>

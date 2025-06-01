@@ -36,7 +36,7 @@ const FeatureCard = ({
 
 const Details = () => {
   return (
-    <section className="relative bg-background py-20 sm:px-6">
+    <section className="relative bg-background py-20 sm:px-6" id="about">
       <div className="container max-w-7xl mx-auto flex flex-col gap-12">
         <div className="flex justify-between w-full flex-col lg:flex-row gap-4 lg:items-end">
           <h2 className="tracking-tight sm:text-5xl text-3xl text-balance font-semibold text-left flex-1">

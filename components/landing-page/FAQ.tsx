@@ -37,7 +37,7 @@ const faqdata = [
 
 const FAQ = () => {
   return (
-    <section className="py-20 sm:px-6">
+    <section className="py-20 sm:px-6" id="faq">
       <div className="container max-w-7xl mx-auto flex flex-col items-start gap-10 md:flex-row">
         <div className="flex  flex-col gap-3 items-start">
           <div className="flex  flex-col gap-2">

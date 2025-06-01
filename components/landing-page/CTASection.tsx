@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { SignedOut } from "@clerk/nextjs";
 
 const CTASection = () => {
   return (
@@ -17,10 +18,12 @@ const CTASection = () => {
               Analyze with ease. Export to dashboards and custom insights 
               reports. Visualize without limits.
             </p>
-            <Button className="gap-2 font-semibold">
-              <Link href={"/"}>Get Started</Link>
-              <ChevronRight size={16} />
-            </Button>
+            <SignedOut>
+              <Button className="gap-2 font-semibold">
+                <Link href={"/"}>Get Started</Link>
+                <ChevronRight size={16} />
+              </Button>
+            </SignedOut>
           </div>
 
           <div className="relative  basis-2/5 bg-main rounded-2xl flex justify-center items-center h-[300px]">

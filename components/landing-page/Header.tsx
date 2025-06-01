@@ -11,12 +11,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 const NavItem = ({ href, label }: { href: string; label: string }) => {
   return (
     <Link
       className="flex cursor-pointer items-center text-sm font-semibold capitalize"
       href={href}
+      scroll={true}
     >
       {label}
     </Link>
@@ -43,22 +45,32 @@ const Header = () => {
 
             <div className="flex items-center gap-6 flex-1 justify-center">
               <nav className="hidden items-center gap-10 md:flex justify-end">
-                <NavItem href="/about" label="about" />
-                <NavItem href="/docs" label="docs" />
-                <NavItem href="/blog" label="blog" />
-                <NavItem href="/pricing" label="pricing" />
+                <NavItem href="/#about" label="about" />
+                <NavItem href="/#features" label="features" />
+                <NavItem href="/#faq" label="faq" />
+                <NavItem href="/#pricing" label="pricing" />
               </nav>
             </div>
 
             <div className="flex items-center gap-10 flex-1 justify-end">
-              <div className="hidden  items-center gap-2 md:flex">
-                <Button variant={"secondary"} className="font-semibold">
-                  <Link href={"/"}>Log In</Link>
-                </Button>
-                <Button variant={"default"} className="font-semibold">
-                  <Link href={"/dashboard"}>Get Started</Link>
-                </Button>
-              </div>
+              <SignedOut>
+                <div className="hidden  items-center gap-2 md:flex">
+                  <Button variant={"secondary"} className="font-semibold">
+                    <Link href={"/sign-in"}>Log In</Link>
+                  </Button>
+                  <Button variant={"default"} className="font-semibold">
+                    <Link href={"/sign-up"}>Get Started</Link>
+                  </Button>
+                </div>
+              </SignedOut>
+              <SignedIn>
+                <div className="hidden  items-center gap-2 md:flex">
+                  <Button variant={"default"} className="font-semibold">
+                    <Link href={"/dashboard"}>Dashboard</Link>
+                  </Button>
+                  <UserButton />
+                </div>
+              </SignedIn>
             </div>
 
             <div className="flex md:hidden">
@@ -75,25 +87,26 @@ const Header = () => {
                   <div className="py-4">
                     <nav className="flex flex-col gap-1 pt-2 px-2">
                       <Link
-                        href={"/"}
+                        href={"/#about"}
                         className="flex w-full text-sm  cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
                       >
                         About
                       </Link>
                       <Link
-                        href={"/"}
+                        href={"/#features"}
                         className="flex w-full  text-sm cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
                       >
-                        Docs
+                        Features
                       </Link>
                       <Link
                         href={"/"}
                         className="flex w-full  text-sm cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
                       >
-                        Blog
+                        Faq
                       </Link>
                       <Link
-                        href={"/"}
+                        href={"/#pricing"}
+                        scroll={true}
                         className="flex w-full  text-sm cursor-pointer items-center rounded-md p-2 font-medium text-muted-foreground hover:text-foreground"
                       >
                         Pricing

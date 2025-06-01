@@ -1,12 +1,30 @@
-import React from "react";
+"use client";
+
+import { UserButton } from "@clerk/nextjs";
 import { SidebarTrigger } from "../ui/sidebar";
+import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 
 const DashboardHeader = () => {
   return (
     <header className="w-full  p-4  border-b sticky top-0 backdrop-blur-3xl z-50">
       <div className=" flex items-center justify-between mx-auto">
         <SidebarTrigger className="hover:bg-main-accent" />
-        <p>Dashboard Header</p>
+        <div className="flex w-max gap-4 items-center">
+          <Badge>Pro</Badge>
+
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonAvatarBox: {
+                  width: "2.3rem",
+                  height: "2.3rem",
+                },
+              },
+            }}
+            fallback={<Skeleton className="w-[2.3rem] h-[2.3rem] rounded-full" />}
+          />
+        </div>
       </div>
     </header>
   );
