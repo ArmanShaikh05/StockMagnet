@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  clerkUserId  String       @unique
+  firstName    String
+  lastName     String
+  email        String
+  priceId      String?
+  subscription Subscription @default(FreePlan)
+  onBoarded    Boolean      @default(false)
+  branches     Branches[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  payment      Payments?    @relation(fields: [paymentId], references: [id])
+  paymentId    String?      @unique
+}
+
+model Branches {
+  id            String     @id @default(cuid())
+  branchName    String
+  branchImage   String
+  branchAddress String
+  isPrimary     Boolean    @default(false)
+  User          User       @relation(fields: [userId], references: [id])
+  userId        String
+  GstNumber     String?
+  products      Products[]
+  Invoices      Invoices[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+enum Subscription {
+  FreePlan
+  BasicPlan
+  ProPlan
+}
+
+model Invoices {
+  id              String           @id @default(cuid())
+  invoiceNumber   String
+  invoiceDate     DateTime
+  customerName    String
+  customerMobile  String
+  customerAddress String
+  subTotal        Decimal
+  totalTaxAmount  Decimal
+  totalDiscount   Decimal
+  grandTotal      Decimal
+  isGstBill       Boolean          @default(false)
+  gstNumber       String?
+  status          InvoiceStatus
+  paymentMode     PaymentMode
+  totalQuantity   Int
+  amountPaid      Decimal
+  creditedAmount  Decimal
+  profitGain      Decimal
+  branch          Branches         @relation(fields: [branchId], references: [id])
+  branchId        String
+  products        InvoiceProduct[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum InvoiceStatus {
+  FullPaid
+  Credited
+  NotPaid
+}
+
+enum PaymentMode {
+  UPI
+  Cash
+  Bank
+}
+
+model InvoiceProduct {
+  id                 String    @id @default(cuid())
+  productName        String
+  productSno         String
+  quantity           Int
+  productMrp         Decimal
+  sellingPrice       Decimal
+  units              String
+  taxRate            String?
+  taxAmount          Decimal?  @default(0.0)
+  subTotal           Decimal
+  discountAmount     Decimal?  @default(0.0)
+  taxIncludedWithMrp Boolean   @default(false)
+  Invoices           Invoices? @relation(fields: [invoicesId], references: [id])
+  invoicesId         String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Category {
+  id            String     @id @default(cuid())
+  categoryName  String
+  colorCode     String
+  totalProducts Int
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  Products      Products[]
+}
+
+model Brand {
+  id           String     @id @default(cuid())
+  brandName    String
+  colorCode    String
+  totalProduct Int
+  totalRevenue Decimal?
+  totalProfit  Decimal?
+  products     Products[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Units {
+  id        String     @id @default(cuid())
+  unitName  String
+  unitCode  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  products  Products[]
+}
+
+model Products {
+  id             String   @id @default(cuid())
+  productName    String
+  productImage   String?
+  productSno     String
+  MRP            Decimal
+  purchasePrice  Decimal
+  HSNCode        String?
+  taxRate        String?
+  warrantyMonths Int?
+  stockInHand    Int
+  minStockQty    Int
+  tags           String[]
+  reorderQty     Int?
+  branch         Branches @relation(fields: [branchId], references: [id])
+  branchId       String
+  category       Category @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  Brand          Brand    @relation(fields: [brandId], references: [id])
+  brandId        String
+  unit           Units    @relation(fields: [unitId], references: [id])
+  unitId         String
+}
+
+model Payments {
+  id             String  @id @default(cuid())
+  amount         Decimal
+  status         String
+  stripPaymentId String  @unique
+  priceId        String
+  userEmail      String
+  user           User?
+}

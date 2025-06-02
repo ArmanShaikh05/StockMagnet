@@ -59,10 +59,6 @@ export function StocksComparisonChart() {
   const chartConfig = getChartConfigData(
     filteredBranches
   ) satisfies ChartConfig;
-  console.log({ chartData, chartConfig });
-
-  // <CardTitle>Stock Comparison Among Branches</CardTitle>
-  //       <CardDescription>January 2024</CardDescription>
 
   return (
     <Card className="flex flex-col shadow-xl">

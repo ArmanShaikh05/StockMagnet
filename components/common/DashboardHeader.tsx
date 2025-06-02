@@ -22,7 +22,9 @@ const DashboardHeader = () => {
                 },
               },
             }}
-            fallback={<Skeleton className="w-[2.3rem] h-[2.3rem] rounded-full" />}
+            fallback={
+              <Skeleton className="w-[2.3rem] h-[2.3rem] rounded-full" />
+            }
           />
         </div>
       </div>
