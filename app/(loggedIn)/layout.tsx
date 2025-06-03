@@ -26,7 +26,7 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
       <main className="w-full min-h-screen py-4 px-0">
-        <DashboardHeader />
+        <DashboardHeader subscription={user.subscription} />
         <div className="w-full p-4">{children}</div>
       </main>
     </SidebarProvider>

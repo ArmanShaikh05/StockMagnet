@@ -3,51 +3,7 @@ import { Card } from "../ui/card";
 import { Check, Sparkle } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
-
-const pricingData = [
-  {
-    name: "Basic",
-    description:
-      "For personal projects, startups or low-traffic basic websites.",
-    price: 19,
-    isMostPopular: false,
-    features: [
-      "Unlimited projects",
-      "Unlimited storage",
-      "24/7 support",
-      "API access",
-      "Custom branding",
-    ],
-  },
-  {
-    name: "Pro",
-    description:
-      "For fast growing startups and modern collaborative product teams.",
-    price: 49,
-    isMostPopular: true,
-    features: [
-      "Everything in Basic",
-      "Priority support",
-      "Advanced insights",
-      "Custom monthly reports",
-      "API Access",
-    ],
-  },
-  {
-    name: "Enterprise",
-    description:
-      "For big companies and enterprises with high traffic and custom needs.",
-    price: 99,
-    isMostPopular: false,
-    features: [
-      "Everything in Pro",
-      "Single sign-on",
-      "Custom SLA",
-      "Custom integrations",
-      "Custom reporting",
-    ],
-  },
-];
+import { pricingData } from "@/utils/data";
 
 const PricingCard = ({
   name,

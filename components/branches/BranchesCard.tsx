@@ -1,11 +1,5 @@
 "use client";
 
-import { BranchesType } from "@/types/types";
-import { Edit, Ellipsis, Star, Trash2 } from "lucide-react";
-import Image from "next/image";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +8,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Branches } from "@/lib/generated/prisma";
+import { Edit, Ellipsis, Star, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 
-const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
+const BranchesCard = ({ branchData }: { branchData: Branches }) => {
   const router = useRouter();
 
   return (
@@ -27,7 +27,7 @@ const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
             src={branchData.branchImage}
             alt="branch-image"
             width={400}
-            height={600}
+            height={300}
           />
         </div>
         <div className="w-full flex flex-col mt-4">
@@ -35,7 +35,7 @@ const BranchesCard = ({ branchData }: { branchData: BranchesType }) => {
             <h1 className="text-xl grow text-balance">
               {branchData.branchName}
             </h1>
-            {branchData.isPrimaryBranch && (
+            {branchData.isPrimary && (
               <Badge variant={"default"}>
                 <Star />
                 <span>primary</span>

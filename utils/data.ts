@@ -2,6 +2,7 @@ import type {
   BranchesType,
   FullInvoiceTableType,
   InvoiceTableType,
+  PricingDataType,
   ProductsTableType,
 } from "@/types/types";
 
@@ -562,11 +563,7 @@ export const mockBranches: BranchesType[] = [
     branchAddress: "123 Main Street, New York, NY 10001",
     branchImage: "/features.png",
     createdAt: "2025-05-01T10:30:00Z",
-    userData: {
-      userId: "user_001",
-      firstName: "Alice",
-      lastName: "Johnson",
-    },
+
     isPrimaryBranch: true,
   },
   {
@@ -575,11 +572,7 @@ export const mockBranches: BranchesType[] = [
     branchAddress: "456 Sunset Blvd, Los Angeles, CA 90028",
     branchImage: "/features.png",
     createdAt: "2025-04-25T14:00:00Z",
-    userData: {
-      userId: "user_002",
-      firstName: "Bob",
-      lastName: "Martinez",
-    },
+
     isPrimaryBranch: false,
   },
   {
@@ -588,11 +581,7 @@ export const mockBranches: BranchesType[] = [
     branchAddress: "789 Broadway, Chicago, IL 60610",
     branchImage: "/features.png",
     createdAt: "2025-03-15T09:15:00Z",
-    userData: {
-      userId: "user_003",
-      firstName: "Clara",
-      lastName: "Nguyen",
-    },
+
     isPrimaryBranch: false,
   },
   {
@@ -601,11 +590,7 @@ export const mockBranches: BranchesType[] = [
     branchAddress: "101 Silicon Avenue, San Jose, CA 95110",
     branchImage: "/features.png",
     createdAt: "2025-02-20T13:45:00Z",
-    userData: {
-      userId: "user_004",
-      firstName: "David",
-      lastName: "Lee",
-    },
+
     isPrimaryBranch: false,
   },
   {
@@ -614,11 +599,58 @@ export const mockBranches: BranchesType[] = [
     branchAddress: "202 Lakeside Dr, Oakland, CA 94612",
     branchImage: "/features.png",
     createdAt: "2025-01-10T11:20:00Z",
-    userData: {
-      userId: "user_005",
-      firstName: "Emily",
-      lastName: "Singh",
-    },
+
     isPrimaryBranch: false,
+  },
+];
+
+export const pricingData: PricingDataType[] = [
+  {
+    name: "Free",
+    description:
+      "For personal projects, startups or low-traffic basic websites.",
+    price: 19,
+    isMostPopular: false,
+    features: [
+      "Unlimited projects",
+      "Unlimited storage",
+      "24/7 support",
+      "API access",
+      "Custom branding",
+    ],
+    paymentLink: "https://buy.stripe.com/test_9AQg1X12keqzf2UfYZ",
+    priceId: "price_1RL38ZPZo4NGp7MuqlyNLLVO",
+  },
+  {
+    name: "Basic",
+    description:
+      "For fast growing startups and modern collaborative product teams.",
+    price: 49,
+    isMostPopular: true,
+    features: [
+      "Everything in Basic",
+      "Priority support",
+      "Advanced insights",
+      "Custom monthly reports",
+      "API Access",
+    ],
+    paymentLink: "https://buy.stripe.com/test_9AQg1X12keqzf2UfYZ",
+    priceId: "price_1RL38ZPZo4NGp7MuqlyNLLVO",
+  },
+  {
+    name: "Pro",
+    description:
+      "For big companies and enterprises with high traffic and custom needs.",
+    price: 99,
+    isMostPopular: false,
+    features: [
+      "Everything in Pro",
+      "Single sign-on",
+      "Custom SLA",
+      "Custom integrations",
+      "Custom reporting",
+    ],
+    paymentLink: "https://buy.stripe.com/test_9AQg1X12keqzf2UfYZ",
+    priceId: "price_1RL38ZPZo4NGp7MuqlyNLLVO",
   },
 ];

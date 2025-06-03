@@ -2,16 +2,16 @@
 
 import { UserButton } from "@clerk/nextjs";
 import { SidebarTrigger } from "../ui/sidebar";
-import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
+import PlanBadge from "./PlanBadge";
 
-const DashboardHeader = () => {
+const DashboardHeader = ({ subscription }: { subscription: string }) => {
   return (
     <header className="w-full  p-4  border-b sticky top-0 backdrop-blur-3xl z-50">
       <div className=" flex items-center justify-between mx-auto">
         <SidebarTrigger className="hover:bg-main-accent" />
         <div className="flex w-max gap-4 items-center">
-          <Badge>Pro</Badge>
+          <PlanBadge plan={subscription}/>
 
           <UserButton
             appearance={{

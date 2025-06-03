@@ -1,4 +1,4 @@
-import { BranchesType } from "@/types/types";
+import { Branches } from "@/lib/generated/prisma";
 import { Pencil, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
@@ -7,7 +7,7 @@ import { Card, CardContent } from "../ui/card";
 const BranchDetails = ({
   singleBranchData,
 }: {
-  singleBranchData: BranchesType;
+  singleBranchData: Branches;
 }) => {
   return (
     <Card>
@@ -38,9 +38,9 @@ const BranchDetails = ({
               </div>
               <p className="mt-4 text-sm">{singleBranchData.branchAddress}</p>
             </div>
-            <Button className="mb-2">
+            <Button className="mb-2" disabled={singleBranchData.isPrimary}>
               <Star size={14} />
-              <span className="text-sm">Make Primary</span>
+              {singleBranchData.isPrimary ? (<span className="text-sm">Primary Branch</span>):(<span className="text-sm">Make Primary</span>)}
             </Button>
           </div>
         </div>

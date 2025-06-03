@@ -92,10 +92,15 @@ export type BranchesType = {
   branchAddress: string;
   branchImage: string;
   createdAt: string;
-  userData: {
-    userId: string;
-    firstName: string;
-    lastName: string;
-  };
   isPrimaryBranch: boolean;
+};
+
+export type PricingDataType = {
+  name: string;
+  description: string;
+  price: number;
+  isMostPopular: boolean;
+  features: string[];
+  paymentLink: string;
+  priceId: string;
 };

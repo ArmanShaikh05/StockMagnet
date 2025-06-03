@@ -47,3 +47,65 @@ export const completeOnboarding = async (data: BranchType) => {
     return { success: false, message: "Error creating branch" };
   }
 };
+
+export const getAllBranchesOfUser = async () => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    const branches = await db.branches.findMany({
+      where: {
+        User: {
+          is: {
+            clerkUserId: user.id,
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: "branches fetched successfully",
+      data: branches,
+    };
+  } catch (error) {
+    console.error("Error fetching branch details from user:", error);
+    return {
+      success: false,
+      message: "Error fetching branch details from user",
+    };
+  }
+};
+
+export const getSingleBranchData = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    const branch = await db.branches.findUnique({
+      where: {
+        id: branchId,
+      },
+    });
+
+    return {
+      success: true,
+      message: "branches fetched successfully",
+      data: branch,
+    };
+  } catch (error) {
+    console.error("Error fetching single branch data:", error);
+    return {
+      success: false,
+      message: "Error fetching single branch data",
+    };
+  }
+};
