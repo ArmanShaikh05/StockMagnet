@@ -19,7 +19,11 @@ import { mockBranches } from "@/utils/data";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
-const SingleBranchPage = ({ params }: { params: { branchId: string } }) => {
+const SingleBranchPage = async ({
+  params,
+}: {
+  params: { branchId: string };
+}) => {
   const singleBranchData: BranchesType = mockBranches.filter(
     (branch) => branch.id === params.branchId
   )[0];
