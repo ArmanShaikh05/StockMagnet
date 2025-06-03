@@ -15,24 +15,28 @@ import { useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import EditBranchDialog from "./EditBranchDialog";
+import { useState } from "react";
 
 const BranchesCard = ({ branchData }: { branchData: Branches }) => {
   const router = useRouter();
+  const [editDialog, setEditDialog] = useState<boolean>(false);
 
   return (
     <Card>
       <CardContent>
-        <div className="w-full flex items-center justify-center ">
+        <div className="w-full flex  items-center justify-center ">
           <Image
             src={branchData.branchImage}
             alt="branch-image"
             width={400}
             height={300}
+            className="h-64 w-full object-contain"
           />
         </div>
-        <div className="w-full flex flex-col mt-4">
+        <div className="w-full flex flex-col mt-6">
           <div className="flex flex-row items-center mb-2">
-            <h1 className="text-xl grow text-balance">
+            <h1 className="text-xl grow text-balance w-24">
               {branchData.branchName}
             </h1>
             {branchData.isPrimary && (
@@ -60,8 +64,11 @@ const BranchesCard = ({ branchData }: { branchData: Branches }) => {
               <DropdownMenuContent sideOffset={4}>
                 <DropdownMenuLabel>Branch Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <div className="w-full flex items-center gap-2">
+                <DropdownMenuItem>
+                  <div
+                    className="w-full flex items-center gap-2"
+                    onClick={() => setEditDialog(true)}
+                  >
                     <Edit size={14} />
                     <span className="text-xs">Edit</span>
                   </div>
@@ -82,6 +89,13 @@ const BranchesCard = ({ branchData }: { branchData: Branches }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          {editDialog && (
+            <EditBranchDialog
+              branchData={branchData}
+              openDialog={editDialog}
+              setOpenDialog={setEditDialog}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

@@ -62,7 +62,7 @@ const OnboardingComponent = ({
   };
 
   const createBranch = async () => {
-    const nameRegex = /^[A-Za-z]+$/;
+    const nameRegex = /^[A-Za-z\s]+$/;
     let hasError = false;
     setErrorState({});
 

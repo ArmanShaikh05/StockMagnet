@@ -1,5 +1,6 @@
 
 import BranchesList from "@/components/branches/BranchesList";
+import CreateBranchDialog from "@/components/branches/CreateBranchDialog";
 import BranchesLoading from "@/components/loading/BranchesLoading";
 import {
   Breadcrumb,
@@ -9,8 +10,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { Suspense } from "react";
 
 const Branches = () => {
@@ -21,10 +20,7 @@ const Branches = () => {
           <h2 className="font-semibold text-2xl text-balance tracking-tight">
             Your Branches
           </h2>
-          <Button>
-            <Plus size={16} />
-            <span>Create Branch</span>
-          </Button>
+          <CreateBranchDialog />
         </div>
         <Breadcrumb className="my-4">
           <BreadcrumbList>

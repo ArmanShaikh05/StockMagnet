@@ -65,6 +65,9 @@ export const getAllBranchesOfUser = async () => {
           },
         },
       },
+      orderBy: {
+        createdAt: "asc",
+      },
     });
 
     return {
@@ -107,5 +110,87 @@ export const getSingleBranchData = async (branchId: string) => {
       success: false,
       message: "Error fetching single branch data",
     };
+  }
+};
+
+export const createNewBranch = async (data: {
+  branchName: string;
+  branchAddress: string;
+  branchImage?: string;
+  gstNumber?: string;
+}) => {
+  try {
+    const user = await currentUser();
+    let primaryBranch = false;
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    const userData = await db.user.findUnique({
+      where: {
+        clerkUserId: user.id,
+      },
+      select: {
+        id: true,
+        branches: true,
+      },
+    });
+
+    if (userData) {
+      primaryBranch = userData.branches.length === 0;
+      await db.branches.create({
+        data: {
+          branchName: data.branchName,
+          branchAddress: data.branchAddress,
+          branchImage: data.branchImage || "",
+          userId: userData.id,
+          GstNumber: data.gstNumber || "",
+          isPrimary: primaryBranch,
+        },
+      });
+
+      return { success: true, message: "Branch created successfully" };
+    }
+
+    return { success: false, message: "User Data not fetched properly " };
+  } catch (error) {
+    console.error("Error fetching current user details:", error);
+    return { success: false, message: "Error creating branch" };
+  }
+};
+
+export const editBranchDetails = async ({
+  data,
+  branchId,
+}: {
+  branchId: string;
+  data: {
+    branchName: string;
+    branchAddress: string;
+    branchImage?: string;
+    gstNumber?: string;
+  };
+}) => {
+  try {
+    const user = await currentUser();
+
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    await db.branches.update({
+      where: {
+        id: branchId,
+      },
+      data: {
+        branchName: data.branchName,
+        branchAddress: data.branchAddress,
+        branchImage: data.branchImage || "",
+        GstNumber: data.gstNumber || "",
+      },
+    });
+
+    return { success: true, message: "Branch details updated successfully" };
+  } catch (error) {
+    console.error("Error editing branch details:", error);
+    return { success: false, message: "Error editing branch" };
   }
 };

@@ -1,14 +1,20 @@
+"use client";
+
 import { Branches } from "@/lib/generated/prisma";
 import { Pencil, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { useState } from "react";
+import EditBranchDialog from "../branches/EditBranchDialog";
 
 const BranchDetails = ({
   singleBranchData,
 }: {
   singleBranchData: Branches;
 }) => {
+  const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
+
   return (
     <Card>
       <CardContent>
@@ -28,7 +34,10 @@ const BranchDetails = ({
                   {singleBranchData.branchName}
                 </h3>
                 <div className="flex items-center gap-1">
-                  <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
+                  <div
+                    className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer"
+                    onClick={() => setShowEditDialog(true)}
+                  >
                     <Pencil size={16} />
                   </div>
                   <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
@@ -40,9 +49,20 @@ const BranchDetails = ({
             </div>
             <Button className="mb-2" disabled={singleBranchData.isPrimary}>
               <Star size={14} />
-              {singleBranchData.isPrimary ? (<span className="text-sm">Primary Branch</span>):(<span className="text-sm">Make Primary</span>)}
+              {singleBranchData.isPrimary ? (
+                <span className="text-sm">Primary Branch</span>
+              ) : (
+                <span className="text-sm">Make Primary</span>
+              )}
             </Button>
           </div>
+          {showEditDialog && (
+            <EditBranchDialog
+              branchData={singleBranchData}
+              openDialog={showEditDialog}
+              setOpenDialog={setShowEditDialog}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

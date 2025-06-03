@@ -10,7 +10,7 @@ const PlanBadge = ({ plan }: { plan: string }) => {
     <Badge
       variant={"outline"}
       className={cn(
-        "ml-2 bg-linear-to-r from-amber-100 to-amber-200 border-amber-300 hidden sm:flex flex-row items-center",
+        "ml-2 bg-linear-to-r from-amber-100 to-amber-200 border-amber-300 flex flex-row items-center",
         planName === "Free" && "from-red-100 to-red-200 border-red-300"
       )}
     >
