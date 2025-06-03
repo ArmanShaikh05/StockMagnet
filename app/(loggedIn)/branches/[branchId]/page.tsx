@@ -22,10 +22,11 @@ import Link from "next/link";
 const SingleBranchPage = async ({
   params,
 }: {
-  params: { branchId: string };
+  params: Promise<{ branchId: string }>;
 }) => {
+  const branchId = (await params).branchId;
   const singleBranchData: BranchesType = mockBranches.filter(
-    (branch) => branch.id === params.branchId
+    (branch) => branch.id === branchId
   )[0];
 
   return (
