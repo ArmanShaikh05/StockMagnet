@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCurrentUserDetails } from "@/actions/userActions";
 import AppSidebar from "@/components/common/AppSidebar";
 import DashboardHeader from "@/components/common/DashboardHeader";

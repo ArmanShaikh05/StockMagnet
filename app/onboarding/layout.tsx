@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCurrentUserDetails } from "@/actions/userActions";
 import { RedirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
