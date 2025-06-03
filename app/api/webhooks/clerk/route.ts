@@ -1,10 +1,11 @@
-import db from "@/lib/prisma";
+// import db from "@/lib/prisma";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { NextRequest } from "next/server";
 import type { UserJSON, WebhookEvent } from "@clerk/nextjs/server"; // <- for type narrowing
 
 export async function POST(req: NextRequest) {
   try {
+    const { default: db } = await import("@/lib/prisma");
     const evt = (await verifyWebhook(req)) as WebhookEvent;
 
     const eventType = evt.type;
