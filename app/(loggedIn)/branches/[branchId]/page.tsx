@@ -1,9 +1,10 @@
-"use client";
-
-import { BranchesType } from "@/types/types";
-import { mockBranches } from "@/utils/data";
-import { useParams } from "next/navigation";
-import React from "react";
+import BranchDetails from "@/components/singleBranch/BranchDetails";
+import BranchLowStocks from "@/components/singleBranch/BranchLowStock";
+import { BranchProfitMargin } from "@/components/singleBranch/BranchProfitMargin";
+import BranchRecentInvoicesTable from "@/components/singleBranch/BranchRecentInvoicesTable";
+import BranchStockSummaryChart from "@/components/singleBranch/BranchStockSummaryChart";
+import CardsSection from "@/components/singleBranch/CardsSection";
+import { PerformanceScore } from "@/components/singleBranch/PerformanceScore";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,21 +14,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { BranchesType } from "@/types/types";
+import { mockBranches } from "@/utils/data";
 import { ChevronLeft } from "lucide-react";
-import CardsSection from "@/components/singleBranch/CardsSection";
-import BranchLowStocks from "@/components/singleBranch/BranchLowStock";
-import BranchDetails from "@/components/singleBranch/BranchDetails";
-import BranchStockSummaryChart from "@/components/singleBranch/BranchStockSummaryChart";
-import BranchRecentInvoicesTable from "@/components/singleBranch/BranchRecentInvoicesTable";
 import Link from "next/link";
-import { BranchProfitMargin } from "@/components/singleBranch/BranchProfitMargin";
-import { PerformanceScore } from "@/components/singleBranch/PerformanceScore";
 
-const SingleBranchPage = () => {
-  const { branchId } = useParams();
-
+const SingleBranchPage = ({ params }: { params: { branchId: string } }) => {
   const singleBranchData: BranchesType = mockBranches.filter(
-    (branch) => branch.id === branchId
+    (branch) => branch.id === params.branchId
   )[0];
 
   return (
