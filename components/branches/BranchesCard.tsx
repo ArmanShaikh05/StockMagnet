@@ -17,10 +17,12 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import EditBranchDialog from "./EditBranchDialog";
 import { useState } from "react";
+import MakePrimaryDialog from "./MakePrimaryDialog";
 
 const BranchesCard = ({ branchData }: { branchData: Branches }) => {
   const router = useRouter();
   const [editDialog, setEditDialog] = useState<boolean>(false);
+  const [makePrimaryDialog, setMakePrimaryDialog] = useState<boolean>(false);
 
   return (
     <Card>
@@ -74,12 +76,17 @@ const BranchesCard = ({ branchData }: { branchData: Branches }) => {
                   </div>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem asChild>
-                  <div className="w-full flex items-center gap-2">
-                    <Star size={14} />
-                    <span className="text-xs">Make Primary</span>
-                  </div>
-                </DropdownMenuItem>
+                {!branchData.isPrimary && (
+                  <DropdownMenuItem asChild>
+                    <div
+                      className="w-full flex items-center gap-2"
+                      onClick={() => setMakePrimaryDialog(true)}
+                    >
+                      <Star size={14} />
+                      <span className="text-xs">Make Primary</span>
+                    </div>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild variant="destructive">
                   <div className="w-full flex items-center gap-2">
                     <Trash2 size={14} />
@@ -94,6 +101,14 @@ const BranchesCard = ({ branchData }: { branchData: Branches }) => {
               branchData={branchData}
               openDialog={editDialog}
               setOpenDialog={setEditDialog}
+            />
+          )}
+          {makePrimaryDialog && (
+            <MakePrimaryDialog
+              branchId={branchData.id}
+              open={makePrimaryDialog}
+              setOpen={setMakePrimaryDialog}
+              branchName={branchData.branchName}
             />
           )}
         </div>

@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { useState } from "react";
 import EditBranchDialog from "../branches/EditBranchDialog";
+import MakePrimaryDialog from "../branches/MakePrimaryDialog";
 
 const BranchDetails = ({
   singleBranchData,
@@ -14,6 +15,8 @@ const BranchDetails = ({
   singleBranchData: Branches;
 }) => {
   const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
+  const [showMakePrimaryBranchDialog, setShowMakePrimaryBranchDialog] =
+    useState<boolean>(false);
 
   return (
     <Card>
@@ -47,7 +50,11 @@ const BranchDetails = ({
               </div>
               <p className="mt-4 text-sm">{singleBranchData.branchAddress}</p>
             </div>
-            <Button className="mb-2" disabled={singleBranchData.isPrimary}>
+            <Button
+              className="mb-2"
+              disabled={singleBranchData.isPrimary}
+              onClick={() => setShowMakePrimaryBranchDialog(true)}
+            >
               <Star size={14} />
               {singleBranchData.isPrimary ? (
                 <span className="text-sm">Primary Branch</span>
@@ -61,6 +68,15 @@ const BranchDetails = ({
               branchData={singleBranchData}
               openDialog={showEditDialog}
               setOpenDialog={setShowEditDialog}
+            />
+          )}
+
+          {showMakePrimaryBranchDialog && (
+            <MakePrimaryDialog
+              branchId={singleBranchData.id}
+              branchName={singleBranchData.branchName}
+              open={showMakePrimaryBranchDialog}
+              setOpen={setShowMakePrimaryBranchDialog}
             />
           )}
         </div>

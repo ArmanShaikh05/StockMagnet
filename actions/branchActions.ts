@@ -1,5 +1,6 @@
 "use server";
 
+import { Branches } from "@/lib/generated/prisma";
 import db from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -192,5 +193,73 @@ export const editBranchDetails = async ({
   } catch (error) {
     console.error("Error editing branch details:", error);
     return { success: false, message: "Error editing branch" };
+  }
+};
+
+export const makeBranchPrimary = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    const branchesId = await db.branches.findMany({
+      where: {
+        User: {
+          is: {
+            clerkUserId: user.id,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const nonPrimaryBranchesId: string[] = [];
+
+    Object.values(branchesId).map((id) => {
+      if (id.id !== branchId) {
+        nonPrimaryBranchesId.push(id.id);
+      }
+    });
+
+    const promisesArray: Promise<Branches>[] = [];
+
+    nonPrimaryBranchesId.map((id) => {
+      const promise = db.branches.update({
+        where: {
+          id: id,
+        },
+        data: {
+          isPrimary: false,
+        },
+      });
+      promisesArray.push(promise);
+    });
+
+    await Promise.all(promisesArray);
+
+    const newPrimaryBranch = await db.branches.update({
+      where: {
+        id: branchId,
+      },
+      data: {
+        isPrimary: true,
+      },
+    });
+
+    return {
+      success: true,
+      message: `${newPrimaryBranch.branchName} has been made the new Primary branch`,
+    };
+  } catch (error) {
+    console.error("Error making branch primary:", error);
+    return {
+      success: false,
+      message: "Error making branch primary",
+    };
   }
 };
