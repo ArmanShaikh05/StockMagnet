@@ -342,3 +342,26 @@ export const deleteBranch = async (branchId: string, branchName: string) => {
     };
   }
 };
+
+export const getPrimaryBranchOfUser = async (clerkId: string) => {
+  try {
+    const branch = await db.branches.findFirst({
+      where: {
+        User: {
+          is: {
+            clerkUserId: clerkId,
+          },
+        },
+        isPrimary: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return branch;
+  } catch (error) {
+    console.error("Error fetching current user details:", error);
+    return null;
+  }
+};

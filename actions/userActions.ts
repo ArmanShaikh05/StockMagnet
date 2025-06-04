@@ -12,6 +12,7 @@ export const getCurrentUserDetails = async () => {
       where: { clerkUserId: user.id },
       include: {
         branches: true,
+        payment: true,
       },
     });
 
@@ -21,3 +22,5 @@ export const getCurrentUserDetails = async () => {
     return null;
   }
 };
+
+

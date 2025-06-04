@@ -9,7 +9,7 @@ import {
   ReceiptText,
 } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 
 import {
   DropdownMenu,
@@ -29,9 +29,9 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Branches } from "@/lib/generated/prisma";
+import { useBranchStore } from "@/store/branchStore";
 import { usePathname } from "next/navigation";
-import { BranchesType } from "@/types/types";
-import { mockBranches } from "@/utils/data";
 
 const navData: { title: string; url: string; icon: React.ElementType }[] = [
   {
@@ -56,12 +56,11 @@ const navData: { title: string; url: string; icon: React.ElementType }[] = [
   },
 ];
 
-const AppSidebar = () => {
+const AppSidebar = ({ allBranches }: { allBranches: Branches[] }) => {
   const { open } = useSidebar();
   const pathName = usePathname();
-  const [activeBranch, setActiveBranch] = useState<BranchesType>(
-    mockBranches[0]
-  );
+
+  const { selectedBranch, setSelectedBranch } = useBranchStore();
 
   return (
     <Sidebar collapsible="icon">
@@ -92,28 +91,32 @@ const AppSidebar = () => {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg ">
-                    <Image
-                      alt={activeBranch.branchName}
-                      src={activeBranch.branchImage}
-                      width={40}
-                      height={40}
-                      placeholder="empty"
-                      className="rounded-lg w-full h-full border-main border-2 "
-                    />
+                    {selectedBranch && (
+                      <Image
+                        alt={selectedBranch.branchName}
+                        src={selectedBranch.branchImage}
+                        width={40}
+                        height={40}
+                        placeholder="empty"
+                        className="rounded-lg w-full h-full border-main border-2 "
+                      />
+                    )}
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">
-                      {activeBranch.branchName}
+                      {selectedBranch?.branchName}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-[13rem]">
-                {mockBranches.map((branch, index) => (
+                {allBranches.map((branch, index) => (
                   <DropdownMenuItem
                     key={index}
-                    onClick={() => setActiveBranch(branch)}
+                    onClick={() => {
+                      setSelectedBranch(branch);
+                    }}
                   >
                     <div className="flex items-center gap-2">
                       <Image
@@ -128,7 +131,7 @@ const AppSidebar = () => {
                         {branch.branchName}
                       </span>
                     </div>
-                    {activeBranch.id === branch.id && (
+                    {selectedBranch?.id === branch.id && (
                       <Check className="ml-auto" />
                     )}
                   </DropdownMenuItem>

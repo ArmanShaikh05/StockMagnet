@@ -11,7 +11,7 @@ const DashboardHeader = ({ subscription }: { subscription: string }) => {
       <div className=" flex items-center justify-between mx-auto">
         <SidebarTrigger className="hover:bg-main-accent" />
         <div className="flex w-max gap-4 items-center">
-          <PlanBadge plan={subscription}/>
+          <PlanBadge plan={subscription} />
 
           <UserButton
             appearance={{
