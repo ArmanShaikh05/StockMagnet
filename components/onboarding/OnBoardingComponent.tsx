@@ -122,16 +122,29 @@ const OnboardingComponent = ({
 
     try {
       setLoading(true);
-      const uploadFileResponse = await uploadImageToImagekit(selectedFile!);
+      const uploadFileResponse = await uploadImageToImagekit(
+        selectedFile!,
+        "Branches"
+      );
+
+      if (
+        !uploadFileResponse ||
+        !uploadFileResponse.url ||
+        !uploadFileResponse?.fileId
+      ) {
+        return toast("Error in uploading image. Please try again!");
+      }
+
       const branchData = {
         branchName,
         branchAddress,
-        branchImage: uploadFileResponse?.url || "",
+        branchImage: uploadFileResponse.url,
         firstName: userFirstName,
         lastName: userLastName,
         gstNumber,
         userId: id,
         isPrimary: true,
+        imageId: uploadFileResponse?.fileId,
       };
 
       const response: { success: boolean; message: string } =

@@ -113,23 +113,41 @@ const EditBranchDialog = ({
     try {
       setLoading(true);
       let image = filePreviewUrl;
+      let imageId = branchData.imageId;
+      let isImageEdited = false;
+
       if (selectedFile) {
-        const uploadFileResponse = await uploadImageToImagekit(selectedFile);
-        if (uploadFileResponse) {
-          image = uploadFileResponse.url || filePreviewUrl;
+        const uploadFileResponse = await uploadImageToImagekit(
+          selectedFile,
+          "Branches"
+        );
+
+        if (
+          !uploadFileResponse ||
+          !uploadFileResponse.url ||
+          !uploadFileResponse?.fileId
+        ) {
+          return toast("Error in uploading image. Please try again!");
         }
+
+        isImageEdited = true;
+        image = uploadFileResponse.url;
+        imageId = uploadFileResponse.fileId;
       }
+
       const newBranchData = {
         branchName,
         branchAddress,
         branchImage: image || "",
         gstNumber,
+        imageId,
       };
 
       const response: { success: boolean; message: string } =
         await editBranchDetails({
           branchId: branchData.id,
           data: newBranchData,
+          isImageEdited,
         });
 
       if (response.success) {

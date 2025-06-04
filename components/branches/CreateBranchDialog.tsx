@@ -97,11 +97,24 @@ const CreateBranchDialog = () => {
 
     try {
       setLoading(true);
-      const uploadFileResponse = await uploadImageToImagekit(selectedFile!);
+      const uploadFileResponse = await uploadImageToImagekit(
+        selectedFile!,
+        "Branches"
+      );
+
+      if (
+        !uploadFileResponse ||
+        !uploadFileResponse.url ||
+        !uploadFileResponse?.fileId
+      ) {
+        return toast("Error in uploading image. Please try again!");
+      }
+
       const branchData = {
         branchName,
         branchAddress,
-        branchImage: uploadFileResponse?.url || "",
+        imageId: uploadFileResponse.fileId,
+        branchImage: uploadFileResponse.url,
         gstNumber,
       };
 

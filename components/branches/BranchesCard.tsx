@@ -18,10 +18,12 @@ import { Card, CardContent } from "../ui/card";
 import EditBranchDialog from "./EditBranchDialog";
 import { useState } from "react";
 import MakePrimaryDialog from "./MakePrimaryDialog";
+import DeleteBranchDialog from "./DeleteBranchDialog";
 
 const BranchesCard = ({ branchData }: { branchData: Branches }) => {
   const router = useRouter();
   const [editDialog, setEditDialog] = useState<boolean>(false);
+  const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
   const [makePrimaryDialog, setMakePrimaryDialog] = useState<boolean>(false);
 
   return (
@@ -88,7 +90,10 @@ const BranchesCard = ({ branchData }: { branchData: Branches }) => {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem asChild variant="destructive">
-                  <div className="w-full flex items-center gap-2">
+                  <div
+                    className="w-full flex items-center gap-2"
+                    onClick={() => setDeleteDialog(true)}
+                  >
                     <Trash2 size={14} />
                     <span className="text-xs">Delete</span>
                   </div>
@@ -108,6 +113,15 @@ const BranchesCard = ({ branchData }: { branchData: Branches }) => {
               branchId={branchData.id}
               open={makePrimaryDialog}
               setOpen={setMakePrimaryDialog}
+              branchName={branchData.branchName}
+            />
+          )}
+
+          {deleteDialog && (
+            <DeleteBranchDialog
+              branchId={branchData.id}
+              open={deleteDialog}
+              setOpen={setDeleteDialog}
               branchName={branchData.branchName}
             />
           )}

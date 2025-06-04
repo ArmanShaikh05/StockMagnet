@@ -31,7 +31,7 @@ const authenticator = async () => {
   }
 };
 
-export const uploadImageToImagekit = async (file: File) => {
+export const uploadImageToImagekit = async (file: File, folder: string) => {
   let authParams;
   try {
     authParams = await authenticator();
@@ -49,7 +49,7 @@ export const uploadImageToImagekit = async (file: File) => {
       publicKey,
       file,
       fileName: file.name,
-      folder: "StockMagnet/Branches",
+      folder: `StockMagnet/${folder}`,
       abortSignal: abortController.signal,
     });
     return uploadResponse;

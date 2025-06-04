@@ -26,17 +26,17 @@ model User {
   branches     Branches[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-  payment      Payments?    @relation(fields: [paymentId], references: [id])
-  paymentId    String?      @unique
+  payment      Payments?
 }
 
 model Branches {
   id            String     @id @default(cuid())
   branchName    String
   branchImage   String
+  imageId       String
   branchAddress String
   isPrimary     Boolean    @default(false)
-  User          User       @relation(fields: [userId], references: [id])
+  User          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   GstNumber     String?
   products      Products[]
@@ -70,7 +70,7 @@ model Invoices {
   amountPaid      Decimal
   creditedAmount  Decimal
   profitGain      Decimal
-  branch          Branches         @relation(fields: [branchId], references: [id])
+  branch          Branches         @relation(fields: [branchId], references: [id], onDelete: Cascade)
   branchId        String
   products        InvoiceProduct[]
   createdAt       DateTime         @default(now())
@@ -90,7 +90,7 @@ enum PaymentMode {
 }
 
 model InvoiceProduct {
-  id                 String    @id @default(cuid())
+  id                 String   @id @default(cuid())
   productName        String
   productSno         String
   quantity           Int
@@ -98,14 +98,14 @@ model InvoiceProduct {
   sellingPrice       Decimal
   units              String
   taxRate            String?
-  taxAmount          Decimal?  @default(0.0)
+  taxAmount          Decimal? @default(0.0)
   subTotal           Decimal
-  discountAmount     Decimal?  @default(0.0)
-  taxIncludedWithMrp Boolean   @default(false)
-  Invoices           Invoices? @relation(fields: [invoicesId], references: [id])
-  invoicesId         String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  discountAmount     Decimal? @default(0.0)
+  taxIncludedWithMrp Boolean  @default(false)
+  Invoices           Invoices @relation(fields: [invoicesId], references: [id], onDelete: Cascade)
+  invoicesId         String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Category {
@@ -143,6 +143,7 @@ model Products {
   id             String   @id @default(cuid())
   productName    String
   productImage   String?
+  imageId        String?
   productSno     String
   MRP            Decimal
   purchasePrice  Decimal
@@ -153,7 +154,7 @@ model Products {
   minStockQty    Int
   tags           String[]
   reorderQty     Int?
-  branch         Branches @relation(fields: [branchId], references: [id])
+  branch         Branches @relation(fields: [branchId], references: [id], onDelete: Cascade)
   branchId       String
   category       Category @relation(fields: [categoryId], references: [id])
   categoryId     String
@@ -170,5 +171,6 @@ model Payments {
   stripPaymentId String  @unique
   priceId        String
   userEmail      String
-  user           User?
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String  @unique
 }

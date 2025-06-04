@@ -2,13 +2,11 @@
 
 import { motion } from "framer-motion";
 import { PlusCircle } from "lucide-react";
-import React from "react";
-import { Button } from "../ui/button";
+import CreateBranchDialog from "../branches/CreateBranchDialog";
 
 const EmptyBranches = () => {
-  const onCreate = () => {
-    console.log("Create button clicked");
-  };
+
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -38,10 +36,9 @@ const EmptyBranches = () => {
           organize your inventory.
         </p>
 
-        <Button onClick={onCreate}>
-          <PlusCircle className="w-5 h-5" />
-          Create Branch
-        </Button>
+        <CreateBranchDialog />
+
+        
       </motion.div>
     </motion.div>
   );

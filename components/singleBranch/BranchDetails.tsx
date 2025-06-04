@@ -8,6 +8,7 @@ import { Card, CardContent } from "../ui/card";
 import { useState } from "react";
 import EditBranchDialog from "../branches/EditBranchDialog";
 import MakePrimaryDialog from "../branches/MakePrimaryDialog";
+import DeleteBranchDialog from "../branches/DeleteBranchDialog";
 
 const BranchDetails = ({
   singleBranchData,
@@ -15,6 +16,7 @@ const BranchDetails = ({
   singleBranchData: Branches;
 }) => {
   const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [showMakePrimaryBranchDialog, setShowMakePrimaryBranchDialog] =
     useState<boolean>(false);
 
@@ -43,7 +45,10 @@ const BranchDetails = ({
                   >
                     <Pencil size={16} />
                   </div>
-                  <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
+                  <div
+                    className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer"
+                    onClick={() => setShowDeleteDialog(true)}
+                  >
                     <Trash2 size={16} />
                   </div>
                 </div>
@@ -77,6 +82,15 @@ const BranchDetails = ({
               branchName={singleBranchData.branchName}
               open={showMakePrimaryBranchDialog}
               setOpen={setShowMakePrimaryBranchDialog}
+            />
+          )}
+
+          {showDeleteDialog && (
+            <DeleteBranchDialog
+              branchId={singleBranchData.id}
+              branchName={singleBranchData.branchName}
+              open={showDeleteDialog}
+              setOpen={setShowDeleteDialog}
             />
           )}
         </div>

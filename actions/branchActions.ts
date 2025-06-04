@@ -2,20 +2,20 @@
 
 import { Branches } from "@/lib/generated/prisma";
 import db from "@/lib/prisma";
+import { deleteImageFromImagekit } from "@/utils/deleteImage";
 import { currentUser } from "@clerk/nextjs/server";
 
-type BranchType = {
+export const completeOnboarding = async (data: {
   branchName: string;
   branchAddress: string;
-  branchImage?: string;
+  branchImage: string;
   firstName: string;
   lastName: string;
   gstNumber?: string;
   userId: string;
   isPrimary?: boolean;
-};
-
-export const completeOnboarding = async (data: BranchType) => {
+  imageId: string;
+}) => {
   try {
     const user = await currentUser();
     if (!user || !user.id)
@@ -36,10 +36,11 @@ export const completeOnboarding = async (data: BranchType) => {
       data: {
         branchName: data.branchName,
         branchAddress: data.branchAddress,
-        branchImage: data.branchImage || "",
+        branchImage: data.branchImage,
         userId: data.userId,
         GstNumber: data.gstNumber || "",
         isPrimary: data.isPrimary,
+        imageId: data.imageId,
       },
     });
     return { success: true, message: "Branch created successfully" };
@@ -117,8 +118,9 @@ export const getSingleBranchData = async (branchId: string) => {
 export const createNewBranch = async (data: {
   branchName: string;
   branchAddress: string;
-  branchImage?: string;
+  branchImage: string;
   gstNumber?: string;
+  imageId: string;
 }) => {
   try {
     const user = await currentUser();
@@ -142,10 +144,11 @@ export const createNewBranch = async (data: {
         data: {
           branchName: data.branchName,
           branchAddress: data.branchAddress,
-          branchImage: data.branchImage || "",
+          branchImage: data.branchImage,
           userId: userData.id,
           GstNumber: data.gstNumber || "",
           isPrimary: primaryBranch,
+          imageId: data.imageId,
         },
       });
 
@@ -162,13 +165,16 @@ export const createNewBranch = async (data: {
 export const editBranchDetails = async ({
   data,
   branchId,
+  isImageEdited,
 }: {
   branchId: string;
+  isImageEdited: boolean;
   data: {
     branchName: string;
     branchAddress: string;
-    branchImage?: string;
+    branchImage: string;
     gstNumber?: string;
+    imageId: string;
   };
 }) => {
   try {
@@ -177,6 +183,31 @@ export const editBranchDetails = async ({
     if (!user || !user.id)
       return { success: false, message: "Unauthorized user" };
 
+    if (isImageEdited) {
+      const branchImageId = await db.branches.findUnique({
+        where: {
+          id: branchId,
+        },
+        select: {
+          imageId: true,
+        },
+      });
+
+      if (branchImageId) {
+        await deleteImageFromImagekit(branchImageId.imageId);
+
+        await db.branches.update({
+          where: {
+            id: branchId,
+          },
+          data: {
+            branchImage: data.branchImage,
+            imageId: data.imageId,
+          },
+        });
+      }
+    }
+
     await db.branches.update({
       where: {
         id: branchId,
@@ -184,7 +215,6 @@ export const editBranchDetails = async ({
       data: {
         branchName: data.branchName,
         branchAddress: data.branchAddress,
-        branchImage: data.branchImage || "",
         GstNumber: data.gstNumber || "",
       },
     });
@@ -260,6 +290,55 @@ export const makeBranchPrimary = async (branchId: string) => {
     return {
       success: false,
       message: "Error making branch primary",
+    };
+  }
+};
+
+export const deleteBranch = async (branchId: string, branchName: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    const branch = await db.branches.findUnique({
+      where: {
+        id: branchId,
+      },
+    });
+
+    if (!branch)
+      return {
+        success: false,
+        message: `No branch found`,
+      };
+
+    if (branch.isPrimary) {
+      return {
+        success: false,
+        message: `Cannot delete a Primary branch! Please make another branch primary and try again`,
+      };
+    }
+
+    await db.branches.delete({
+      where: {
+        id: branchId,
+      },
+    });
+
+    await deleteImageFromImagekit(branch.imageId);
+
+    return {
+      success: true,
+      message: `${branchName} has been deleted successfully`,
+    };
+  } catch (error) {
+    console.error("Error deleting the branch:", error);
+    return {
+      success: false,
+      message: "Error deleting the branch",
     };
   }
 };
