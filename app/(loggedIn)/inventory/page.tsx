@@ -1,4 +1,7 @@
-import React from "react";
+import { getCurrentUserDetails } from "@/actions/userActions";
+import EmptyInventory from "@/components/empty/EmptyInventory";
+import InventoryCardSection from "@/components/inventory/InventoryCardSection";
+import InventoryTable from "@/components/inventory/InventoryTable";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,13 +12,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { FileSpreadsheet, Plus } from "lucide-react";
-import InventoryCardSection from "@/components/inventory/InventoryCardSection";
-import InventoryTable from "@/components/inventory/InventoryTable";
-import { getCurrentUserDetails } from "@/actions/userActions";
-import EmptyInventory from "@/components/empty/EmptyInventory";
+import Link from "next/link";
 
 const page = async () => {
   const user = await getCurrentUserDetails();
+  
+  
   return (
     <section className="my-2 mt-6 w-full  flex flex-col items-center">
       {user?.branches && user.branches.length === 0 ? (
@@ -32,11 +34,13 @@ const page = async () => {
                 <span className="hidden xs:block">Export CSV</span>
                 <span className="xs:hidden">Export</span>
               </Button>
-              <Button>
-                <Plus size={16} />
-                <span className="hidden xs:block">Add Product</span>
-                <span className="xs:hidden">Add</span>
-              </Button>
+              <Link href={"/add-product"}>
+                <Button>
+                  <Plus size={16} />
+                  <span className="hidden xs:block">Add Product</span>
+                  <span className="xs:hidden">Add</span>
+                </Button>
+              </Link>
             </div>
           </div>
           <Breadcrumb className="my-4">

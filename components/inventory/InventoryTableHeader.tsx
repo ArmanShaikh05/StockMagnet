@@ -13,24 +13,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
+import {
+  SerializedBrandType,
+  SerializedCategoryType,
+} from "@/types/serializedTypes";
 
-const filterData = {
-  Brand: [
-    { label: "Amaron", value: "amaron" },
-    { label: "Exide", value: "exide" },
-    { label: "Luminious", value: "luminous" },
-    { label: "Okaya", value: "okaya" },
-  ],
-  Category: [
-    { label: "Two Wheeler", value: "twoWheeler" },
-    { label: "Four Wheeler", value: "fourWheeler" },
-  ],
-  Status: [
-    { label: "Available", value: "available" },
-    { label: "Low Stock", value: "lowstock" },
-    { label: "Out of Stock", value: "unavailable" },
-  ],
-};
+const Status = [
+  { label: "Available", value: "available" },
+  { label: "Low Stock", value: "lowstock" },
+  { label: "Unavailable", value: "unavailable" },
+];
 
 const InventoryTableHeader = ({
   setSearchString,
@@ -40,6 +32,8 @@ const InventoryTableHeader = ({
   categoryFilters,
   setBrandFilters,
   setCategoryFilters,
+  allBrands,
+  allCategories,
 }: {
   setSearchString: (value: string) => void;
   statusFilters: string[];
@@ -48,6 +42,8 @@ const InventoryTableHeader = ({
   setCategoryFilters: React.Dispatch<React.SetStateAction<string[]>>;
   brandFilters: string[];
   setBrandFilters: React.Dispatch<React.SetStateAction<string[]>>;
+  allBrands: SerializedBrandType[];
+  allCategories: SerializedCategoryType[];
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -97,19 +93,19 @@ const InventoryTableHeader = ({
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Select Brands</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {filterData.Brand.map((brand, index) => (
+            {allBrands.map((brand, index) => (
               <DropdownMenuCheckboxItem
                 key={index}
-                checked={brandFilters.includes(brand.value)}
+                checked={brandFilters.includes(brand.brandName)}
                 onCheckedChange={(checked) => {
                   setBrandFilters((prev) =>
                     checked
-                      ? [...prev, brand.value]
-                      : prev.filter((f) => f !== brand.value)
+                      ? [...prev, brand.brandName]
+                      : prev.filter((f) => f !== brand.brandName)
                   );
                 }}
               >
-                {brand.label}
+                {brand.brandName}
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
@@ -135,19 +131,19 @@ const InventoryTableHeader = ({
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Select Categories</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {filterData.Category.map((category, index) => (
+            {allCategories.map((category, index) => (
               <DropdownMenuCheckboxItem
                 key={index}
-                checked={categoryFilters.includes(category.value)}
+                checked={categoryFilters.includes(category.categoryName)}
                 onCheckedChange={(checked) => {
                   setCategoryFilters((prev) =>
                     checked
-                      ? [...prev, category.value]
-                      : prev.filter((f) => f !== category.value)
+                      ? [...prev, category.categoryName]
+                      : prev.filter((f) => f !== category.categoryName)
                   );
                 }}
               >
-                {category.label}
+                {category.categoryName}
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
@@ -173,7 +169,7 @@ const InventoryTableHeader = ({
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Select Status</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {filterData.Status.map((status, index) => (
+            {Status.map((status, index) => (
               <DropdownMenuCheckboxItem
                 key={index}
                 checked={statusFilters.includes(status.value)}

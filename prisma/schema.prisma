@@ -112,7 +112,8 @@ model Category {
   id            String     @id @default(cuid())
   categoryName  String
   colorCode     String
-  totalProducts Int
+  totalProducts Int        @default(0)
+  totalProfit   Decimal?   @default(0)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   Products      Products[]
@@ -122,9 +123,9 @@ model Brand {
   id           String     @id @default(cuid())
   brandName    String
   colorCode    String
-  totalProduct Int
-  totalRevenue Decimal?
-  totalProfit  Decimal?
+  totalProduct Int        @default(0)
+  totalRevenue Decimal?   @default(0)
+  totalProfit  Decimal?   @default(0)
   products     Products[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -134,43 +135,56 @@ model Units {
   id        String     @id @default(cuid())
   unitName  String
   unitCode  String
+  canDelete Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   products  Products[]
 }
 
 model Products {
-  id             String   @id @default(cuid())
-  productName    String
-  productImage   String?
-  imageId        String?
-  productSno     String
-  MRP            Decimal
-  purchasePrice  Decimal
-  HSNCode        String?
-  taxRate        String?
-  warrantyMonths Int?
-  stockInHand    Int
-  minStockQty    Int
-  tags           String[]
-  reorderQty     Int?
-  branch         Branches @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  branchId       String
-  category       Category @relation(fields: [categoryId], references: [id])
-  categoryId     String
-  Brand          Brand    @relation(fields: [brandId], references: [id])
-  brandId        String
-  unit           Units    @relation(fields: [unitId], references: [id])
-  unitId         String
+  id                 String        @id @default(cuid())
+  productName        String
+  productImage       String?
+  imageId            String?
+  productSno         String
+  MRP                Decimal
+  purchasePrice      Decimal
+  HSNCode            String?
+  taxRate            String?
+  warrantyMonths     Int?
+  stockInHand        Int
+  minStockQty        Int
+  status             ProductStatus @default(AVAILABLE)
+  tags               String[]
+  taxIncludedWithMrp Boolean       @default(false)
+  reorderQty         Int?
+  branch             Branches      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId           String
+  category           Category      @relation(fields: [categoryId], references: [id])
+  categoryId         String
+  Brand              Brand         @relation(fields: [brandId], references: [id])
+  brandId            String
+  unit               Units         @relation(fields: [unitId], references: [id])
+  unitId             String
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+enum ProductStatus {
+  AVAILABLE
+  LOWSTOCK
+  UNAVAILABLE
 }
 
 model Payments {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   amount         Decimal
   status         String
-  stripPaymentId String  @unique
+  stripPaymentId String   @unique
   priceId        String
   userEmail      String
-  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String  @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

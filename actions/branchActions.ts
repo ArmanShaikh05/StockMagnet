@@ -2,6 +2,7 @@
 
 import { Branches } from "@/lib/generated/prisma";
 import db from "@/lib/prisma";
+import { SerializedProductType } from "@/types/serializedTypes";
 import { deleteImageFromImagekit } from "@/utils/deleteImage";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -354,14 +355,73 @@ export const getPrimaryBranchOfUser = async (clerkId: string) => {
         },
         isPrimary: true,
       },
-      orderBy: {
-        createdAt: "asc",
-      },
     });
 
     return branch;
   } catch (error) {
     console.error("Error fetching current user details:", error);
     return null;
+  }
+};
+
+export const getProductsDataofBranch = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    // const branchProducts = await db.branches.findUnique({
+    //   where: {
+    //     id: branchId,
+    //   },
+    //   select: {
+    //     id: true,
+    //     products: true,
+    //   },
+    // });
+
+    const branchProducts = await db.products.findMany({
+      where: {
+        branchId: branchId,
+      },
+      include: {
+        Brand: true,
+        category: true,
+        unit: true,
+      },
+    });
+
+    const serializedDecimalProducts: SerializedProductType[] =
+      branchProducts.map((product) => {
+        return {
+          ...product,
+          MRP: product.MRP.toString(),
+          purchasePrice: product.purchasePrice.toString(),
+          Brand: {
+            ...product.Brand,
+            totalProfit: product.Brand.totalProfit?.toString() || null,
+            totalRevenue: product.Brand.totalRevenue?.toString() || null,
+          },
+          category: {
+            ...product.category,
+            totalProfit: product.category.totalProfit?.toString() || null,
+          },
+        };
+      });
+
+    return {
+      success: true,
+      message: "branch products fetched successfully",
+      data: serializedDecimalProducts || [],
+    };
+  } catch (error) {
+    console.error("Error fetching branch products data:", error);
+    return {
+      success: false,
+      message: "Error fetching branch products data",
+    };
   }
 };

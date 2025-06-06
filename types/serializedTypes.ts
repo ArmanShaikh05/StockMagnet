@@ -1,0 +1,100 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+import { Prisma } from "@/lib/generated/prisma";
+
+// SERIALIZATION TYPE FOR PRODUCTS
+
+type ProductWithDecimal = Prisma.ProductsGetPayload<{
+  include: {
+    Brand: true;
+    category: true;
+    unit: true;
+  };
+}>;
+
+type BrandForProductType = Prisma.BrandGetPayload<{}>;
+type CategoryForProductType = Prisma.CategoryGetPayload<{}>;
+
+export type SerializedBrandForProductType = Omit<
+  BrandForProductType,
+  "totalRevenue" | "totalProfit"
+> & {
+  totalRevenue: string | null;
+  totalProfit: string | null;
+};
+
+export type SerializedcategoryForProductType = Omit<
+  CategoryForProductType,
+  "totalProfit"
+> & {
+  totalProfit: string | null;
+};
+
+export type SerializedProductType = Omit<
+  ProductWithDecimal,
+  "MRP" | "purchasePrice" | "Brand" | "category"
+> & {
+  MRP: string;
+  purchasePrice: string;
+  Brand: SerializedBrandForProductType;
+  category: SerializedcategoryForProductType;
+};
+
+// SERIALIZATION TYPE FOR BRANDS
+
+type ProductsForBrandType = Prisma.ProductsGetPayload<{}>;
+
+export type SerializedProductForBrandType = Omit<
+  ProductsForBrandType,
+  "MRP" | "purchasePrice"
+> & {
+  MRP: string;
+  purchasePrice: string;
+};
+
+type BrandWithDecimal = Prisma.BrandGetPayload<{
+  include: {
+    products: true;
+  };
+}>;
+
+export type SerializedBrandType = Omit<
+  BrandWithDecimal,
+  "totalRevenue" | "totalProfit" | "products"
+> & {
+  totalRevenue: string | null;
+  totalProfit: string | null;
+  products: SerializedProductForBrandType[];
+};
+
+// SERIALIZATION FOR CATEGORY
+
+type CategoryWithDecimal = Prisma.CategoryGetPayload<{}>;
+
+export type SerializedCategoryType = Omit<
+  CategoryWithDecimal,
+  "totalProfit"
+> & {
+  totalProfit: string | null;
+};
+
+// SERIALIZATION FOR UNITS
+
+type UnitsWithDecimal = Prisma.UnitsGetPayload<{
+  include: {
+    products: true;
+  };
+}>;
+
+type ProductsForUnit = Prisma.ProductsGetPayload<{}>;
+
+type SerializedProductForUnitType = Omit<
+  ProductsForUnit,
+  "MRP" | "purchasePrice"
+> & {
+  MRP: string | null;
+  purchasePrice: string | null;
+};
+
+export type SerializedUnitType = Omit<UnitsWithDecimal, "products"> & {
+  products: SerializedProductForUnitType[];
+};

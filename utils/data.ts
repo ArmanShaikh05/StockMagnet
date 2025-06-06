@@ -4,6 +4,7 @@ import type {
   InvoiceTableType,
   PricingDataType,
   ProductsTableType,
+  TaxesType,
 } from "@/types/types";
 
 export const InvoicesData: InvoiceTableType[] = [
@@ -654,3 +655,67 @@ export const pricingData: PricingDataType[] = [
     priceId: "price_1RL38ZPZo4NGp7MuqlyNLLVO",
   },
 ];
+
+export const taxData: TaxesType[] = [
+  {
+    label: "Exempted",
+    value: 0,
+  },
+  {
+    label: "GST@0%",
+    value: 0.0,
+  },
+  {
+    label: "IGST@0%",
+    value: 0.0,
+  },
+  {
+    label: "GST@0.25%",
+    value: 0.25,
+  },
+  {
+    label: "IGST@0.25%",
+    value: 0.25,
+  },
+  {
+    label: "GST@3%",
+    value: 3.0,
+  },
+  {
+    label: "IGST@3%",
+    value: 3.0,
+  },
+  {
+    label: "GST@5%",
+    value: 5.0,
+  },
+  {
+    label: "IGST@5%",
+    value: 5.0,
+  },
+  {
+    label: "GST@12%",
+    value: 12.0,
+  },
+  {
+    label: "IGST@12%",
+    value: 12.0,
+  },
+  {
+    label: "GST@18%",
+    value: 18.0,
+  },
+  {
+    label: "IGST@18%",
+    value: 18.0,
+  },
+  {
+    label: "GST@28%",
+    value: 28.0,
+  },
+  {
+    label: "IGST@28%",
+    value: 28.0,
+  },
+];
+

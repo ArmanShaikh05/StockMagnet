@@ -1,3 +1,5 @@
+
+
 export type LowStockProductTypes = {
   name: string;
   price: number;
@@ -104,3 +106,10 @@ export type PricingDataType = {
   paymentLink: string;
   priceId: string;
 };
+
+export type TaxesType = {
+  label: string;
+  value: number;
+};
+
+

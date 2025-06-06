@@ -22,10 +22,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ProductsTableType } from "@/types/types";
+import { SerializedProductType } from "@/types/serializedTypes";
 import Image from "next/image";
 
-export const columns: ColumnDef<ProductsTableType>[] = [
+export const columns: ColumnDef<SerializedProductType>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -51,12 +51,12 @@ export const columns: ColumnDef<ProductsTableType>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "image",
+    accessorKey: "productImage",
     header: "Image",
     cell: ({ row }) => {
       return (
         <Image
-          src={row.getValue("image")}
+          src={row.getValue("productImage")}
           alt="product image"
           width={50}
           height={50}
@@ -67,15 +67,15 @@ export const columns: ColumnDef<ProductsTableType>[] = [
   },
 
   {
-    accessorKey: "name",
+    accessorKey: "productName",
     header: "Product Name",
   },
   {
-    accessorKey: "category",
+    accessorFn: (row) => row.category.categoryName || "-",
     header: "Category",
   },
   {
-    accessorKey: "lastUpdated",
+    accessorKey: "updatedAt",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -95,26 +95,25 @@ export const columns: ColumnDef<ProductsTableType>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="pl-4">{row.getValue("lastUpdated")}</div>
+      <div className="pl-4">
+        {new Date(row.getValue("updatedAt")).toLocaleDateString()}
+      </div>
     ),
   },
   {
-    accessorKey: "brand",
+    id: "Brand",
+    accessorFn: (row) => row.Brand.brandName || "-",
     header: () => <div className="text-center">Brand</div>,
     cell: ({ row }) => {
-      const brand = row.getValue("brand") as string;
+      const brand = row.original.Brand.brandName as string;
 
       return (
         <Badge
           variant={"outline"}
-          className={cn(
-            brand === "Amaron"
-              ? "bg-rose-400"
-              : brand === "Cash"
-              ? "bg-blue-400"
-              : "bg-purple-500",
-            "w-full text-white"
-          )}
+          className={cn("w-full text-white")}
+          style={{
+            backgroundColor: row.original.Brand.colorCode,
+          }}
         >
           {brand}
         </Badge>
@@ -122,15 +121,15 @@ export const columns: ColumnDef<ProductsTableType>[] = [
     },
   },
   {
-    accessorKey: "price",
+    accessorKey: "MRP",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
         <div
           onClick={() => column.toggleSorting(sortDirection === "asc")}
-          className="flex items-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
         >
-          Price
+          MRP
           {sortDirection === "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
           ) : sortDirection === "desc" ? (
@@ -142,7 +141,7 @@ export const columns: ColumnDef<ProductsTableType>[] = [
       );
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("price"));
+      const amount = parseFloat(row.getValue("MRP"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "INR",
@@ -152,7 +151,7 @@ export const columns: ColumnDef<ProductsTableType>[] = [
     },
   },
   {
-    accessorKey: "stock",
+    accessorKey: "stockInHand",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -171,16 +170,24 @@ export const columns: ColumnDef<ProductsTableType>[] = [
         </div>
       );
     },
-    cell: ({ row }) => <div className="pl-6">{row.getValue("stock")}</div>,
+    cell: ({ row }) => (
+      <div className="pl-6">{row.getValue("stockInHand")}</div>
+    ),
   },
   {
-    accessorKey: "totalValue",
+    id: "totalValue",
     header: () => <div className="text-center">Total Value</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("totalValue"));
-      const formatted = new Intl.NumberFormat("en-US", {
+    accessorFn: (row) => {
+      const stock = row.stockInHand ?? 0;
+      const mrp = typeof row.MRP === "string" ? parseFloat(row.MRP) : row.MRP;
+      return stock * mrp;
+    },
+    cell: ({ getValue }) => {
+      const amount = getValue() as number;
+      const formatted = new Intl.NumberFormat("en-IN", {
         style: "currency",
         currency: "INR",
+        maximumFractionDigits: 2,
       }).format(amount);
 
       return <div className="text-center">{formatted}</div>;
@@ -213,9 +220,9 @@ export const columns: ColumnDef<ProductsTableType>[] = [
       return (
         <Badge
           className={cn(
-            status === "Available"
+            status === "AVAILABLE"
               ? "bg-green-600"
-              : status === "LowStock"
+              : status === "LOWSTOCK"
               ? "bg-orange-400"
               : "bg-red-500",
             "w-full"

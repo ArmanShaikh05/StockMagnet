@@ -1,11 +1,20 @@
 "use client";
 
-import { ProductsData } from "@/utils/data";
-import { useMemo, useState } from "react";
+import { getProductsDataofBranch } from "@/actions/branchActions";
+import { useBranchStore } from "@/store/branchStore";
+import {
+  SerializedBrandType,
+  SerializedCategoryType,
+  SerializedProductType,
+} from "@/types/serializedTypes";
+import { useEffect, useMemo, useState } from "react";
 import { columns } from "../tables/products/Columns";
 import ProductsTable from "../tables/products/ProductsTable";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import InventoryTableHeader from "./InventoryTableHeader";
+import EmptyInventory from "../empty/EmptyInventory";
+import InventoryLoading from "../loading/InventoryLoading";
+import { getAllBrands, getAllCategory } from "@/actions/utilityActions";
 
 const InventoryTable = () => {
   const [searchString, setSearchString] = useState<string>("");
@@ -13,10 +22,48 @@ const InventoryTable = () => {
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [brandFilters, setBrandFilters] = useState<string[]>([]);
 
+  const [productsData, setProductsData] = useState<SerializedProductType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [allBrands, setAllBrands] = useState<SerializedBrandType[]>([]);
+  const [allCategories, setAllCategories] = useState<SerializedCategoryType[]>(
+    []
+  );
+
+  const { selectedBranch } = useBranchStore();
+
+  useEffect(() => {
+    (async () => {
+      if (selectedBranch) {
+        setLoading(true);
+        const response: {
+          success: boolean;
+          message: string;
+          data?: SerializedProductType[];
+        } = await getProductsDataofBranch(selectedBranch.id);
+
+        const brands = await getAllBrands();
+        setAllBrands(brands?.data || []);
+
+        const categories = await getAllCategory();
+        setAllCategories(categories?.data || []);
+
+        setProductsData(response?.data || []);
+        setLoading(false);
+      }
+    })();
+  }, [selectedBranch]);
+
   const filteredData = useMemo(() => {
-    return ProductsData.filter((product) => {
+    return productsData.filter((product) => {
       const matchesSearch = searchString
-        ? product.name.toLowerCase().includes(searchString.toLowerCase())
+        ? product.productName.toLowerCase().includes(searchString.toLowerCase())
+        : true;
+
+      const matchesTag = searchString
+        ? product.tags?.some((tag) =>
+            tag.toLowerCase().includes(searchString.toLowerCase())
+          )
         : true;
 
       const matchesStatus =
@@ -26,34 +73,64 @@ const InventoryTable = () => {
 
       const matchesBrand =
         brandFilters.length > 0
-          ? brandFilters.includes(product.brand.toLowerCase())
+          ? brandFilters.includes(product.Brand.brandName)
           : true;
 
       const matchesCategory =
         categoryFilters.length > 0
-          ? categoryFilters.includes(product.category.toLowerCase())
+          ? categoryFilters.includes(product.category.categoryName)
           : true;
 
-      return matchesSearch && matchesStatus && matchesBrand && matchesCategory;
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesBrand &&
+        matchesCategory &&
+        matchesTag
+      );
     });
-  }, [brandFilters, categoryFilters, searchString, statusFilters]);
+  }, [
+    brandFilters,
+    categoryFilters,
+    productsData,
+    searchString,
+    statusFilters,
+  ]);
 
   return (
     <Card className="shadow-lg">
-      <CardHeader className="-mb-4">
-        <InventoryTableHeader
-          setSearchString={setSearchString}
-          setStatusFilters={setStatusFilters}
-          statusFilters={statusFilters}
-          brandFilters={brandFilters}
-          categoryFilters={categoryFilters}
-          setBrandFilters={setBrandFilters}
-          setCategoryFilters={setCategoryFilters}
-        />
-      </CardHeader>
-      <CardContent>
-        <ProductsTable columns={columns} data={filteredData} />
-      </CardContent>
+      {loading ? (
+        <CardContent>
+          <InventoryLoading />
+        </CardContent>
+      ) : (
+        <>
+          <CardHeader className="-mb-4">
+            {productsData.length > 0 && (
+              <InventoryTableHeader
+                setSearchString={setSearchString}
+                setStatusFilters={setStatusFilters}
+                statusFilters={statusFilters}
+                brandFilters={brandFilters}
+                categoryFilters={categoryFilters}
+                setBrandFilters={setBrandFilters}
+                setCategoryFilters={setCategoryFilters}
+                allBrands={allBrands}
+                allCategories={allCategories}
+              />
+            )}
+          </CardHeader>
+          <CardContent>
+            {productsData.length > 0 ? (
+              <ProductsTable columns={columns} data={filteredData} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <EmptyInventory />
+              </div>
+            )}
+          </CardContent>
+        </>
+      )}
     </Card>
   );
 };
