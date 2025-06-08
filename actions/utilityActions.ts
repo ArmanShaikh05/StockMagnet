@@ -6,10 +6,18 @@ import {
   SerializedCategoryType,
   SerializedUnitType,
 } from "@/types/serializedTypes";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const getAllBrands = async () => {
   try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
     const brands = await db.brand.findMany({
+      where: {
+        userClerkId: user.id,
+      },
       include: {
         products: true,
       },
@@ -46,10 +54,15 @@ export const createNewBrand = async (brandData: {
   colorCode: string;
 }) => {
   try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
     const allBrands = await db.brand.findMany();
 
     const isBrandExists = allBrands.some(
-      (brand) => brand.brandName === brandData.brandName
+      (brand) =>
+        brand.brandName === brandData.brandName && brand.userClerkId === user.id
     );
 
     if (isBrandExists) {
@@ -60,6 +73,7 @@ export const createNewBrand = async (brandData: {
       data: {
         brandName: brandData.brandName,
         colorCode: brandData.colorCode,
+        userClerkId: user.id,
         totalProduct: 0,
       },
     });
@@ -94,11 +108,29 @@ export const deleteBrand = async (brandId: string) => {
 
 export const getAllUnits = async () => {
   try {
-    const units = await db.units.findMany({
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    const defaultUnits = await db.units.findMany({
+      where: {
+        canDelete: false,
+      },
       include: {
         products: true,
       },
     });
+
+    const userUnits = await db.units.findMany({
+      where: {
+        userClerkId: user.id,
+      },
+      include: {
+        products: true,
+      },
+    });
+
+    const units = [...defaultUnits, ...userUnits];
 
     const serializedUnitData: SerializedUnitType[] = units.map((unit) => {
       return {
@@ -147,17 +179,23 @@ export const createNewUnit = async (unitData: {
   unitCode: string;
 }) => {
   try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
     const allUnits = await db.units.findMany();
 
     const isUnitNameExist = allUnits.some(
-      (unit) => unit.unitName === unitData.unitName
+      (unit) =>
+        unit.unitName === unitData.unitName && unit.userClerkId === user.id
     );
     if (isUnitNameExist) {
       return { success: false, message: "Unit name already exist" };
     }
 
     const isUnitCodeExist = allUnits.some(
-      (unit) => unit.unitCode === unitData.unitCode
+      (unit) =>
+        unit.unitCode === unitData.unitCode && unit.userClerkId === user.id
     );
 
     if (isUnitCodeExist) {
@@ -168,6 +206,7 @@ export const createNewUnit = async (unitData: {
       data: {
         unitName: unitData.unitName,
         unitCode: unitData.unitCode,
+        userClerkId: user.id,
         canDelete: true,
       },
     });
@@ -184,7 +223,15 @@ export const createNewUnit = async (unitData: {
 
 export const getAllCategory = async () => {
   try {
-    const categories = await db.category.findMany();
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    const categories = await db.category.findMany({
+      where: {
+        userClerkId: user.id,
+      },
+    });
 
     const serializeCategory: SerializedCategoryType[] = categories.map(
       (category) => {
@@ -211,7 +258,15 @@ export const createNewCategory = async (categoryData: {
   colorCode: string;
 }) => {
   try {
-    const allCategory = await db.category.findMany();
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    const allCategory = await db.category.findMany({
+      where: {
+        userClerkId: user.id,
+      },
+    });
 
     const isCategoryExist = allCategory.some(
       (brand) => brand.categoryName === categoryData.categoryName
@@ -225,6 +280,7 @@ export const createNewCategory = async (categoryData: {
       data: {
         categoryName: categoryData.categoryName,
         colorCode: categoryData.colorCode,
+        userClerkId: user.id,
         totalProducts: 0,
       },
     });

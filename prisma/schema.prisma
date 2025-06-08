@@ -27,6 +27,9 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   payment      Payments?
+  Category     Category[]
+  Brand        Brand[]
+  Units        Units[]
 }
 
 model Branches {
@@ -114,9 +117,13 @@ model Category {
   colorCode     String
   totalProducts Int        @default(0)
   totalProfit   Decimal?   @default(0)
+  user          User       @relation(fields: [userClerkId], references: [clerkUserId], onDelete: Cascade)
+  userClerkId   String
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   Products      Products[]
+
+  @@unique([categoryName, userClerkId])
 }
 
 model Brand {
@@ -127,18 +134,26 @@ model Brand {
   totalRevenue Decimal?   @default(0)
   totalProfit  Decimal?   @default(0)
   products     Products[]
+  user         User       @relation(fields: [userClerkId], references: [clerkUserId], onDelete: Cascade)
+  userClerkId  String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+
+  @@unique([brandName, userClerkId])
 }
 
 model Units {
-  id        String     @id @default(cuid())
-  unitName  String
-  unitCode  String
-  canDelete Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  products  Products[]
+  id          String     @id @default(cuid())
+  unitName    String
+  unitCode    String
+  canDelete   Boolean    @default(true)
+  products    Products[]
+  user        User?      @relation(fields: [userClerkId], references: [clerkUserId], onDelete: Cascade)
+  userClerkId String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([unitName, userClerkId])
 }
 
 model Products {
