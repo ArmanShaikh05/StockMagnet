@@ -159,8 +159,8 @@ model Units {
 model Products {
   id                 String        @id @default(cuid())
   productName        String
-  productImage       String?
-  imageId            String?
+  productImage       String
+  imageId            String
   productSno         String
   MRP                Decimal
   purchasePrice      Decimal

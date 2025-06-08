@@ -1,4 +1,4 @@
-
+import { Prisma } from "@/lib/generated/prisma";
 
 export type LowStockProductTypes = {
   name: string;
@@ -112,4 +112,13 @@ export type TaxesType = {
   value: number;
 };
 
-
+export type CurrentUserType = Prisma.UserGetPayload<{
+  include: {
+    branches: {
+      include: {
+        products: true;
+      };
+    };
+    payment: true;
+  };
+}>;

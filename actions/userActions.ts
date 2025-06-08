@@ -11,7 +11,15 @@ export const getCurrentUserDetails = async () => {
     const userData = await db.user.findUnique({
       where: { clerkUserId: user.id },
       include: {
-        branches: true,
+        branches: {
+          include: {
+            products: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
         payment: true,
       },
     });
@@ -22,5 +30,3 @@ export const getCurrentUserDetails = async () => {
     return null;
   }
 };
-
-

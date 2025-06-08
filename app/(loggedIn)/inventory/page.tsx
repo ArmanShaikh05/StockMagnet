@@ -1,5 +1,6 @@
 import { getCurrentUserDetails } from "@/actions/userActions";
 import EmptyInventory from "@/components/empty/EmptyInventory";
+import ExportProductsToCsv from "@/components/inventory/ExportProductsToCsv";
 import InventoryCardSection from "@/components/inventory/InventoryCardSection";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import {
@@ -11,13 +12,18 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Plus } from "lucide-react";
+import { CurrentUserType } from "@/types/types";
+import { RedirectToSignIn } from "@clerk/nextjs";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 const page = async () => {
-  const user = await getCurrentUserDetails();
-  
-  
+  const user: CurrentUserType | null = await getCurrentUserDetails();
+
+  if (!user) {
+    return <RedirectToSignIn />;
+  }
+
   return (
     <section className="my-2 mt-6 w-full  flex flex-col items-center">
       {user?.branches && user.branches.length === 0 ? (
@@ -29,11 +35,7 @@ const page = async () => {
               Inventory
             </h2>
             <div className="flex items-center gap-2">
-              <Button variant={"outline"}>
-                <FileSpreadsheet size={16} />
-                <span className="hidden xs:block">Export CSV</span>
-                <span className="xs:hidden">Export</span>
-              </Button>
+              <ExportProductsToCsv user={user} />
               <Link href={"/add-product"}>
                 <Button>
                   <Plus size={16} />

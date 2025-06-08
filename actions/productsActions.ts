@@ -315,3 +315,66 @@ export const editProduct = async ({
     return { success: false, message: "Error editing product" };
   }
 };
+
+export const deleteMultipleProducts = async (productIds: string[]) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    // Step 1: Fetch all matching products in one DB call
+    const allProductsData = await db.products.findMany({
+      where: { id: { in: productIds } },
+    });
+
+    // Step 2: Extract unique categoryIds and brandIds
+    const categoryIds = new Set<string>();
+    const brandIds = new Set<string>();
+
+    // Step 3: Delete product image + product itself
+    for (const product of allProductsData) {
+      if (product.imageId) {
+        await deleteImageFromImagekit(product.imageId);
+      }
+
+      await db.products.delete({
+        where: { id: product.id },
+      });
+
+      categoryIds.add(product.categoryId);
+      brandIds.add(product.brandId);
+    }
+
+    // Step 4: Recalculate product counts for each affected category
+    for (const categoryId of categoryIds) {
+      const count = await db.products.count({
+        where: { categoryId },
+      });
+
+      await db.category.update({
+        where: { id: categoryId },
+        data: { totalProducts: count },
+      });
+    }
+
+    // Step 5: Recalculate product counts for each affected brand
+    for (const brandId of brandIds) {
+      const count = await db.products.count({
+        where: { brandId },
+      });
+
+      await db.brand.update({
+        where: { id: brandId },
+        data: { totalProduct: count },
+      });
+    }
+
+    return {
+      success: true,
+      message: "All selected products deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting selected products from DB:", error);
+    return { success: false, message: "Error deleting selected products" };
+  }
+};
