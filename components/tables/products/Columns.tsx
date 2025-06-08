@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SerializedProductType } from "@/types/serializedTypes";
 import Image from "next/image";
+import Link from "next/link";
 
 export const columns = (
   onDeleteClick: (productId: string) => void
@@ -255,10 +256,12 @@ export const columns = (
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
-              <div className="flex items-center gap-2">
-                <Pencil size={14} />
-                <span>Edit</span>
-              </div>
+              <Link href={`/edit-product/${row.original.id}`}>
+                <div className="flex items-center gap-2">
+                  <Pencil size={14} />
+                  <span>Edit</span>
+                </div>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <div

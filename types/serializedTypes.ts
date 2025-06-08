@@ -98,3 +98,13 @@ type SerializedProductForUnitType = Omit<
 export type SerializedUnitType = Omit<UnitsWithDecimal, "products"> & {
   products: SerializedProductForUnitType[];
 };
+
+// SINGLE SERIALIZED PRODUCT USE IN EDIT PRODUCT DIALOG
+
+export type SerializedSingleProduct = Omit<
+  Prisma.ProductsGetPayload<{}>,
+  "MRP" | "purchasePrice"
+> & {
+  MRP: string;
+  purchasePrice: string;
+};

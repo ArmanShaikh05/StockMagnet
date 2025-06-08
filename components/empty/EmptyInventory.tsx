@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { PackageX, Plus } from "lucide-react";
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 const EmptyInventory = () => {
   const onCreate = () => {
@@ -39,10 +40,12 @@ const EmptyInventory = () => {
           items.
         </p>
 
-        <Button onClick={onCreate}>
-          <Plus className="w-5 h-5" />
-          Add Product
-        </Button>
+        <Link href={"/add-product"}>
+          <Button onClick={onCreate}>
+            <Plus className="w-5 h-5" />
+            Add Product
+          </Button>
+        </Link>
       </motion.div>
     </motion.div>
   );
