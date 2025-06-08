@@ -373,16 +373,6 @@ export const getProductsDataofBranch = async (branchId: string) => {
         message: "Unauthorized user",
       };
 
-    // const branchProducts = await db.branches.findUnique({
-    //   where: {
-    //     id: branchId,
-    //   },
-    //   select: {
-    //     id: true,
-    //     products: true,
-    //   },
-    // });
-
     const branchProducts = await db.products.findMany({
       where: {
         branchId: branchId,

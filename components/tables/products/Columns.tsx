@@ -25,7 +25,9 @@ import { cn } from "@/lib/utils";
 import { SerializedProductType } from "@/types/serializedTypes";
 import Image from "next/image";
 
-export const columns: ColumnDef<SerializedProductType>[] = [
+export const columns = (
+  onDeleteClick: (productId: string) => void
+): ColumnDef<SerializedProductType>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -235,7 +237,7 @@ export const columns: ColumnDef<SerializedProductType>[] = [
   },
   {
     id: "actions",
-    cell: () => {
+    cell: ({ row }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -259,7 +261,10 @@ export const columns: ColumnDef<SerializedProductType>[] = [
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                onClick={() => onDeleteClick(row.original.id)}
+              >
                 <Trash2 size={14} />
                 <span>Delete</span>
               </div>

@@ -15,6 +15,7 @@ import InventoryTableHeader from "./InventoryTableHeader";
 import EmptyInventory from "../empty/EmptyInventory";
 import InventoryLoading from "../loading/InventoryLoading";
 import { getAllBrands, getAllCategory } from "@/actions/utilityActions";
+import DeleteProductDialog from "./DeleteProductDialog";
 
 const InventoryTable = () => {
   const [searchString, setSearchString] = useState<string>("");
@@ -29,6 +30,10 @@ const InventoryTable = () => {
   const [allCategories, setAllCategories] = useState<SerializedCategoryType[]>(
     []
   );
+
+  const [showDeleteProductDialog, setShowDeleteProductDialog] =
+    useState<boolean>(false);
+  const [deletProductId, setDeleteProductId] = useState<string>("");
 
   const { selectedBranch } = useBranchStore();
 
@@ -97,6 +102,11 @@ const InventoryTable = () => {
     statusFilters,
   ]);
 
+  const handleDeleteProduct = (productId: string) => {
+    setDeleteProductId(productId);
+    setShowDeleteProductDialog(true);
+  };
+
   return (
     <Card className="shadow-lg">
       {loading ? (
@@ -122,11 +132,22 @@ const InventoryTable = () => {
           </CardHeader>
           <CardContent>
             {productsData.length > 0 ? (
-              <ProductsTable columns={columns} data={filteredData} />
+              <ProductsTable
+                columns={columns(handleDeleteProduct)}
+                data={filteredData}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <EmptyInventory />
               </div>
+            )}
+
+            {showDeleteProductDialog && (
+              <DeleteProductDialog
+                open={showDeleteProductDialog}
+                setOpen={setShowDeleteProductDialog}
+                productId={deletProductId}
+              />
             )}
           </CardContent>
         </>

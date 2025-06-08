@@ -1,6 +1,7 @@
 "use server";
 
 import db from "@/lib/prisma";
+import { deleteImageFromImagekit } from "@/utils/deleteImage";
 import { currentUser } from "@clerk/nextjs/server";
 
 type ProductData = {
@@ -89,5 +90,67 @@ export const createNewProduct = async (data: ProductData) => {
   } catch (error) {
     console.error("Error adding prodcut to DB:", error);
     return { success: false, message: "Error creating product" };
+  }
+};
+
+export const deleteProduct = async (productId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    const oldProductData = await db.products.findFirst({
+      where: {
+        id: productId,
+      },
+      select: {
+        categoryId: true,
+        brandId: true,
+        imageId: true,
+      },
+    });
+
+    if (!oldProductData || !oldProductData.imageId) {
+      return { success: false, message: "Product not found" };
+    }
+
+    await db.products.delete({
+      where: {
+        id: productId,
+      },
+    });
+
+    await deleteImageFromImagekit(oldProductData.imageId);
+
+    await db.category.update({
+      where: {
+        id: oldProductData.categoryId,
+      },
+      data: {
+        totalProducts: await db.products.count({
+          where: {
+            categoryId: oldProductData.categoryId,
+          },
+        }),
+      },
+    });
+
+    await db.brand.update({
+      where: {
+        id: oldProductData.brandId,
+      },
+      data: {
+        totalProduct: await db.products.count({
+          where: {
+            brandId: oldProductData.brandId,
+          },
+        }),
+      },
+    });
+
+    return { success: true, message: "Product deleted successfully " };
+  } catch (error) {
+    console.error("Error deleting prodcut from DB:", error);
+    return { success: false, message: "Error deleting product" };
   }
 };
