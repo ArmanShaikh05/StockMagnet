@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 
 import {
@@ -237,9 +238,9 @@ const CreateNewBrand = ({
             </ScrollArea>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => {}}>
-                Cancel
-              </Button>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
               <Button onClick={() => setView("create")}>Add New</Button>
             </DialogFooter>
           </>
@@ -251,46 +252,46 @@ const CreateNewBrand = ({
                 Provide brand name and choose a color.
               </DialogDescription>
             </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="grid gap-2">
-                <Label>Brand Name</Label>
-                <Input
-                  placeholder="Enter brand name"
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                />
-                {errorStates.nameError && (
-                  <p className="text-xs text-red-500">
-                    {errorStates.nameError}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label>Color</Label>
-                <div className="flex gap-2 flex-wrap">
-                  {colors.map((color, index) => {
-                    const hex = color.slice(5, -1); // extract actual hex value
-                    return (
-                      <span
-                        key={index}
-                        className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
-                          colorCode === hex ? "ring-2 ring-black" : ""
-                        }`}
-                        onClick={() => setColorCode(hex)}
-                      />
-                    );
-                  })}
+            <form>
+              <div className="space-y-4">
+                <div className="grid gap-2">
+                  <Label>Brand Name</Label>
+                  <Input
+                    placeholder="Enter brand name"
+                    value={brandName}
+                    onChange={(e) => setBrandName(e.target.value)}
+                  />
+                  {errorStates.nameError && (
+                    <p className="text-xs text-red-500">
+                      {errorStates.nameError}
+                    </p>
+                  )}
                 </div>
-                {errorStates.colorError && (
-                  <p className="text-xs text-red-500">
-                    {errorStates.colorError}
-                  </p>
-                )}
-              </div>
-            </div>
 
+                <div className="grid gap-2">
+                  <Label>Color</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {colors.map((color, index) => {
+                      const hex = color.slice(5, -1); // extract actual hex value
+                      return (
+                        <span
+                          key={index}
+                          className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
+                            colorCode === hex ? "ring-2 ring-black" : ""
+                          }`}
+                          onClick={() => setColorCode(hex)}
+                        />
+                      );
+                    })}
+                  </div>
+                  {errorStates.colorError && (
+                    <p className="text-xs text-red-500">
+                      {errorStates.colorError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </form>
             <DialogFooter>
               <Button variant="outline" onClick={() => setView("manage")}>
                 Back
