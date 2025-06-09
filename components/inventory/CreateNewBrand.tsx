@@ -230,10 +230,7 @@ const CreateNewBrand = ({
       </AlertDialog>
 
       {/* Create Brand Dialog */}
-      <Dialog
-        open={showCreateNewBrandDialog}
-        onOpenChange={setShowCreateNewBrandDialog}
-      >
+      <Dialog open={showCreateNewBrandDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create Brand</DialogTitle>
@@ -281,7 +278,10 @@ const CreateNewBrand = ({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowCreateNewBrandDialog(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setShowCreateNewBrandDialog(false);
+              }}
               disabled={loading}
             >
               Cancel
