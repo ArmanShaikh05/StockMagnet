@@ -1,59 +1,58 @@
 "use client";
 
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-// import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Trash2, Loader2 } from "lucide-react";
 
 import { createNewBrand, deleteBrand } from "@/actions/utilityActions";
 import { SerializedBrandType } from "@/types/serializedTypes";
 
 import {
   Dialog,
-  DialogTrigger,
+  DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import {
   AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 // BrandCard component
-const BrandCard = ({
-  brandData,
-  onDeleteSuccess,
-}: {
-  brandData: SerializedBrandType;
-  onDeleteSuccess: () => void;
-}) => {
+const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const router = useRouter();
 
-  const handleDelete = async () => {
+  const handleDelete = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     try {
+      e.preventDefault();
       setLoading(true);
       const response = await deleteBrand(brandData.id);
 
       if (response.success) {
         toast.success(response.message);
-        onDeleteSuccess();
+        router.refresh();
         setShowDeleteDialog(false);
       } else {
         toast.error(response.message);
@@ -92,7 +91,7 @@ const BrandCard = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction asChild>
-                <Button disabled={loading} onClick={handleDelete}>
+                <Button disabled={loading} onClick={(e) => handleDelete(e)}>
                   {loading ? (
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -117,7 +116,7 @@ const CreateNewBrand = ({
 }: {
   brandsData: SerializedBrandType[];
 }) => {
-  // const router = useRouter();
+  const router = useRouter();
   const [view, setView] = useState<"manage" | "create">("manage");
 
   const [brandName, setBrandName] = useState("");
@@ -143,8 +142,11 @@ const CreateNewBrand = ({
     "bg-[#F2B8B5]",
   ];
 
-  const createBrand = async () => {
+  const createBrand = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     setErrorStates({ nameError: null, colorError: null });
+    e.preventDefault();
 
     if (!brandName.trim()) {
       setErrorStates((prev) => ({
@@ -175,7 +177,7 @@ const CreateNewBrand = ({
         setErrorStates({ nameError: null, colorError: null });
 
         // Optionally refresh list here without full page refresh
-        // router.refresh();  // <-- comment out to avoid closing dialog on refresh
+        router.refresh();
       } else {
         toast.error(res.message);
       }
@@ -187,7 +189,7 @@ const CreateNewBrand = ({
     }
   };
 
-  return (
+  return view === "manage" ? (
     <Dialog
       // Use uncontrolled dialog: no open or setOpen
       onOpenChange={(open) => {
@@ -208,106 +210,110 @@ const CreateNewBrand = ({
       </DialogTrigger>
 
       <DialogContent className="mobile:fixed">
-        {view === "manage" ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>Manage Brands</DialogTitle>
-              <DialogDescription>
-                View all brands and remove those with no products.
-              </DialogDescription>
-            </DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Manage Brands</DialogTitle>
+          <DialogDescription>
+            View all brands and remove those with no products.
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="h-92">
+          {brandsData.length > 0 ? (
+            brandsData.map((brand) => (
+              <BrandCard key={brand.id} brandData={brand} />
+            ))
+          ) : (
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              No brands found.
+            </p>
+          )}
+        </ScrollArea>
 
-            <ScrollArea className="h-92">
-              {brandsData.length > 0 ? (
-                brandsData.map((brand) => (
-                  <BrandCard
-                    key={brand.id}
-                    brandData={brand}
-                    onDeleteSuccess={() => {
-                      // Optionally refresh brands here without full page reload
-                      // router.refresh(); <-- comment out for now
-                    }}
-                  />
-                ))
-              ) : (
-                <p className="text-center text-sm text-muted-foreground mt-4">
-                  No brands found.
-                </p>
-              )}
-            </ScrollArea>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => {}}>
-                Cancel
-              </Button>
-              <Button onClick={() => setView("create")}>Add New</Button>
-            </DialogFooter>
-          </>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>Create Brand</DialogTitle>
-              <DialogDescription>
-                Provide brand name and choose a color.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid gap-2">
-                <Label>Brand Name</Label>
-                <Input
-                  placeholder="Enter brand name"
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                />
-                {errorStates.nameError && (
-                  <p className="text-xs text-red-500">
-                    {errorStates.nameError}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label>Color</Label>
-                <div className="flex gap-2 flex-wrap">
-                  {colors.map((color, index) => {
-                    const hex = color.slice(5, -1); // extract actual hex value
-                    return (
-                      <span
-                        key={index}
-                        className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
-                          colorCode === hex ? "ring-2 ring-black" : ""
-                        }`}
-                        onClick={() => setColorCode(hex)}
-                      />
-                    );
-                  })}
-                </div>
-                {errorStates.colorError && (
-                  <p className="text-xs text-red-500">
-                    {errorStates.colorError}
-                  </p>
-                )}
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setView("manage")}>
-                Back
-              </Button>
-              <Button onClick={createBrand} disabled={loading}>
-                {loading ? (
-                  <div className="flex gap-2 items-center">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating...
-                  </div>
-                ) : (
-                  "Create Brand"
-                )}
-              </Button>
-            </DialogFooter>
-          </>
-        )}
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button onClick={() => setView("create")}>Add New</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
+  ) : (
+    <AlertDialog
+      open={view === "create"}
+      onOpenChange={(open) => {
+        if (!open) {
+          setView("manage");
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create Brand</AlertDialogTitle>
+          <AlertDialogDescription>
+            Provide brand name and choose a color.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="space-y-4">
+          <div className="grid gap-2">
+            <Label>Brand Name</Label>
+            <Input
+              placeholder="Enter brand name"
+              value={brandName}
+              onChange={(e) => setBrandName(e.target.value)}
+            />
+            {errorStates.nameError && (
+              <p className="text-xs text-red-500">{errorStates.nameError}</p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Color</Label>
+            <div className="flex gap-2 flex-wrap">
+              {colors.map((color, index) => {
+                const hex = color.slice(5, -1); // extract actual hex value
+                return (
+                  <span
+                    key={index}
+                    className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
+                      colorCode === hex ? "ring-2 ring-black" : ""
+                    }`}
+                    onClick={() => setColorCode(hex)}
+                  />
+                );
+              })}
+            </div>
+            {errorStates.colorError && (
+              <p className="text-xs text-red-500">{errorStates.colorError}</p>
+            )}
+          </div>
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
+            <Button
+              variant={"secondary"}
+              onClick={(e) => {
+                e.preventDefault();
+                setView("manage");
+              }}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+          </AlertDialogCancel>
+          <AlertDialogAction asChild>
+            <Button onClick={(e) => createBrand(e)} disabled={loading}>
+              {loading ? (
+                <div className="flex gap-2 items-center">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating...
+                </div>
+              ) : (
+                "Create Brand"
+              )}
+            </Button>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
