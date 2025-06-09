@@ -218,7 +218,10 @@ const CreateNewBrand = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => setShowCreateNewBrandDialog(true)}
+              onClick={(e) => {
+                e.preventDefault();
+                setShowCreateNewBrandDialog(true);
+              }}
             >
               Add New
             </AlertDialogAction>
