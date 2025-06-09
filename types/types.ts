@@ -116,7 +116,11 @@ export type CurrentUserType = Prisma.UserGetPayload<{
   include: {
     branches: {
       include: {
-        products: true;
+        products: {
+          select: {
+            id: true;
+          };
+        };
       };
     };
     payment: true;

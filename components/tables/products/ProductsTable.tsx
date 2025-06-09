@@ -3,13 +3,14 @@
 import {
   ColumnDef,
   flexRender,
-  SortingState,
   getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
   getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
 
+import DeleteAllProductRows from "@/components/inventory/DeleteAllProductRows";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -22,8 +23,6 @@ import {
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Pagination } from "../Pagination";
-import DeleteAllProductRows from "@/components/inventory/DeleteAllProductRows";
-import { SerializedProductType } from "@/types/serializedTypes";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,7 +31,8 @@ interface DataTableProps<TData, TValue> {
   showPagination?: boolean;
 }
 
-const ProductsTable = <TData extends SerializedProductType, TValue>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ProductsTable = <TData extends Record<string, any>, TValue>({
   columns,
   data,
   showPagination = true,
