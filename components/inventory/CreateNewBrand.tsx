@@ -232,7 +232,12 @@ const CreateNewBrand = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => setShowCreateNewBrandDialog(true)}
+              onClick={() => {
+                setShowBrandListDialog(false); // close the alert dialog manually
+                setTimeout(() => {
+                  setShowCreateNewBrandDialog(true); // then open the dialog
+                }, 100); // slight delay to ensure DOM is updated
+              }}
             >
               Add New
             </AlertDialogAction>
