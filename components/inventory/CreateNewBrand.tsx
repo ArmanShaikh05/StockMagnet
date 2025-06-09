@@ -200,75 +200,41 @@ const CreateNewBrand = ({
 
   return (
     <>
-      <Dialog
-        open={showCreateNewBrandDialog}
-        onOpenChange={setShowCreateNewBrandDialog}
-      >
-        <DialogTrigger asChild>
-          <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
-            <Plus size={14} />
-            New Brand
-          </Button>
-        </DialogTrigger>
-        <DialogContent onTouchStart={(e) => e.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle>Create Brand</DialogTitle>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-6">
-            <div className="grid gap-3">
-              <Label htmlFor="name-1">Brand Name</Label>
-              <Input
-                id="name-1"
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                placeholder="Brand name here"
-                autoFocus={false}
-              />
-              {errorStates.nameError && (
-                <p className="text-red-500 text-xs mt-2">
-                  {errorStates.nameError}
-                </p>
-              )}
-            </div>
-            <div className="grid gap-3">
-              <Label>Color code</Label>
-              <div className="w-full flex items-center gap-2 ">
-                {colors.map((color, index) => (
-                  <span
-                    key={index}
-                    className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
-                      color.includes(colorCode) && "border-3 border-black"
-                    }`}
-                    onClick={() => setColorCode(color.slice(4, 11))}
-                  />
-                ))}
+      <Dialog>
+        <form>
+          <DialogTrigger asChild>
+            <Button variant="outline">Open Dialog</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit profile</DialogTitle>
+              <DialogDescription>
+                Make changes to your profile here. Click save when you&apos;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name-1">Name</Label>
+                <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
               </div>
-              {errorStates.colorError && (
-                <p className="text-red-500 text-xs mt-2">
-                  {errorStates.colorError}
-                </p>
-              )}
+              <div className="grid gap-3">
+                <Label htmlFor="username-1">Username</Label>
+                <Input
+                  id="username-1"
+                  name="username"
+                  defaultValue="@peduarte"
+                />
+              </div>
             </div>
-          </div>
-
-          <DialogFooter>
-            <DialogClose disabled={loading}>Cancel</DialogClose>
-            {/* <AlertDialogAction asChild> */}
-            <Button disabled={loading} onClick={(e) => createBrand(e)}>
-              {loading ? (
-                <div className="flex w-full items-center justify-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Creating Brand</span>
-                </div>
-              ) : (
-                "Create Brand"
-              )}
-            </Button>
-            {/* </AlertDialogAction> */}
-          </DialogFooter>
-        </DialogContent>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
       </Dialog>
 
       {/* <AlertDialog>
