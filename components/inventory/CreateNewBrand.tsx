@@ -10,15 +10,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { SerializedBrandType } from "@/types/serializedTypes";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -121,8 +112,6 @@ const CreateNewBrand = ({
   const [showCreateNewBrandDialog, setShowCreateNewBrandDialog] =
     useState<boolean>(false);
 
-  const [showBrandLisDialog, setShowBrandListDialog] = useState<boolean>(false);
-
   const [brandName, setBrandName] = useState<string>("");
   const [colorCode, setColorCode] = useState<string>("x");
   const [errorStates, setErrorStates] = useState<{
@@ -200,10 +189,7 @@ const CreateNewBrand = ({
 
   return (
     <>
-      <AlertDialog
-        open={showBrandLisDialog}
-        onOpenChange={setShowBrandListDialog}
-      >
+      <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
             <Plus size={14} />
@@ -232,15 +218,7 @@ const CreateNewBrand = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                // Close the alert dialog
-                setShowBrandListDialog(false);
-
-                // Open dialog AFTER a DOM paint tick
-                requestAnimationFrame(() => {
-                  setShowCreateNewBrandDialog(true);
-                });
-              }}
+              onClick={() => setShowCreateNewBrandDialog(true)}
             >
               Add New
             </AlertDialogAction>
@@ -249,15 +227,15 @@ const CreateNewBrand = ({
       </AlertDialog>
 
       {showCreateNewBrandDialog && (
-        <Dialog
+        <AlertDialog
           open={showCreateNewBrandDialog}
           onOpenChange={setShowCreateNewBrandDialog}
         >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Brand</DialogTitle>
-              <DialogDescription></DialogDescription>
-            </DialogHeader>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Create Brand</AlertDialogTitle>
+              <AlertDialogDescription></AlertDialogDescription>
+            </AlertDialogHeader>
 
             <div className="grid gap-6">
               <div className="grid gap-3">
@@ -295,27 +273,23 @@ const CreateNewBrand = ({
               </div>
             </div>
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowCreateNewBrandDialog(false)}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button disabled={loading} onClick={(e) => createBrand(e)}>
-                {loading ? (
-                  <div className="flex w-full items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Creating Brand</span>
-                  </div>
-                ) : (
-                  "Create Brand"
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button disabled={loading} onClick={(e) => createBrand(e)}>
+                  {loading ? (
+                    <div className="flex w-full items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">Creating Brand</span>
+                    </div>
+                  ) : (
+                    "Create Brand"
+                  )}
+                </Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   );
