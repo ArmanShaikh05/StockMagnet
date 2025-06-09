@@ -19,6 +19,16 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 // import { ScrollArea } from "../ui/scroll-area";
 
 // const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
@@ -190,21 +200,21 @@ const CreateNewBrand = ({
 
   return (
     <>
-      <AlertDialog
+      <Dialog
         open={showCreateNewBrandDialog}
         onOpenChange={setShowCreateNewBrandDialog}
       >
-        <AlertDialogTrigger asChild>
+        <DialogTrigger asChild>
           <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
             <Plus size={14} />
             New Brand
           </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Create Brand</AlertDialogTitle>
-            <AlertDialogDescription></AlertDialogDescription>
-          </AlertDialogHeader>
+        </DialogTrigger>
+        <DialogContent onTouchStart={(e) => e.stopPropagation()}>
+          <DialogHeader>
+            <DialogTitle>Create Brand</DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
 
           <div className="grid gap-6">
             <div className="grid gap-3">
@@ -242,23 +252,23 @@ const CreateNewBrand = ({
             </div>
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button disabled={loading} onClick={(e) => createBrand(e)}>
-                {loading ? (
-                  <div className="flex w-full items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Creating Brand</span>
-                  </div>
-                ) : (
-                  "Create Brand"
-                )}
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <DialogFooter>
+            <DialogClose disabled={loading}>Cancel</DialogClose>
+            {/* <AlertDialogAction asChild> */}
+            <Button disabled={loading} onClick={(e) => createBrand(e)}>
+              {loading ? (
+                <div className="flex w-full items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Creating Brand</span>
+                </div>
+              ) : (
+                "Create Brand"
+              )}
+            </Button>
+            {/* </AlertDialogAction> */}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* <AlertDialog>
         <AlertDialogTrigger asChild>
