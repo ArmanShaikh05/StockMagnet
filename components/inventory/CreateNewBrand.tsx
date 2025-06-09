@@ -10,6 +10,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { SerializedBrandType } from "@/types/serializedTypes";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -227,15 +236,15 @@ const CreateNewBrand = ({
       </AlertDialog>
 
       {showCreateNewBrandDialog && (
-        <AlertDialog
+        <Dialog
           open={showCreateNewBrandDialog}
           onOpenChange={setShowCreateNewBrandDialog}
         >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Create Brand</AlertDialogTitle>
-              <AlertDialogDescription></AlertDialogDescription>
-            </AlertDialogHeader>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Brand</DialogTitle>
+              <DialogDescription></DialogDescription>
+            </DialogHeader>
 
             <div className="grid gap-6">
               <div className="grid gap-3">
@@ -273,23 +282,27 @@ const CreateNewBrand = ({
               </div>
             </div>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-              <AlertDialogAction asChild>
-                <Button disabled={loading} onClick={(e) => createBrand(e)}>
-                  {loading ? (
-                    <div className="flex w-full items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm">Creating Brand</span>
-                    </div>
-                  ) : (
-                    "Create Brand"
-                  )}
-                </Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowCreateNewBrandDialog(false)}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button disabled={loading} onClick={(e) => createBrand(e)}>
+                {loading ? (
+                  <div className="flex w-full items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Creating Brand</span>
+                  </div>
+                ) : (
+                  "Create Brand"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

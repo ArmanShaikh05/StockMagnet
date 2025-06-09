@@ -174,7 +174,7 @@ const OnboardingComponent = ({
       <CardContent className="w-[95%] xs:w-full mx-auto px-2 xs:px-6">
         <div className="flex flex-col   max-w-[550px] items-center">
           <div className="flex gap-2 items-end ">
-            <p className="text-xs sm:text-sm pb-1 ">Welcom To,</p>
+            <p className="text-xs sm:text-sm pb-1 ">Welcome To,</p>
             <span className="text-xl sm:text-3xl  text-main font-bold">
               StockMagnet
             </span>
