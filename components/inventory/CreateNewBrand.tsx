@@ -224,6 +224,7 @@ const CreateNewBrand = ({
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
                 placeholder="Brand name here"
+                autoFocus={false}
               />
               {errorStates.nameError && (
                 <p className="text-red-500 text-xs mt-2">
