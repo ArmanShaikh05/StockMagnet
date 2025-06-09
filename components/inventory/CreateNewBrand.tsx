@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 
@@ -117,7 +117,7 @@ const CreateNewBrand = ({
 }: {
   brandsData: SerializedBrandType[];
 }) => {
-  const router = useRouter();
+  // const router = useRouter();
   const [view, setView] = useState<"manage" | "create">("manage");
 
   const [brandName, setBrandName] = useState("");
