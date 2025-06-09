@@ -1,3 +1,5 @@
+"use client";
+
 import { createNewBrand, deleteBrand } from "@/actions/utilityActions";
 import {
   AlertDialog,
@@ -10,6 +12,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
 import { SerializedBrandType } from "@/types/serializedTypes";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,9 +53,7 @@ const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
         toast.success(response.message);
         router.refresh();
         setShowDeleteBrandDialog(false);
-      }
-
-      if (!response.success) {
+      } else {
         toast.error(response.message);
       }
     } catch (error) {
@@ -54,7 +64,7 @@ const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
   };
 
   return (
-    <div className="w-full px-6 py-2  border-b flex justify-between items-center">
+    <div className="w-full px-6 py-2 border-b flex justify-between items-center">
       <div className="flex flex-col grow">
         <h2 className="text-sm">{brandData.brandName}</h2>
         <p className="text-[10px]">{brandData.totalProduct} products</p>
@@ -140,10 +150,7 @@ const CreateNewBrand = ({
   ) => {
     try {
       e.preventDefault();
-      setErrorStates({
-        nameError: null,
-        colorError: null,
-      });
+      setErrorStates({ nameError: null, colorError: null });
 
       if (!brandName) {
         setErrorStates((prev) => ({
@@ -156,17 +163,14 @@ const CreateNewBrand = ({
       if (!colorCode || colorCode === "x") {
         setErrorStates((prev) => ({
           ...prev,
-          colorError: "color code is required",
+          colorError: "Color code is required",
         }));
         return;
       }
 
       setLoading(true);
 
-      const brandData = {
-        brandName,
-        colorCode,
-      };
+      const brandData = { brandName, colorCode };
 
       const response: { success: boolean; message: string } =
         await createNewBrand(brandData);
@@ -175,9 +179,7 @@ const CreateNewBrand = ({
         router.refresh();
         toast.success(response.message);
         setShowCreateNewBrandDialog(false);
-      }
-
-      if (!response.success) {
+      } else {
         toast.error(response.message);
       }
     } catch (error) {
@@ -189,6 +191,7 @@ const CreateNewBrand = ({
 
   return (
     <>
+      {/* Manage Brands Dialog */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
@@ -217,91 +220,85 @@ const CreateNewBrand = ({
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                setShowCreateNewBrandDialog(true);
-              }}
-            >
-              Add New
+            <AlertDialogAction asChild>
+              <Button onClick={() => setShowCreateNewBrandDialog(true)}>
+                Add New
+              </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {showCreateNewBrandDialog && (
-        <AlertDialog
-          open={showCreateNewBrandDialog}
-          onOpenChange={setShowCreateNewBrandDialog}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Create Brand</AlertDialogTitle>
-              <AlertDialogDescription></AlertDialogDescription>
-            </AlertDialogHeader>
+      {/* Create Brand Dialog */}
+      <Dialog
+        open={showCreateNewBrandDialog}
+        onOpenChange={setShowCreateNewBrandDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Brand</DialogTitle>
+            <DialogDescription>
+              Enter brand name and select a color code.
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="grid gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="name-1">Brand Name</Label>
-                <Input
-                  id="name-1"
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="Brand name here"
-                />
-                {errorStates.nameError && (
-                  <p className="text-red-500 text-xs mt-2">
-                    {errorStates.nameError}
-                  </p>
-                )}
-              </div>
-              <div className="grid gap-3">
-                <Label>Color code</Label>
-                <div className="w-full flex items-center gap-2 ">
-                  {colors.map((color, index) => (
-                    <span
-                      key={index}
-                      className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
-                        color.includes(colorCode) && "border-3 border-black"
-                      }`}
-                      onClick={() => setColorCode(color.slice(4, 11))}
-                    />
-                  ))}
-                </div>
-                {errorStates.colorError && (
-                  <p className="text-red-500 text-xs mt-2">
-                    {errorStates.colorError}
-                  </p>
-                )}
-              </div>
+          <div className="grid gap-6">
+            <div className="grid gap-3">
+              <Label htmlFor="name-1">Brand Name</Label>
+              <Input
+                id="name-1"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="Brand name here"
+              />
+              {errorStates.nameError && (
+                <p className="text-red-500 text-xs mt-2">
+                  {errorStates.nameError}
+                </p>
+              )}
             </div>
+            <div className="grid gap-3">
+              <Label>Color code</Label>
+              <div className="w-full flex items-center gap-2">
+                {colors.map((color, index) => (
+                  <span
+                    key={index}
+                    className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
+                      color.includes(colorCode) && "border-3 border-black"
+                    }`}
+                    onClick={() => setColorCode(color.slice(4, 11))}
+                  />
+                ))}
+              </div>
+              {errorStates.colorError && (
+                <p className="text-red-500 text-xs mt-2">
+                  {errorStates.colorError}
+                </p>
+              )}
+            </div>
+          </div>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel
-                disabled={loading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowCreateNewBrandDialog(false);
-                }}
-              >
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction asChild>
-                <Button disabled={loading} onClick={(e) => createBrand(e)}>
-                  {loading ? (
-                    <div className="flex w-full items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm">Creating Brand</span>
-                    </div>
-                  ) : (
-                    "Create Brand"
-                  )}
-                </Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateNewBrandDialog(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button disabled={loading} onClick={(e) => createBrand(e)}>
+              {loading ? (
+                <div className="flex w-full items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Creating Brand</span>
+                </div>
+              ) : (
+                "Create Brand"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
