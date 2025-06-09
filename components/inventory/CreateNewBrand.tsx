@@ -170,7 +170,10 @@ const CreateNewBrand = ({
       if (res.success) {
         toast.success(res.message);
         setDialogOpen(false);
-        router.refresh();
+        // Delay router refresh to allow dialog to close properly on mobile
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
       } else {
         toast.error(res.message);
       }
@@ -187,7 +190,12 @@ const CreateNewBrand = ({
       open={dialogOpen}
       onOpenChange={(open) => {
         setDialogOpen(open);
-        if (!open) setView("manage");
+        if (!open) {
+          setView("manage");
+          setBrandName("");
+          setColorCode("x");
+          setErrorStates({ nameError: null, colorError: null });
+        }
       }}
     >
       <DialogTrigger asChild>
@@ -197,7 +205,7 @@ const CreateNewBrand = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
         {view === "manage" ? (
           <>
             <DialogHeader>
@@ -248,9 +256,7 @@ const CreateNewBrand = ({
                   onChange={(e) => setBrandName(e.target.value)}
                 />
                 {errorStates.nameError && (
-                  <p className="text-xs text-red-500">
-                    {errorStates.nameError}
-                  </p>
+                  <p className="text-xs text-red-500">{errorStates.nameError}</p>
                 )}
               </div>
 
@@ -271,9 +277,7 @@ const CreateNewBrand = ({
                   })}
                 </div>
                 {errorStates.colorError && (
-                  <p className="text-xs text-red-500">
-                    {errorStates.colorError}
-                  </p>
+                  <p className="text-xs text-red-500">{errorStates.colorError}</p>
                 )}
               </div>
             </div>
