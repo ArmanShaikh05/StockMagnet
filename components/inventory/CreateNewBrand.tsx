@@ -277,7 +277,15 @@ const CreateNewBrand = ({
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel
+                disabled={loading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowCreateNewBrandDialog(false);
+                }}
+              >
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction asChild>
                 <Button disabled={loading} onClick={(e) => createBrand(e)}>
                   {loading ? (
