@@ -121,6 +121,8 @@ const CreateNewBrand = ({
   const [showCreateNewBrandDialog, setShowCreateNewBrandDialog] =
     useState<boolean>(false);
 
+  const [showBrandLisDialog, setShowBrandListDialog] = useState<boolean>(false);
+
   const [brandName, setBrandName] = useState<string>("");
   const [colorCode, setColorCode] = useState<string>("x");
   const [errorStates, setErrorStates] = useState<{
@@ -198,7 +200,10 @@ const CreateNewBrand = ({
 
   return (
     <>
-      <AlertDialog>
+      <AlertDialog
+        open={showBrandLisDialog}
+        onOpenChange={setShowBrandListDialog}
+      >
         <AlertDialogTrigger asChild>
           <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
             <Plus size={14} />
