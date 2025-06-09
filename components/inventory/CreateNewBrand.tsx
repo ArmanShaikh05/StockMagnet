@@ -233,10 +233,13 @@ const CreateNewBrand = ({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                setShowBrandListDialog(false); // close the alert dialog manually
-                setTimeout(() => {
-                  setShowCreateNewBrandDialog(true); // then open the dialog
-                }, 100); // slight delay to ensure DOM is updated
+                // Close the alert dialog
+                setShowBrandListDialog(false);
+
+                // Open dialog AFTER a DOM paint tick
+                requestAnimationFrame(() => {
+                  setShowCreateNewBrandDialog(true);
+                });
               }}
             >
               Add New
