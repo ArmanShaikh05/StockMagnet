@@ -118,7 +118,6 @@ const CreateNewBrand = ({
   brandsData: SerializedBrandType[];
 }) => {
   const router = useRouter();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [view, setView] = useState<"manage" | "create">("manage");
 
   const [brandName, setBrandName] = useState("");
@@ -169,11 +168,14 @@ const CreateNewBrand = ({
 
       if (res.success) {
         toast.success(res.message);
-        setDialogOpen(false);
-        // Delay router refresh to allow dialog to close properly on mobile
-        setTimeout(() => {
-          router.refresh();
-        }, 100);
+        // Close dialog by switching view back to manage (dialog auto closes when trigger clicked again)
+        setView("manage");
+        setBrandName("");
+        setColorCode("x");
+        setErrorStates({ nameError: null, colorError: null });
+
+        // Optionally refresh list here without full page refresh
+        // router.refresh();  // <-- comment out to avoid closing dialog on refresh
       } else {
         toast.error(res.message);
       }
@@ -187,10 +189,10 @@ const CreateNewBrand = ({
 
   return (
     <Dialog
-      open={dialogOpen}
+      // Use uncontrolled dialog: no open or setOpen
       onOpenChange={(open) => {
-        setDialogOpen(open);
         if (!open) {
+          // Reset state on dialog close
           setView("manage");
           setBrandName("");
           setColorCode("x");
@@ -205,7 +207,7 @@ const CreateNewBrand = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent onClick={(e) => e.stopPropagation()}>
+      <DialogContent>
         {view === "manage" ? (
           <>
             <DialogHeader>
@@ -221,7 +223,10 @@ const CreateNewBrand = ({
                   <BrandCard
                     key={brand.id}
                     brandData={brand}
-                    onDeleteSuccess={router.refresh}
+                    onDeleteSuccess={() => {
+                      // Optionally refresh brands here without full page reload
+                      // router.refresh(); <-- comment out for now
+                    }}
                   />
                 ))
               ) : (
@@ -232,7 +237,7 @@ const CreateNewBrand = ({
             </ScrollArea>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button variant="outline" onClick={() => {}}>
                 Cancel
               </Button>
               <Button onClick={() => setView("create")}>Add New</Button>
@@ -256,7 +261,9 @@ const CreateNewBrand = ({
                   onChange={(e) => setBrandName(e.target.value)}
                 />
                 {errorStates.nameError && (
-                  <p className="text-xs text-red-500">{errorStates.nameError}</p>
+                  <p className="text-xs text-red-500">
+                    {errorStates.nameError}
+                  </p>
                 )}
               </div>
 
@@ -277,7 +284,9 @@ const CreateNewBrand = ({
                   })}
                 </div>
                 {errorStates.colorError && (
-                  <p className="text-xs text-red-500">{errorStates.colorError}</p>
+                  <p className="text-xs text-red-500">
+                    {errorStates.colorError}
+                  </p>
                 )}
               </div>
             </div>
