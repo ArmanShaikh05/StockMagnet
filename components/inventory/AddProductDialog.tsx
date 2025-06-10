@@ -100,8 +100,13 @@ const AddProductDialog = ({
     tagsError: null,
   });
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectOpen, setSelectOpen] = useState(false);
+  // Select States
+  const [brandDialogOpen, setBrandDialogOpen] = useState<boolean>(false);
+  const [brandSelect, setBrandSelect] = useState(false);
+  const [unitDialogOpen, setUnitDialogOpen] = useState<boolean>(false);
+  const [unitSelect, setUnitSelect] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState<boolean>(false);
+  const [categorySelect, setCategorySelect] = useState(false);
 
   const handleImageChange = () => {
     if (fileInputRef.current) {
@@ -418,8 +423,8 @@ const AddProductDialog = ({
                 Product Brand
               </Label>
               <Select
-                open={selectOpen}
-                onOpenChange={setSelectOpen}
+                open={brandSelect}
+                onOpenChange={setBrandSelect}
                 value={productBrandId}
                 onValueChange={setProductBrandId}
               >
@@ -438,16 +443,19 @@ const AddProductDialog = ({
                   <Button
                     className="w-full"
                     onClick={() => {
-                      setSelectOpen(false); // close the dropdown
-                      setTimeout(() => setIsOpen(true), 0); // open modal after dropdown closes
+                      setBrandSelect(false); // close the dropdown
+                      setTimeout(() => setBrandDialogOpen(true), 0); // open modal after dropdown closes
                     }}
                   >
                     New Brand
                   </Button>
                 </SelectContent>
               </Select>
-              {isOpen && (
-                <CreateNewBrand brandsData={brands} setIsOpen={setIsOpen} />
+              {brandDialogOpen && (
+                <CreateNewBrand
+                  brandsData={brands}
+                  setIsOpen={setBrandDialogOpen}
+                />
               )}
 
               {errorState.productBrandIdError && (
@@ -660,7 +668,12 @@ const AddProductDialog = ({
             <Label htmlFor="branchName" className="text-xs">
               Units
             </Label>
-            <Select value={unitId} onValueChange={setUnitId}>
+            <Select
+              open={unitSelect}
+              onOpenChange={setUnitSelect}
+              value={unitId}
+              onValueChange={setUnitId}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select unit" />
               </SelectTrigger>
@@ -673,9 +686,22 @@ const AddProductDialog = ({
                 ))}
                 {units.length === 0 && <p className=" py-2 pl-2">No Units</p>}
 
-                <CreateNewUnit unitsData={units} />
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setUnitSelect(false); // close the dropdown
+                    setTimeout(() => setUnitDialogOpen(true), 0); // open modal after dropdown closes
+                  }}
+                >
+                  New Unit
+                </Button>
               </SelectContent>
             </Select>
+
+            {unitDialogOpen && (
+              <CreateNewUnit unitsData={units} setIsOpen={setUnitDialogOpen} />
+            )}
+
             {errorState.unitIdError && (
               <p className="text-xs text-red-500 mt-2">
                 {errorState.unitIdError}
@@ -704,7 +730,12 @@ const AddProductDialog = ({
             <Label htmlFor="branchName" className="text-xs">
               Category
             </Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
+            <Select
+              open={categorySelect}
+              onOpenChange={setCategorySelect}
+              value={categoryId}
+              onValueChange={setCategoryId}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -718,9 +749,24 @@ const AddProductDialog = ({
                   <p className=" py-2 pl-2 text-sm">No category</p>
                 )}
 
-                <CreateNewCategory categoryData={categories} />
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setCategorySelect(false); // close the dropdown
+                    setTimeout(() => setCategoryDialogOpen(true), 0); // open modal after dropdown closes
+                  }}
+                >
+                  New Category
+                </Button>
               </SelectContent>
             </Select>
+
+            {categoryDialogOpen && (
+              <CreateNewCategory
+                categoryData={categories}
+                setIsOpen={setCategoryDialogOpen}
+              />
+            )}
             {errorState.categoryIdError && (
               <p className="text-xs text-red-500 mt-2">
                 {errorState.categoryIdError}

@@ -1,3 +1,5 @@
+"use client";
+
 import { createNewCategory, deleteCategory } from "@/actions/utilityActions";
 import {
   AlertDialog,
@@ -10,17 +12,29 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { SerializedCategoryType } from "@/types/serializedTypes";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
 
-const Categorycard = ({ categoryData }: { categoryData: SerializedCategoryType }) => {
+const Categorycard = ({
+  categoryData,
+}: {
+  categoryData: SerializedCategoryType;
+}) => {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] =
@@ -104,11 +118,16 @@ const Categorycard = ({ categoryData }: { categoryData: SerializedCategoryType }
   );
 };
 
-const CreateNewCategory = ({ categoryData }: { categoryData: SerializedCategoryType[] }) => {
+const CreateNewCategory = ({
+  categoryData,
+  setIsOpen,
+}: {
+  categoryData: SerializedCategoryType[];
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const router = useRouter();
 
-  const [showCreateNewCategoryDialog, setShowCreateNewCategoryDialog] =
-    useState<boolean>(false);
+  const [dialogType, setDialogType] = useState<"manage" | "create">("manage");
 
   const [categoryName, setCategoryName] = useState<string>("");
   const [colorCode, setColorCode] = useState<string>("x");
@@ -132,6 +151,15 @@ const CreateNewCategory = ({ categoryData }: { categoryData: SerializedCategoryT
     "bg-[#BEE5D3]",
     "bg-[#F2B8B5]",
   ];
+
+  useEffect(() => {
+    // Lock scroll
+    document.body.style.overflow = "hidden";
+    return () => {
+      // Unlock scroll when modal unmounts
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const createCategory = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -172,7 +200,7 @@ const CreateNewCategory = ({ categoryData }: { categoryData: SerializedCategoryT
       if (response.success) {
         router.refresh();
         toast.success(response.message);
-        setShowCreateNewCategoryDialog(false);
+        setDialogType("manage");
       }
 
       if (!response.success) {
@@ -186,63 +214,29 @@ const CreateNewCategory = ({ categoryData }: { categoryData: SerializedCategoryT
   };
 
   return (
-    <>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
-            <Plus size={14} />
-            New Category
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Manage your Categories</AlertDialogTitle>
-            <AlertDialogDescription>
-              Here you can view all your categories along with number of
-              products and can remove brand with none.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          {categoryData && categoryData.length > 0 ? (
-            <ScrollArea className="h-92">
-              {categoryData.map((category) => (
-                <Categorycard key={category.id} categoryData={category} />
-              ))}
-            </ScrollArea>
-          ) : (
-            <p>No Categories</p>
-          )}
-
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => setShowCreateNewCategoryDialog(true)}
-            >
-              Add New
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {showCreateNewCategoryDialog && (
-        <AlertDialog
-          open={showCreateNewCategoryDialog}
-          onOpenChange={setShowCreateNewCategoryDialog}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Create Category</AlertDialogTitle>
-              <AlertDialogDescription></AlertDialogDescription>
-            </AlertDialogHeader>
-
+    <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
+      <Card className="max-w-xl w-[95%]">
+        <CardHeader>
+          <CardTitle>
+            {dialogType === "manage"
+              ? "Manage your Categories"
+              : "Create Category"}
+          </CardTitle>
+          <CardDescription>
+            {dialogType === "manage" &&
+              "Here you can view all your categories along with number of products and can remove brand with none."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className=" w-full ">
+          {dialogType === "create" ? (
             <div className="grid gap-6">
               <div className="grid gap-3">
-                <Label htmlFor="name-1">Brand Name</Label>
+                <Label htmlFor="name-1">Category Name</Label>
                 <Input
                   id="name-1"
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
-                  placeholder="Brand name here"
+                  placeholder="Category name here"
                 />
                 {errorStates.nameError && (
                   <p className="text-red-500 text-xs mt-2">
@@ -270,26 +264,63 @@ const CreateNewCategory = ({ categoryData }: { categoryData: SerializedCategoryT
                 )}
               </div>
             </div>
+          ) : categoryData && categoryData.length > 0 ? (
+            <ScrollArea className="h-92">
+              {categoryData.map((category) => (
+                <Categorycard key={category.id} categoryData={category} />
+              ))}
+            </ScrollArea>
+          ) : (
+            <p>No Category</p>
+          )}
+        </CardContent>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-              <AlertDialogAction asChild>
-                <Button disabled={loading} onClick={(e) => createCategory(e)}>
-                  {loading ? (
-                    <div className="flex w-full items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm">Creating Category</span>
-                    </div>
-                  ) : (
-                    "Create Category"
-                  )}
-                </Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-    </>
+        <CardFooter>
+          {dialogType === "create" ? (
+            <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
+              <Button
+                disabled={loading}
+                onClick={(e) => createCategory(e)}
+                className="w-full sm:w-max"
+              >
+                {loading ? (
+                  <div className="flex w-full items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Creating Category</span>
+                  </div>
+                ) : (
+                  "Create Category"
+                )}
+              </Button>
+              <Button
+                variant={"secondary"}
+                onClick={() => setDialogType("manage")}
+                className="w-full sm:w-max"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
+              <Button
+                onClick={() => setDialogType("create")}
+                className="w-full sm:w-max"
+              >
+                Add new
+              </Button>
+              <Button
+                variant={"secondary"}
+                onClick={() => setIsOpen(false)}
+                className="w-full sm:w-max"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 

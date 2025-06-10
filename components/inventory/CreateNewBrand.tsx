@@ -289,6 +289,7 @@ const CreateNewBrand = ({
                 variant={"secondary"}
                 onClick={() => setDialogType("manage")}
                 className="w-full sm:w-max"
+                disabled={loading}
               >
                 Cancel
               </Button>
