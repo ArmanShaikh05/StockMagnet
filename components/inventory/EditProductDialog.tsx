@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import CreateNewBrand from "./CreateNewBrand";
+// import CreateNewBrand from "./CreateNewBrand";
 import CreateNewCategory from "./CreateNewCategory";
 import CreateNewUnit from "./CreateNewUnit";
 
@@ -456,7 +456,7 @@ const EditProductDialog = ({
                     <p className=" py-2 pl-2 text-sm">No Brands</p>
                   )}
 
-                  <CreateNewBrand brandsData={brands} />
+                  {/* <CreateNewBrand brandsData={brands} /> */}
                 </SelectContent>
               </Select>
 
