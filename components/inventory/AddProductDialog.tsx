@@ -442,7 +442,7 @@ const AddProductDialog = ({
                       setTimeout(() => setIsOpen(true), 0); // open modal after dropdown closes
                     }}
                   >
-                    Open Modal
+                    New Brand
                   </Button>
                 </SelectContent>
               </Select>

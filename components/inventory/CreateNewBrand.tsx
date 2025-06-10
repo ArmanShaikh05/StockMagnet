@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
 import { createNewBrand, deleteBrand } from "@/actions/utilityActions";
 import {
   AlertDialog,
@@ -12,14 +13,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { SerializedBrandType } from "@/types/serializedTypes";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { ScrollArea } from "../ui/scroll-area";
 import {
   Card,
   CardContent,
@@ -28,6 +26,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { ScrollArea } from "../ui/scroll-area";
 
 const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
   const router = useRouter();
@@ -120,9 +121,6 @@ const CreateNewBrand = ({
 }) => {
   const router = useRouter();
 
-  const [showCreateNewBrandDialog, setShowCreateNewBrandDialog] =
-    useState<boolean>(false);
-
   const [brandName, setBrandName] = useState<string>("");
   const [colorCode, setColorCode] = useState<string>("x");
   const [errorStates, setErrorStates] = useState<{
@@ -133,6 +131,8 @@ const CreateNewBrand = ({
     colorError: null,
   });
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [dialogType, setDialogType] = useState<"manage" | "create">("manage");
 
   const colors = [
     "bg-[#BFD8B8]",
@@ -145,6 +145,15 @@ const CreateNewBrand = ({
     "bg-[#BEE5D3]",
     "bg-[#F2B8B5]",
   ];
+
+  useEffect(() => {
+    // Lock scroll
+    document.body.style.overflow = "hidden";
+    return () => {
+      // Unlock scroll when modal unmounts
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const createBrand = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -185,7 +194,7 @@ const CreateNewBrand = ({
       if (response.success) {
         router.refresh();
         toast.success(response.message);
-        setShowCreateNewBrandDialog(false);
+        setDialogType("manage");
       }
 
       if (!response.success) {
@@ -199,185 +208,19 @@ const CreateNewBrand = ({
   };
 
   return (
-    <>
-      {/* <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
-            <Plus size={14} />
-            New Brand
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Manage your Brands</AlertDialogTitle>
-            <AlertDialogDescription>
-              Here you can view all your brands along with number of products
-              and can remove brand with none.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          {brandsData && brandsData.length > 0 ? (
-            <ScrollArea className="h-92">
-              {brandsData.map((brand) => (
-                <BrandCard key={brand.id} brandData={brand} />
-              ))}
-            </ScrollArea>
-          ) : (
-            <p>No Brands</p>
-          )}
-
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => setShowCreateNewBrandDialog(true)}
-            >
-              Add New
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {showCreateNewBrandDialog && (
-        // <AlertDialog
-        //   open={showCreateNewBrandDialog}
-        //   onOpenChange={setShowCreateNewBrandDialog}
-        // >
-        //   <AlertDialogContent>
-        //     <AlertDialogHeader>
-        //       <AlertDialogTitle>Create Brand</AlertDialogTitle>
-        //       <AlertDialogDescription></AlertDialogDescription>
-        //     </AlertDialogHeader>
-
-        //     <div className="grid gap-6">
-        //       <div className="grid gap-3">
-        //         <Label htmlFor="name-1">Brand Name</Label>
-        //         <Input
-        //           id="name-1"
-        //           value={brandName}
-        //           onChange={(e) => setBrandName(e.target.value)}
-        //           placeholder="Brand name here"
-        //         />
-        //         {errorStates.nameError && (
-        //           <p className="text-red-500 text-xs mt-2">
-        //             {errorStates.nameError}
-        //           </p>
-        //         )}
-        //       </div>
-        //       <div className="grid gap-3">
-        //         <Label>Color code</Label>
-        //         <div className="w-full flex items-center gap-2 ">
-        //           {colors.map((color, index) => (
-        //             <span
-        //               key={index}
-        //               className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
-        //                 color.includes(colorCode) && "border-3 border-black"
-        //               }`}
-        //               onClick={() => setColorCode(color.slice(4, 11))}
-        //             />
-        //           ))}
-        //         </div>
-        //         {errorStates.colorError && (
-        //           <p className="text-red-500 text-xs mt-2">
-        //             {errorStates.colorError}
-        //           </p>
-        //         )}
-        //       </div>
-        //     </div>
-
-        //     <AlertDialogFooter>
-        //       <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-        //       <AlertDialogAction asChild>
-        //         <Button disabled={loading} onClick={(e) => createBrand(e)}>
-        //           {loading ? (
-        //             <div className="flex w-full items-center justify-center gap-2">
-        //               <Loader2 className="w-4 h-4 animate-spin" />
-        //               <span className="text-sm">Creating Brand</span>
-        //             </div>
-        //           ) : (
-        //             "Create Brand"
-        //           )}
-        //         </Button>
-        //       </AlertDialogAction>
-        //     </AlertDialogFooter>
-        //   </AlertDialogContent>
-        // </AlertDialog>
-        <>
-          <div className="w-full h-screen flex justify-center items-center absolute top-0 left-0 bg-black/50">
-            <Card>
-              <CardHeader>
-                <CardTitle>Create Brand</CardTitle>
-                <CardDescription></CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6">
-                  <div className="grid gap-3">
-                    <Label htmlFor="name-1">Brand Name</Label>
-                    <Input
-                      id="name-1"
-                      value={brandName}
-                      onChange={(e) => setBrandName(e.target.value)}
-                      placeholder="Brand name here"
-                    />
-                    {errorStates.nameError && (
-                      <p className="text-red-500 text-xs mt-2">
-                        {errorStates.nameError}
-                      </p>
-                    )}
-                  </div>
-                  <div className="grid gap-3">
-                    <Label>Color code</Label>
-                    <div className="w-full flex items-center gap-2 ">
-                      {colors.map((color, index) => (
-                        <span
-                          key={index}
-                          className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
-                            color.includes(colorCode) && "border-3 border-black"
-                          }`}
-                          onClick={() => setColorCode(color.slice(4, 11))}
-                        />
-                      ))}
-                    </div>
-                    {errorStates.colorError && (
-                      <p className="text-red-500 text-xs mt-2">
-                        {errorStates.colorError}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-
-              <CardFooter>
-                <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
-                  <Button disabled={loading} onClick={(e) => createBrand(e)}>
-                    {loading ? (
-                      <div className="flex w-full items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">Creating Brand</span>
-                      </div>
-                    ) : (
-                      "Create Brand"
-                    )}
-                  </Button>
-                  <Button
-                    variant={"secondary"}
-                    onClick={() => setShowCreateNewBrandDialog(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
-        </>
-      )} */}
-
-      <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create Brand</CardTitle>
-            <CardDescription></CardDescription>
-          </CardHeader>
-          <CardContent className="w-[500px]">
+    <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
+      <Card className="max-w-xl w-[95%]">
+        <CardHeader>
+          <CardTitle>
+            {dialogType === "manage" ? "Manage your Brands" : "Create Brand"}
+          </CardTitle>
+          <CardDescription>
+            {dialogType === "manage" &&
+              "Here you can view all your brands along with number of products and can remove brand with none."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className=" w-full ">
+          {dialogType === "create" ? (
             <div className="grid gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="name-1">Brand Name</Label>
@@ -386,6 +229,7 @@ const CreateNewBrand = ({
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   placeholder="Brand name here"
+                  className="text-sm"
                 />
                 {errorStates.nameError && (
                   <p className="text-red-500 text-xs mt-2">
@@ -413,11 +257,25 @@ const CreateNewBrand = ({
                 )}
               </div>
             </div>
-          </CardContent>
+          ) : brandsData && brandsData.length > 0 ? (
+            <ScrollArea className="h-92">
+              {brandsData.map((brand) => (
+                <BrandCard key={brand.id} brandData={brand} />
+              ))}
+            </ScrollArea>
+          ) : (
+            <p>No Brands</p>
+          )}
+        </CardContent>
 
-          <CardFooter>
+        <CardFooter>
+          {dialogType === "create" ? (
             <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
-              <Button disabled={loading} onClick={(e) => createBrand(e)}>
+              <Button
+                disabled={loading}
+                onClick={(e) => createBrand(e)}
+                className="w-full sm:w-max"
+              >
                 {loading ? (
                   <div className="flex w-full items-center justify-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -427,14 +285,35 @@ const CreateNewBrand = ({
                   "Create Brand"
                 )}
               </Button>
-              <Button variant={"secondary"} onClick={() => setIsOpen(false)}>
+              <Button
+                variant={"secondary"}
+                onClick={() => setDialogType("manage")}
+                className="w-full sm:w-max"
+              >
                 Cancel
               </Button>
             </div>
-          </CardFooter>
-        </Card>
-      </div>
-    </>
+          ) : (
+            <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
+              <Button
+                disabled={loading}
+                onClick={() => setDialogType("create")}
+                className="w-full sm:w-max"
+              >
+                Add new
+              </Button>
+              <Button
+                variant={"secondary"}
+                onClick={() => setIsOpen(false)}
+                className="w-full sm:w-max"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 
