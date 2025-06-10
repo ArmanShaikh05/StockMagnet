@@ -100,6 +100,9 @@ const AddProductDialog = ({
     tagsError: null,
   });
 
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [selectOpen, setSelectOpen] = useState(false);
+
   const handleImageChange = () => {
     if (fileInputRef.current) {
       const file = fileInputRef.current?.files?.[0] || null;
@@ -414,7 +417,12 @@ const AddProductDialog = ({
               <Label htmlFor="branchName" className="text-xs">
                 Product Brand
               </Label>
-              <Select value={productBrandId} onValueChange={setProductBrandId}>
+              <Select
+                open={selectOpen}
+                onOpenChange={setSelectOpen}
+                value={productBrandId}
+                onValueChange={setProductBrandId}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Brand" />
                 </SelectTrigger>
@@ -427,10 +435,20 @@ const AddProductDialog = ({
                   {brands.length === 0 && (
                     <p className=" py-2 pl-2 text-sm">No Brands</p>
                   )}
-
-                  <CreateNewBrand brandsData={brands} />
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      setSelectOpen(false); // close the dropdown
+                      setTimeout(() => setIsOpen(true), 0); // open modal after dropdown closes
+                    }}
+                  >
+                    Open Modal
+                  </Button>
                 </SelectContent>
               </Select>
+              {isOpen && (
+                <CreateNewBrand brandsData={brands} setIsOpen={setIsOpen} />
+              )}
 
               {errorState.productBrandIdError && (
                 <p className="text-xs text-red-500 mt-2">

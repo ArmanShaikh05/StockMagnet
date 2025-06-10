@@ -13,12 +13,20 @@ import {
 import { SerializedBrandType } from "@/types/serializedTypes";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { ScrollArea } from "../ui/scroll-area";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
 const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
   const router = useRouter();
@@ -104,8 +112,10 @@ const BrandCard = ({ brandData }: { brandData: SerializedBrandType }) => {
 
 const CreateNewBrand = ({
   brandsData,
+  setIsOpen,
 }: {
   brandsData: SerializedBrandType[];
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const router = useRouter();
 
@@ -189,7 +199,7 @@ const CreateNewBrand = ({
 
   return (
     <>
-      <AlertDialog>
+      {/* <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button className="w-full text-xs h-8 mt-2 flex items-center justify-center gap-2">
             <Plus size={14} />
@@ -227,16 +237,146 @@ const CreateNewBrand = ({
       </AlertDialog>
 
       {showCreateNewBrandDialog && (
-        <AlertDialog
-          open={showCreateNewBrandDialog}
-          onOpenChange={setShowCreateNewBrandDialog}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Create Brand</AlertDialogTitle>
-              <AlertDialogDescription></AlertDialogDescription>
-            </AlertDialogHeader>
+        // <AlertDialog
+        //   open={showCreateNewBrandDialog}
+        //   onOpenChange={setShowCreateNewBrandDialog}
+        // >
+        //   <AlertDialogContent>
+        //     <AlertDialogHeader>
+        //       <AlertDialogTitle>Create Brand</AlertDialogTitle>
+        //       <AlertDialogDescription></AlertDialogDescription>
+        //     </AlertDialogHeader>
 
+        //     <div className="grid gap-6">
+        //       <div className="grid gap-3">
+        //         <Label htmlFor="name-1">Brand Name</Label>
+        //         <Input
+        //           id="name-1"
+        //           value={brandName}
+        //           onChange={(e) => setBrandName(e.target.value)}
+        //           placeholder="Brand name here"
+        //         />
+        //         {errorStates.nameError && (
+        //           <p className="text-red-500 text-xs mt-2">
+        //             {errorStates.nameError}
+        //           </p>
+        //         )}
+        //       </div>
+        //       <div className="grid gap-3">
+        //         <Label>Color code</Label>
+        //         <div className="w-full flex items-center gap-2 ">
+        //           {colors.map((color, index) => (
+        //             <span
+        //               key={index}
+        //               className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
+        //                 color.includes(colorCode) && "border-3 border-black"
+        //               }`}
+        //               onClick={() => setColorCode(color.slice(4, 11))}
+        //             />
+        //           ))}
+        //         </div>
+        //         {errorStates.colorError && (
+        //           <p className="text-red-500 text-xs mt-2">
+        //             {errorStates.colorError}
+        //           </p>
+        //         )}
+        //       </div>
+        //     </div>
+
+        //     <AlertDialogFooter>
+        //       <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+        //       <AlertDialogAction asChild>
+        //         <Button disabled={loading} onClick={(e) => createBrand(e)}>
+        //           {loading ? (
+        //             <div className="flex w-full items-center justify-center gap-2">
+        //               <Loader2 className="w-4 h-4 animate-spin" />
+        //               <span className="text-sm">Creating Brand</span>
+        //             </div>
+        //           ) : (
+        //             "Create Brand"
+        //           )}
+        //         </Button>
+        //       </AlertDialogAction>
+        //     </AlertDialogFooter>
+        //   </AlertDialogContent>
+        // </AlertDialog>
+        <>
+          <div className="w-full h-screen flex justify-center items-center absolute top-0 left-0 bg-black/50">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create Brand</CardTitle>
+                <CardDescription></CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  <div className="grid gap-3">
+                    <Label htmlFor="name-1">Brand Name</Label>
+                    <Input
+                      id="name-1"
+                      value={brandName}
+                      onChange={(e) => setBrandName(e.target.value)}
+                      placeholder="Brand name here"
+                    />
+                    {errorStates.nameError && (
+                      <p className="text-red-500 text-xs mt-2">
+                        {errorStates.nameError}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid gap-3">
+                    <Label>Color code</Label>
+                    <div className="w-full flex items-center gap-2 ">
+                      {colors.map((color, index) => (
+                        <span
+                          key={index}
+                          className={`h-6 w-6 rounded-full cursor-pointer ${color} ${
+                            color.includes(colorCode) && "border-3 border-black"
+                          }`}
+                          onClick={() => setColorCode(color.slice(4, 11))}
+                        />
+                      ))}
+                    </div>
+                    {errorStates.colorError && (
+                      <p className="text-red-500 text-xs mt-2">
+                        {errorStates.colorError}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+
+              <CardFooter>
+                <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
+                  <Button disabled={loading} onClick={(e) => createBrand(e)}>
+                    {loading ? (
+                      <div className="flex w-full items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Creating Brand</span>
+                      </div>
+                    ) : (
+                      "Create Brand"
+                    )}
+                  </Button>
+                  <Button
+                    variant={"secondary"}
+                    onClick={() => setShowCreateNewBrandDialog(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
+          </div>
+        </>
+      )} */}
+
+      <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Brand</CardTitle>
+            <CardDescription></CardDescription>
+          </CardHeader>
+          <CardContent className="w-[500px]">
             <div className="grid gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="name-1">Brand Name</Label>
@@ -272,25 +412,27 @@ const CreateNewBrand = ({
                 )}
               </div>
             </div>
+          </CardContent>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-              <AlertDialogAction asChild>
-                <Button disabled={loading} onClick={(e) => createBrand(e)}>
-                  {loading ? (
-                    <div className="flex w-full items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm">Creating Brand</span>
-                    </div>
-                  ) : (
-                    "Create Brand"
-                  )}
-                </Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+          <CardFooter>
+            <div className="w-full flex flex-col gap-2 sm:flex-row items-center sm:justify-end">
+              <Button disabled={loading} onClick={(e) => createBrand(e)}>
+                {loading ? (
+                  <div className="flex w-full items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Creating Brand</span>
+                  </div>
+                ) : (
+                  "Create Brand"
+                )}
+              </Button>
+              <Button variant={"secondary"} onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
     </>
   );
 };
