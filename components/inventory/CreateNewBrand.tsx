@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createNewBrand, deleteBrand } from "@/actions/utilityActions";
 import {
   AlertDialog,
