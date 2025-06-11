@@ -94,13 +94,14 @@ enum PaymentMode {
 
 model InvoiceProduct {
   id                 String   @id @default(cuid())
+  productId          String
   productName        String
   productSno         String
   quantity           Int
   productMrp         Decimal
   sellingPrice       Decimal
   units              String
-  taxRate            String?
+  taxRate            String
   taxAmount          Decimal? @default(0.0)
   subTotal           Decimal
   discountAmount     Decimal? @default(0.0)

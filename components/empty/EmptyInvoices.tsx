@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { FileText, Plus } from "lucide-react";
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 const EmptyInvoices = () => {
   return (
@@ -34,10 +35,12 @@ const EmptyInvoices = () => {
           You haven’t generated any invoices yet. Start by creating one.
         </p>
 
-        <Button>
-          <Plus className="w-5 h-5" />
-          Create Invoice
-        </Button>
+        <Link href={"/new-invoice"}>
+          <Button>
+            <Plus className="w-5 h-5" />
+            Create Invoice
+          </Button>
+        </Link>
       </motion.div>
     </motion.div>
   );

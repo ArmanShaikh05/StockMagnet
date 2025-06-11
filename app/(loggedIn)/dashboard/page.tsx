@@ -18,6 +18,7 @@ import { ComparisonRevenueChart } from "@/components/dashboard/ComparisonRevenue
 import { StocksComparisonChart } from "@/components/dashboard/StocksComaprisonChart";
 import { getCurrentUserDetails } from "@/actions/userActions";
 import EmptyBranches from "@/components/empty/EmptyBarnches";
+import Link from "next/link";
 
 const Dashboard = async () => {
   const user = await getCurrentUserDetails();
@@ -30,10 +31,12 @@ const Dashboard = async () => {
             <h2 className="font-semibold text-2xl text-balance tracking-tight">
               Dashboard
             </h2>
-            <Button>
-              <Plus size={16} />
-              <span>Create Invoice</span>
-            </Button>
+            <Link href={"/new-invoice"}>
+              <Button>
+                <Plus size={16} />
+                <span>Create Invoice</span>
+              </Button>
+            </Link>
           </div>
           <Breadcrumb className="my-4">
             <BreadcrumbList>

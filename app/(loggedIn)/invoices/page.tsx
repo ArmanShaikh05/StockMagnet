@@ -13,6 +13,7 @@ import InvoiceCardSection from "@/components/invoices/InvoiceCardsSection";
 import InvoicesTable from "@/components/invoices/InvoicesTable";
 import { getCurrentUserDetails } from "@/actions/userActions";
 import EmptyInvoices from "@/components/empty/EmptyInvoices";
+import Link from "next/link";
 
 const Invoices = async () => {
   const user = await getCurrentUserDetails();
@@ -31,11 +32,13 @@ const Invoices = async () => {
                 <span className="hidden xs:block">Export CSV</span>
                 <span className="xs:hidden">Export</span>
               </Button>
-              <Button>
-                <Plus size={16} />
-                <span className="hidden xs:block">Create Invoice</span>
-                <span className="xs:hidden">Create</span>
-              </Button>
+              <Link href={"/new-invoice"}>
+                <Button>
+                  <Plus size={16} />
+                  <span className="hidden xs:block">Create Invoice</span>
+                  <span className="xs:hidden">Create</span>
+                </Button>
+              </Link>
             </div>
           </div>
           <Breadcrumb className="my-4">
