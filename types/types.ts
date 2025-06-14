@@ -36,31 +36,6 @@ export type CardDataType = {
   theme: "green" | "blue" | "orange" | "red";
 };
 
-export type ProductsTableType = {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  image: string;
-  category: string;
-  lastUpdated: string;
-  brand: string;
-  totalValue: number;
-  status: "Available" | "LowStock" | "Unavailable";
-};
-
-
-export type InvoiceProductsTableType = {
-  id: string;
-  image: string;
-  name: string;
-  category: string;
-  price: number;
-  quantity: number;
-  sellingPrice: number;
-  totalValue: number;
-};
-
 export type BranchesType = {
   id: string;
   branchName: string;
