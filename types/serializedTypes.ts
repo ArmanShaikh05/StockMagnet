@@ -108,3 +108,45 @@ export type SerializedSingleProduct = Omit<
   MRP: string;
   purchasePrice: string;
 };
+
+// SERIALIZED INVOICE PRODUCTS TYPE
+
+export type SerializedInvoiceProductType = Omit<
+  Prisma.InvoiceProductGetPayload<{}>,
+  | "productMrp"
+  | "sellingPrice"
+  | "taxAmount"
+  | "subTotal"
+  | "discountAmount"
+  | "rate"
+  | "profitGain"
+> & {
+  productMrp: string;
+  sellingPrice: string;
+  taxAmount?: string;
+  subTotal: string;
+  discountAmount?: string;
+  rate: string;
+  profitGain: string;
+};
+
+export type SerializedInvoiceType = Omit<
+  Prisma.InvoicesGetPayload<{ include: { products: true } }>,
+  | "subTotal"
+  | "totalTaxAmount"
+  | "totalDiscount"
+  | "grandTotal"
+  | "amountPaid"
+  | "creditedAmount"
+  | "profitGain"
+  | "products"
+> & {
+  subTotal: string;
+  totalTaxAmount: string;
+  totalDiscount: string;
+  grandTotal: string;
+  amountPaid: string;
+  creditedAmount: string;
+  profitGain: string;
+  products: SerializedInvoiceProductType[];
+};

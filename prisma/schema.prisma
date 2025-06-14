@@ -44,6 +44,8 @@ model Branches {
   GstNumber     String?
   products      Products[]
   Invoices      Invoices[]
+  grossRevenue  Int?       @default(0)
+  netRevenue    Int?       @default(0)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
@@ -99,9 +101,16 @@ model InvoiceProduct {
   productSno         String
   quantity           Int
   productMrp         Decimal
+  rate               Decimal
+  Brand              String
+  BrandColorCode     String
+  Category           String
+  CategoryColorCode  String
+  productImage       String
   sellingPrice       Decimal
   units              String
   taxRate            String
+  profitGain         Decimal
   taxAmount          Decimal? @default(0.0)
   subTotal           Decimal
   discountAmount     Decimal? @default(0.0)
@@ -132,6 +141,7 @@ model Brand {
   brandName    String
   colorCode    String
   totalProduct Int        @default(0)
+  // This total revnue is gross revenue means it contains tax amount along with it
   totalRevenue Decimal?   @default(0)
   totalProfit  Decimal?   @default(0)
   products     Products[]

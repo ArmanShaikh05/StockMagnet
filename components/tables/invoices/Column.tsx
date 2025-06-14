@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { FullInvoiceTableType } from "@/types/types";
+import { SerializedInvoiceType } from "@/types/serializedTypes";
 import {
   ArrowDown,
   ArrowUp,
@@ -18,7 +18,7 @@ import {
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-export const columns: ColumnDef<FullInvoiceTableType>[] = [
+export const columns: ColumnDef<SerializedInvoiceType>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -44,26 +44,26 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "invoiceNumber",
     header: "Invoice ID",
     cell: ({ row }) => {
-      return <div className="pl-2">#{row.getValue("id")}</div>;
+      return <div className="pl-2">#{row.getValue("invoiceNumber")}</div>;
     },
   },
 
   {
-    accessorKey: "customer.name",
+    accessorKey: "customerName",
     header: "Customer Name",
   },
   {
-    accessorKey: "customer.mobile",
+    accessorKey: "customerMobile",
     header: () => <div className="text-center">Mobile No</div>,
     cell: ({ row }) => (
-      <div className="text-center">{row.original.customer.mobile}</div>
+      <div className="text-center">{row.original.customerMobile}</div>
     ),
   },
   {
-    accessorKey: "date",
+    accessorKey: "invoiceDate",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -83,11 +83,13 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="text-center">{row.getValue("date")}</div>
+      <div className="text-center">
+        {new Date(row.getValue("invoiceDate")).toISOString().split("T")[0]}
+      </div>
     ),
   },
   {
-    accessorKey: "quantity",
+    accessorKey: "totalQuantity",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -107,11 +109,11 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="text-center">{row.getValue("quantity")}</div>
+      <div className="text-center">{row.getValue("totalQuantity")}</div>
     ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "subTotal",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -119,7 +121,7 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
           onClick={() => column.toggleSorting(sortDirection === "asc")}
           className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
         >
-          Amount
+          Sub Total
           {sortDirection === "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
           ) : sortDirection === "desc" ? (
@@ -131,7 +133,7 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
       );
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      const amount = parseFloat(row.getValue("subTotal"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "INR",
@@ -141,10 +143,10 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
     },
   },
   {
-    accessorKey: "payment",
+    accessorKey: "paymentMode",
     header: () => <div className="text-center">Payment</div>,
     cell: ({ row }) => {
-      const payment = row.getValue("payment") as string;
+      const payment = row.getValue("paymentMode") as string;
 
       return (
         <Badge
@@ -163,10 +165,10 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
     },
   },
   {
-    accessorKey: "gstBill",
+    accessorKey: "isGstBill",
     header: () => <div className="text-center">GST Bill</div>,
     cell: ({ row }) => {
-      const isGstBill = row.getValue("gstBill") as boolean;
+      const isGstBill = row.getValue("isGstBill") as boolean;
 
       return <div className="text-center">{isGstBill ? "Yes" : "No"}</div>;
     },
@@ -180,7 +182,7 @@ export const columns: ColumnDef<FullInvoiceTableType>[] = [
       return (
         <Badge
           className={cn(
-            status === "Full-Paid"
+            status === "FullPaid"
               ? "bg-green-600"
               : status === "Credited"
               ? "bg-orange-400"

@@ -658,10 +658,6 @@ export const pricingData: PricingDataType[] = [
 
 export const taxData: TaxesType[] = [
   {
-    label: "Exempted",
-    value: 0,
-  },
-  {
     label: "GST@0%",
     value: 0.0,
   },
@@ -718,4 +714,3 @@ export const taxData: TaxesType[] = [
     value: 28.0,
   },
 ];
-

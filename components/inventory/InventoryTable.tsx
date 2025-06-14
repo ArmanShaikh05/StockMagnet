@@ -1,6 +1,7 @@
 "use client";
 
 import { getProductsDataofBranch } from "@/actions/branchActions";
+import { getAllBrands, getAllCategory } from "@/actions/utilityActions";
 import { useBranchStore } from "@/store/branchStore";
 import {
   SerializedBrandType,
@@ -8,14 +9,13 @@ import {
   SerializedProductType,
 } from "@/types/serializedTypes";
 import { useEffect, useMemo, useState } from "react";
+import EmptyInventory from "../empty/EmptyInventory";
+import TableLoading from "../loading/InventoryLoading";
 import { columns } from "../tables/products/Columns";
 import ProductsTable from "../tables/products/ProductsTable";
 import { Card, CardContent, CardHeader } from "../ui/card";
-import InventoryTableHeader from "./InventoryTableHeader";
-import EmptyInventory from "../empty/EmptyInventory";
-import InventoryLoading from "../loading/InventoryLoading";
-import { getAllBrands, getAllCategory } from "@/actions/utilityActions";
 import DeleteProductDialog from "./DeleteProductDialog";
+import InventoryTableHeader from "./InventoryTableHeader";
 
 const InventoryTable = () => {
   const [searchString, setSearchString] = useState<string>("");
@@ -111,7 +111,7 @@ const InventoryTable = () => {
     <Card className="shadow-lg">
       {loading ? (
         <CardContent>
-          <InventoryLoading />
+          <TableLoading />
         </CardContent>
       ) : (
         <>

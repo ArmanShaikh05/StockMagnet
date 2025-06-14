@@ -1,7 +1,7 @@
 import React from "react";
 import { Skeleton } from "../ui/skeleton";
 
-const InventoryLoading = () => {
+const TableLoading = () => {
   return (
     <div className="w-full h-full flex flex-col gap-12">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -22,4 +22,4 @@ const InventoryLoading = () => {
   );
 };
 
-export default InventoryLoading;
+export default TableLoading;

@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FullInvoiceTableType } from "@/types/types";
+import { SerializedInvoiceType } from "@/types/serializedTypes";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { Pagination } from "../Pagination";
@@ -36,7 +36,7 @@ interface DataTableProps<TData, TValue> {
 const FullInvoiceTable = <TValue,>({
   columns,
   data,
-}: DataTableProps<FullInvoiceTableType, TValue>) => {
+}: DataTableProps<SerializedInvoiceType, TValue>) => {
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [expanded, setExpanded] = useState<ExpandedState>({});

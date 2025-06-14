@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import CreateInvoice from "@/components/invoices/CreateInvoice";
 
-const NewInvoice = () => {
+const NewInvoice = async () => {
   return (
     <section className="my-2 mt-6 w-full  flex flex-col items-center">
       <div className=" w-full ">
@@ -21,7 +21,7 @@ const NewInvoice = () => {
         <Breadcrumb className="my-4 border-b pb-4">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
 

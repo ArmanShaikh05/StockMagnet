@@ -1,11 +1,22 @@
-import { FullInvoiceTableType } from "@/types/types";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import React from "react";
-import { Download, Pencil, Trash2 } from "lucide-react";
-import InvoiceProductsTable from "./InvoiceProductsTable";
-import Invoice from "./Invoice";
+"use client";
 
-const ExpandedRows = ({ rowData }: { rowData: FullInvoiceTableType }) => {
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SerializedInvoiceType } from "@/types/serializedTypes";
+import { Download, Pencil, Trash2 } from "lucide-react";
+import Invoice from "./Invoice";
+import InvoiceProductsTable from "./InvoiceProductsTable";
+import { useState } from "react";
+import DeleteInvoiceDialog from "@/components/invoices/DeleteInvoiceDialog";
+
+const ExpandedRows = ({ rowData }: { rowData: SerializedInvoiceType }) => {
+  const [showDeleteInvoiceDialog, setShowDeleteInvoiceDialog] =
+    useState<boolean>(false);
+  const [deletInvoiceId, setDeleteInvoiceId] = useState<string>("");
+
+  const handleDeleteInvoice = () => {
+    setDeleteInvoiceId(rowData.id);
+    setShowDeleteInvoiceDialog(true);
+  };
   return (
     <div>
       <Tabs defaultValue="product">
@@ -28,7 +39,10 @@ const ExpandedRows = ({ rowData }: { rowData: FullInvoiceTableType }) => {
             <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
               <Pencil size={16} />
             </div>
-            <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
+            <div
+              className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer"
+              onClick={() => handleDeleteInvoice()}
+            >
               <Trash2 size={16} />
             </div>
             <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
@@ -43,6 +57,14 @@ const ExpandedRows = ({ rowData }: { rowData: FullInvoiceTableType }) => {
           <Invoice data={rowData} />
         </TabsContent>
       </Tabs>
+
+      {showDeleteInvoiceDialog && (
+        <DeleteInvoiceDialog
+          open={showDeleteInvoiceDialog}
+          setOpen={setShowDeleteInvoiceDialog}
+          invoiceId={deletInvoiceId}
+        />
+      )}
     </div>
   );
 };

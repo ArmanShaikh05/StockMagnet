@@ -1,27 +1,25 @@
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { InvoiceProductsTableType } from "@/types/types";
+import { SerializedInvoiceProductType } from "@/types/serializedTypes";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import Image from "next/image";
 import ProductsTable from "../../products/ProductsTable";
 
-const column: ColumnDef<InvoiceProductsTableType>[] = [
+const column: ColumnDef<SerializedInvoiceProductType>[] = [
   {
-    accessorKey: "id",
     header: "S.no",
     cell: ({ row }) => {
-      return <div>{row.getValue("id")}</div>;
+      return <div className="pl-2">{row.index + 1}</div>; // row.index starts from 0
     },
   },
 
   {
-    accessorKey: "image",
+    accessorKey: "productImage",
     header: "Image",
     cell: ({ row }) => {
       return (
         <Image
-          src={row.getValue("image")}
+          src={row.getValue("productImage")}
           alt="product image"
           width={50}
           height={50}
@@ -31,74 +29,46 @@ const column: ColumnDef<InvoiceProductsTableType>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "productName",
     header: "Product Name",
   },
   {
-    accessorKey: "category",
-    header: "Category",
-  },
-  {
-    accessorKey: "brand",
-    header: () => <div className="text-center">Brand</div>,
+    accessorKey: "Category",
+    header: () => <div className="text-center">Category</div>,
     cell: ({ row }) => {
-      const brand = row.getValue("brand") as string;
+      const category = row.getValue("Category") as string;
 
       return (
         <Badge
           variant={"outline"}
-          className={cn(
-            brand === "Amaron"
-              ? "bg-rose-400"
-              : brand === "Cash"
-              ? "bg-blue-400"
-              : "bg-purple-500",
-            "w-full text-white"
-          )}
+          className={"w-full text-white"}
+          style={{
+            backgroundColor: `${row.original.CategoryColorCode}`,
+          }}
+        >
+          {category}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "Brand",
+    header: () => <div className="text-center">Brand</div>,
+    cell: ({ row }) => {
+      const brand = row.getValue("Brand") as string;
+
+      return (
+        <Badge
+          variant={"outline"}
+          className={"w-full text-white"}
+          style={{
+            backgroundColor: `${row.original.BrandColorCode}`,
+          }}
         >
           {brand}
         </Badge>
       );
     },
-  },
-
-  {
-    accessorKey: "price",
-    header: ({ column }) => {
-      const sortDirection = column.getIsSorted();
-      return (
-        <div
-          onClick={() => column.toggleSorting(sortDirection === "asc")}
-          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
-        >
-          Price
-          {sortDirection === "asc" ? (
-            <ArrowUp className="ml-2 h-4 w-4" />
-          ) : sortDirection === "desc" ? (
-            <ArrowDown className="ml-2 h-4 w-4" />
-          ) : (
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          )}
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "INR",
-      }).format(amount);
-
-      return <div className="text-center">{formatted}</div>;
-    },
-  },
-
-  {
-    accessorKey: "quantity",
-    header: () => <div className="text-center">Quantity</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("quantity")}</div>
-    ),
   },
 
   {
@@ -133,7 +103,7 @@ const column: ColumnDef<InvoiceProductsTableType>[] = [
   },
 
   {
-    accessorKey: "totalValue",
+    accessorKey: "rate",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -141,7 +111,7 @@ const column: ColumnDef<InvoiceProductsTableType>[] = [
           onClick={() => column.toggleSorting(sortDirection === "asc")}
           className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
         >
-          Total Value
+          Rate
           {sortDirection === "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
           ) : sortDirection === "desc" ? (
@@ -153,7 +123,46 @@ const column: ColumnDef<InvoiceProductsTableType>[] = [
       );
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("totalValue"));
+      const amount = parseFloat(row.getValue("rate"));
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "INR",
+      }).format(amount);
+
+      return <div className="text-center">{formatted}</div>;
+    },
+  },
+
+  {
+    accessorKey: "quantity",
+    header: () => <div className="text-center">Quantity</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("quantity")}</div>
+    ),
+  },
+
+  {
+    accessorKey: "subTotal",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          Sub Total
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("subTotal"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "INR",
@@ -167,7 +176,7 @@ const column: ColumnDef<InvoiceProductsTableType>[] = [
 const InvoiceProductsTable = ({
   data,
 }: {
-  data: InvoiceProductsTableType[];
+  data: SerializedInvoiceProductType[];
 }) => {
   return (
     <div className="px-6">

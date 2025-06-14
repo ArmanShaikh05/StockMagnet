@@ -49,33 +49,6 @@ export type ProductsTableType = {
   status: "Available" | "LowStock" | "Unavailable";
 };
 
-export type FullInvoiceTableType = {
-  id: string;
-  date: string;
-  customer: {
-    name: string;
-    mobile: string;
-    address: string;
-  };
-  quantity: number;
-  amount: number;
-  payment: "UPI" | "Cash" | "Bank";
-  gstBill: boolean;
-  status: "Full-Paid" | "Credited" | "Not-Paid";
-  products: Array<{
-    id: string;
-    image: string;
-    name: string;
-    category: string;
-    brand: string;
-    price: number;
-    quantity: number;
-    sellingPrice: number;
-    totalValue: number;
-  }>;
-  discount?: number;
-  oldItemDiscount?: number;
-};
 
 export type InvoiceProductsTableType = {
   id: string;
@@ -126,3 +99,57 @@ export type CurrentUserType = Prisma.UserGetPayload<{
     payment: true;
   };
 }>;
+
+export type InvoiceProductFormType = {
+  productId: string;
+  quantity: number;
+  sellingPrice: number;
+  productSno: string;
+  taxRate: string;
+  taxIncludedWithMrp: boolean;
+  productName: string;
+  productMrp: number;
+  subTotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  units: string;
+  rate: number;
+  profitGain: number;
+  purchasePrice: number;
+  totalStock: number;
+  Brand: string;
+  Category: string;
+  productImage: string;
+  BrandColorCode: string;
+  CategoryColorCode: string;
+};
+
+export type ProductFieldErrorsTypes = {
+  productId?: string;
+  quantity?: string;
+  sellingPrice?: string;
+  productSno?: string;
+};
+
+export type InvoiceDataType = {
+  invoiceNumber: string;
+  invoiceDate: Date;
+  customerName: string;
+  customerMobile: string;
+  customerAddress: string;
+  subTotal: number;
+  totalTaxAmount: number;
+  totalDiscount: number;
+  grandTotal: number;
+  isGstBill: boolean;
+  gstNumber?: string;
+  status: string;
+  paymentMode: string;
+  totalQuantity: number;
+  amountPaid: number;
+  creditedAmount: number;
+  profitGain: number;
+
+  branchId: string;
+  products: InvoiceProductFormType[];
+};

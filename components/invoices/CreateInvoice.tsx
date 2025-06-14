@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
@@ -11,26 +11,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Calendar1Icon,
-  Check,
-  ChevronsUpDown,
-  Loader2,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { Calendar1Icon, Loader2, Plus } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { Textarea } from "../ui/textarea";
 
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -38,81 +22,281 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { taxData } from "@/utils/data";
-import { cn } from "@/lib/utils";
+
+import {
+  InvoiceDataType,
+  InvoiceProductFormType,
+  ProductFieldErrorsTypes,
+} from "@/types/types";
 import Link from "next/link";
+import HandleInvoiceProducts from "./HandleInvoiceProducts";
+import { toast } from "sonner";
+import { useBranchStore } from "@/store/branchStore";
+import { createNewInvoice, getLastInvoiceNo } from "@/actions/invoiceActions";
+import { useRouter } from "next/navigation";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
-
-type InvoiceProduct = {
-  productId: string;
-  productQty: number;
-  sellingPrice: number;
-  productSno: string;
-  taxRate: string;
-  taxInclusion: boolean;
+type ErrorStates = {
+  invoiceNoError: string;
+  invoiceDateError: string;
+  gstNumberError: string;
+  customerNameError: string;
+  customerMobileError: string;
+  customerAddressError: string;
+  paymentModeError: string;
+  paymentStatusError: string;
+  creditedAmountError: string;
 };
 
 const CreateInvoice = () => {
+  const { selectedBranch } = useBranchStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      if (selectedBranch) {
+        const response = await getLastInvoiceNo(selectedBranch.id);
+        setInvoiceNumber(
+          (Number(response?.data?.invoiceNumber) + 1).toString() || "0"
+        );
+      }
+    })();
+  }, [selectedBranch]);
+
   const [invoiceNumber, setInvoiceNumber] = useState<string>("");
   const [invoiceDateDialogOpen, setInvoiceDateDialogOpen] =
     useState<boolean>(false);
   const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(undefined);
-
   const [isGstInvoice, setIsGstInvoice] = useState<boolean>(false);
   const [gstNumber, setGstNumber] = useState<string>("");
-
   const [customerName, setCustomerName] = useState<string>("");
   const [customerMobile, setCustomerMobile] = useState<string>("");
-
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
+  const [customerAddress, setCustomerAddress] = useState<string>("");
   const [paymentMode, setPaymentMode] = useState<string>("");
   const [paymentStatus, setPaymentStatus] = useState<string>("");
-
   const [creditedAmount, setCreditedAmount] = useState<number>(0);
-
   const [loading, setLoading] = useState<boolean>(false);
-
-  const [productsArray, setProductsArray] = useState<InvoiceProduct[]>([
+  const [productsArray, setProductsArray] = useState<InvoiceProductFormType[]>([
     {
       productId: "",
-      productQty: 0,
+      quantity: 0,
       sellingPrice: 0,
       productSno: "",
       taxRate: "",
-      taxInclusion: false,
+      taxIncludedWithMrp: false,
+      productName: "",
+      productMrp: 0,
+      subTotal: 0,
+      taxAmount: 0,
+      discountAmount: 0,
+      units: "",
+      rate: 0,
+      profitGain: 0,
+      purchasePrice: 0,
+      totalStock: 0,
+      Brand: "",
+      Category: "",
+      productImage: "",
+      BrandColorCode: "",
+      CategoryColorCode: "",
     },
   ]);
+
+  const [errorStates, setErrorStates] = useState<ErrorStates>({
+    invoiceNoError: "",
+    invoiceDateError: "",
+    gstNumberError: "",
+    customerNameError: "",
+    customerMobileError: "",
+    customerAddressError: "",
+    paymentModeError: "",
+    paymentStatusError: "",
+    creditedAmountError: "",
+  });
+
+  const [productErrors, setProductErrors] = useState<ProductFieldErrorsTypes[]>(
+    [
+      {
+        productId: "",
+        quantity: "",
+        sellingPrice: "",
+        productSno: "",
+      },
+    ]
+  );
 
   const createInvoice = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     try {
       e.preventDefault();
+      setLoading(true);
+
+      // Clear existing errors first
+      const newErrorStates = {
+        invoiceNoError: "",
+        invoiceDateError: "",
+        gstNumberError: "",
+        customerNameError: "",
+        customerMobileError: "",
+        customerAddressError: "",
+        paymentModeError: "",
+        paymentStatusError: "",
+        creditedAmountError: "",
+      };
+
+      let hasFormError = false;
+
+      // Validate each field
+      if (!invoiceNumber) {
+        newErrorStates.invoiceNoError = "Please enter invoice number";
+        toast.error("Please enter invoice number");
+        hasFormError = true;
+      }
+
+      if (!invoiceDate) {
+        newErrorStates.invoiceDateError = "Please enter invoice date";
+        toast.error("Please enter invoice date");
+        hasFormError = true;
+      }
+
+      if (isGstInvoice && !gstNumber) {
+        newErrorStates.gstNumberError = "Please enter GST number";
+        toast.error("Please enter GST number");
+        hasFormError = true;
+      }
+
+      if (!customerName) {
+        newErrorStates.customerNameError = "Please enter customer name";
+        toast.error("Please enter customer name");
+        hasFormError = true;
+      }
+
+      if (!customerMobile) {
+        newErrorStates.customerMobileError = "Please enter customer mobile";
+        toast.error("Please enter customer mobile");
+        hasFormError = true;
+      }
+
+      if (!customerAddress) {
+        newErrorStates.customerAddressError = "Please enter customer address";
+        toast.error("Please enter customer address");
+        hasFormError = true;
+      }
+
+      if (!paymentMode) {
+        newErrorStates.paymentModeError = "Please select payment mode";
+        toast.error("Please select payment mode");
+        hasFormError = true;
+      }
+
+      if (!paymentStatus) {
+        newErrorStates.paymentStatusError = "Please select payment status";
+        toast.error("Please select payment status");
+        hasFormError = true;
+      }
+
+      if (paymentStatus === "Credited" && creditedAmount === 0) {
+        newErrorStates.creditedAmountError = "Please enter credited amount";
+        toast.error("Please enter credited amount");
+        hasFormError = true;
+      }
+
+      // Apply all general form errors at once
+      setErrorStates(newErrorStates);
+
+      // If form errors exist, stop
+      if (hasFormError) return;
+
+      // Validate product fields
+      const newProductErrors: ProductFieldErrorsTypes[] = [];
+
+      productsArray.forEach((product, index) => {
+        const error: ProductFieldErrorsTypes = {};
+
+        if (!product.productId) error.productId = "Product is required";
+        if (!product.quantity || product.quantity <= 0)
+          error.quantity = "Quantity must be greater than 0";
+        if (product.quantity > product.totalStock)
+          error.quantity = `Quantity is greater than available stock.(${product.totalStock} stock available)`;
+        if (!product.sellingPrice || Number(product.sellingPrice) <= 0)
+          error.sellingPrice = "Selling price must be greater than 0";
+        if (!product.productSno) error.productSno = "Product S.no is required";
+
+        newProductErrors[index] = error;
+      });
+
+      setProductErrors(newProductErrors);
+
+      const hasProductErrors = newProductErrors.some(
+        (err) => Object.keys(err).length > 0
+      );
+      if (hasProductErrors) {
+        toast.error("Please fill product details properly.");
+        return;
+      }
+
+      // ✅ If no errors, continue to create invoice
+
+      const subTotal = productsArray.reduce((acc, curr) => {
+        return acc + curr.subTotal;
+      }, 0);
+
+      const totalTaxAmount = productsArray.reduce((acc, curr) => {
+        return acc + curr.taxAmount;
+      }, 0);
+
+      const totalDiscount = productsArray.reduce((acc, curr) => {
+        return acc + curr.discountAmount;
+      }, 0);
+
+      const totalQuantity = productsArray.reduce((acc, curr) => {
+        return acc + curr.quantity;
+      }, 0);
+
+      const totalProfitGain = productsArray.reduce((acc, curr) => {
+        return acc + curr.profitGain;
+      }, 0);
+
+      const invoiceData: InvoiceDataType = {
+        invoiceNumber,
+        invoiceDate: invoiceDate!,
+        customerName,
+        customerMobile,
+        customerAddress,
+        subTotal,
+        totalTaxAmount,
+        totalDiscount,
+        grandTotal: subTotal + totalTaxAmount - totalDiscount,
+        isGstBill: isGstInvoice,
+        gstNumber: gstNumber,
+        status: paymentStatus,
+        paymentMode: paymentMode,
+        totalQuantity,
+        amountPaid:
+          paymentStatus === "NotPaid"
+            ? 0
+            : subTotal + totalTaxAmount - totalDiscount - creditedAmount,
+        creditedAmount: creditedAmount,
+        profitGain: totalProfitGain,
+
+        branchId: selectedBranch?.id || "",
+        products: productsArray,
+      };
+
+      const response: { success: boolean; message: string } =
+        await createNewInvoice(invoiceData);
+
+      if (response.success) {
+        toast.success(response.message);
+        router.refresh();
+        router.push("/invoices");
+      }
+
+      if (!response.success) {
+        toast.error(response.message);
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -122,7 +306,7 @@ const CreateInvoice = () => {
     <div className="w-full flex flex-col sm:px-8 gap-8 mt-4">
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 ">
         <div className="w-full flex flex-col gap-2">
-          <h2 className="text-sm font-bold capitalize text-balance">
+          <h2 className="text-sm font-bold capitalize text-balance text-main">
             Invoice Details
           </h2>
 
@@ -139,6 +323,11 @@ const CreateInvoice = () => {
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
               />
+              {errorStates.invoiceNoError && (
+                <p className="text-xs text-red-500 mt-2">
+                  {errorStates.invoiceNoError}
+                </p>
+              )}
             </div>
 
             <div className="w-full flex flex-col gap-2 px-2 ">
@@ -169,6 +358,7 @@ const CreateInvoice = () => {
                     mode="single"
                     selected={invoiceDate}
                     captionLayout="dropdown"
+                    disabled={(date) => date > new Date()}
                     onSelect={(date) => {
                       setInvoiceDate(date);
                       setInvoiceDateDialogOpen(false);
@@ -176,6 +366,11 @@ const CreateInvoice = () => {
                   />
                 </PopoverContent>
               </Popover>
+              {errorStates.invoiceDateError && (
+                <p className="text-xs text-red-500 mt-2">
+                  {errorStates.invoiceDateError}
+                </p>
+              )}
             </div>
 
             <div className="w-full flex flex-col gap-2 px-2 ">
@@ -198,12 +393,17 @@ const CreateInvoice = () => {
                 value={gstNumber}
                 onChange={(e) => setGstNumber(e.target.value)}
               />
+              {errorStates.gstNumberError && (
+                <p className="text-xs text-red-500 mt-2">
+                  {errorStates.gstNumberError}
+                </p>
+              )}
             </div>
           </div>
         </div>
 
         <div className="w-full flex flex-col gap-2">
-          <h2 className="text-sm font-bold capitalize text-balance">
+          <h2 className="text-sm font-bold capitalize text-balance text-main">
             Customer Details
           </h2>
 
@@ -221,6 +421,11 @@ const CreateInvoice = () => {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                 />
+                {errorStates.customerNameError && (
+                  <p className="text-xs text-red-500 mt-2">
+                    {errorStates.customerNameError}
+                  </p>
+                )}
               </div>
 
               <div className="w-full flex flex-col gap-2 px-2 ">
@@ -235,6 +440,11 @@ const CreateInvoice = () => {
                   value={customerMobile}
                   onChange={(e) => setCustomerMobile(e.target.value)}
                 />
+                {errorStates.customerMobileError && (
+                  <p className="text-xs text-red-500 mt-2">
+                    {errorStates.customerMobileError}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -246,255 +456,70 @@ const CreateInvoice = () => {
                 id="customerAddress"
                 placeholder="Customer Address"
                 className="text-xs resize-none h-24 lg:h-30"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
+                value={customerAddress}
+                onChange={(e) => setCustomerAddress(e.target.value)}
               />
+              {errorStates.customerAddressError && (
+                <p className="text-xs text-red-500 mt-2">
+                  {errorStates.customerAddressError}
+                </p>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <h2 className="text-sm font-bold capitalize text-balance">
+        <h2 className="text-sm font-bold capitalize text-balance text-main">
           Product Details
         </h2>
 
-        <div className="w-full flex flex-col gap-4 mt-4">
-          {productsArray.map((product, index) => (
-            <div
-              key={index}
-              className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 py-8 bg-gray-200/50 rounded-xl relative"
-            >
-              <div className="w-full flex flex-col gap-2 px-2 ">
-                <Label htmlFor="product" className="text-xs">
-                  Product
-                </Label>
-                <Popover
-                  open={openIndex === index}
-                  onOpenChange={(isOpen) => setOpenIndex(isOpen ? index : null)}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="product"
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openIndex === index}
-                      className="w-full justify-between text-xs"
-                    >
-                      {product.productId
-                        ? frameworks.find(
-                            (framework) => framework.value === product.productId
-                          )?.label
-                        : "Select Product"}
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput
-                        placeholder="Search product..."
-                        className="h-9"
-                      />
-                      <CommandList>
-                        <CommandEmpty>No product found.</CommandEmpty>
-                        <CommandGroup>
-                          {frameworks.map((item) => (
-                            <CommandItem
-                              key={item.value}
-                              value={item.value}
-                              onSelect={(currentValue) => {
-                                setProductsArray((prev) => {
-                                  const updated = [...prev];
-                                  updated[index].productId = currentValue;
-                                  return updated;
-                                });
-                                setOpenIndex(null);
-                              }}
-                            >
-                              <div className="text-xs sm:text-sm flex items-center gap-2">
-                                <Avatar>
-                                  <AvatarImage src="https://github.com/shadcn.png" />
-                                  <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
-                                {item.label}
-                              </div>
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  product.productId === item.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="w-full flex flex-col gap-2 px-2 ">
-                <Label htmlFor="productQty" className="text-xs">
-                  Product Quantity
-                </Label>
-                <Input
-                  type="number"
-                  id="productQty"
-                  placeholder="Product Quantity"
-                  className="text-xs bg-white"
-                  value={product.productQty}
-                  min={0}
-                  onChange={(e) => {
-                    const value = Math.max(0, Number(e.target.value));
-                    setProductsArray((prev) => {
-                      const updated = [...prev];
-                      updated[index].productQty = value;
-                      return updated;
-                    });
-                  }}
-                />
-              </div>
-
-              <div className="w-full flex flex-col gap-2 px-2 ">
-                <Label htmlFor="sellingPrice" className="text-xs">
-                  Selling Price
-                </Label>
-                <Input
-                  type="number"
-                  id="sellingPrice"
-                  placeholder="Selling Price"
-                  className="text-xs bg-white"
-                  value={product.sellingPrice}
-                  min={0}
-                  onChange={(e) => {
-                    const value = Math.max(0, Number(e.target.value));
-                    setProductsArray((prev) => {
-                      const updated = [...prev];
-                      updated[index].sellingPrice = value;
-                      return updated;
-                    });
-                  }}
-                />
-              </div>
-
-              <div className="w-full flex flex-col gap-2 px-2 ">
-                <Label htmlFor="productSno" className="text-xs">
-                  Product S.no
-                </Label>
-                <Input
-                  type="text"
-                  id="productSno"
-                  placeholder="Product S.no"
-                  className="text-xs bg-white"
-                  value={product.productSno}
-                  onChange={(e) => {
-                    setProductsArray((prev) => {
-                      const updated = [...prev];
-                      updated[index].productSno = e.target.value;
-                      return updated;
-                    });
-                  }}
-                />
-              </div>
-
-              <div className="w-full flex flex-col gap-2 px-2 ">
-                <Label htmlFor="taxRate" className="text-xs">
-                  Tax Rate
-                </Label>
-                <Select
-                  value={product.taxRate}
-                  onValueChange={(value) =>
-                    setProductsArray((prev) => {
-                      const updated = [...prev];
-                      updated[index].taxRate = value;
-                      return updated;
-                    })
-                  }
-                >
-                  <SelectTrigger
-                    className="w-full bg-white text-xs"
-                    id="taxRate"
-                  >
-                    <SelectValue placeholder="Tax rate" />
-                  </SelectTrigger>
-                  <SelectContent className="h-62">
-                    {taxData.map((tax, index) => (
-                      <SelectItem key={index} value={tax.label}>
-                        {tax.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="w-full flex flex-col gap-2 px-2 ">
-                <Label htmlFor="taxInclusion" className="text-xs">
-                  Tax Inclusion
-                </Label>
-                <Select
-                  value={product.taxInclusion ? "included" : "excluded"}
-                  onValueChange={(value) => {
-                    const isIncluded = value === "included" ? true : false;
-                    setProductsArray((prev) => {
-                      const updated = [...prev];
-                      updated[index].taxInclusion = isIncluded;
-                      return updated;
-                    });
-                  }}
-                >
-                  <SelectTrigger
-                    id="taxInclusion"
-                    className="w-full bg-white text-xs"
-                  >
-                    <SelectValue placeholder="Tax Inclusion" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="exempted" className="">
-                      Exempted
-                    </SelectItem>
-                    <SelectItem value="included" className="">
-                      Included in MRP
-                    </SelectItem>
-                    <SelectItem value="excluded" className="">
-                      Excluded from MRP
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {productsArray.length > 1 && (
-                <Trash2
-                  size={14}
-                  className="cursor-pointer absolute top-2 right-2 h-8 w-8 p-2 rounded-full hover:bg-white/40 transition duration-200"
-                  onClick={() =>
-                    setProductsArray((prev) =>
-                      prev.filter((_, idx) => idx !== index)
-                    )
-                  }
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        <HandleInvoiceProducts
+          productsArray={productsArray}
+          setProductsArray={setProductsArray}
+          porductsErrorStates={productErrors}
+        />
 
         <Button
           className="flex items-center gap-2 w-max mx-auto mt-6"
           variant={"secondary"}
-          onClick={() =>
+          onClick={() => {
             setProductsArray((prev) => [
               ...prev,
               {
                 productId: "",
-                productQty: 0,
+                quantity: 0,
                 sellingPrice: 0,
                 productSno: "",
                 taxRate: "",
-                taxInclusion: false,
+                taxIncludedWithMrp: false,
+                productName: "",
+                productMrp: 0,
+                subTotal: 0,
+                taxAmount: 0,
+                discountAmount: 0,
+                units: "",
+                rate: 0,
+                profitGain: 0,
+                purchasePrice: 0,
+                totalStock: 0,
+                Brand: "",
+                Category: "",
+                productImage: "",
+                BrandColorCode: "",
+                CategoryColorCode: "",
               },
-            ])
-          }
+            ]);
+            setProductErrors((prev) => [
+              ...prev,
+              {
+                productId: "",
+                quantity: "",
+                sellingPrice: "",
+                productSno: "",
+              },
+            ]);
+          }}
         >
           <Plus size={14} />
           <span className="text-xs md:text-sm">Add more product</span>
@@ -502,7 +527,7 @@ const CreateInvoice = () => {
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <h2 className="text-sm font-bold capitalize text-balance">
+        <h2 className="text-sm font-bold capitalize text-balance text-main">
           Payment Details
         </h2>
 
@@ -530,6 +555,11 @@ const CreateInvoice = () => {
                 </SelectItem>
               </SelectContent>
             </Select>
+            {errorStates.paymentModeError && (
+              <p className="text-xs text-red-500 mt-2">
+                {errorStates.paymentModeError}
+              </p>
+            )}
           </div>
 
           <div className="w-full flex flex-col gap-2 px-2 ">
@@ -555,6 +585,11 @@ const CreateInvoice = () => {
                 </SelectItem>
               </SelectContent>
             </Select>
+            {errorStates.paymentStatusError && (
+              <p className="text-xs text-red-500 mt-2">
+                {errorStates.paymentStatusError}
+              </p>
+            )}
           </div>
 
           <div className="w-full flex flex-col gap-2 px-2 ">
@@ -572,6 +607,11 @@ const CreateInvoice = () => {
               value={creditedAmount}
               onChange={(e) => setCreditedAmount(Number(e.target.value))}
             />
+            {errorStates.creditedAmountError && (
+              <p className="text-xs text-red-500 mt-2">
+                {errorStates.creditedAmountError}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -581,7 +621,7 @@ const CreateInvoice = () => {
           {loading ? (
             <div className="flex w-full items-center justify-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Creating Product</span>
+              <span className="text-sm">Creating Invoice</span>
             </div>
           ) : (
             "Create Invoice"
