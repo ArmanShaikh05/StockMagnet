@@ -113,7 +113,7 @@ export const columns: ColumnDef<SerializedInvoiceType>[] = [
     ),
   },
   {
-    accessorKey: "subTotal",
+    accessorKey: "grandTotal",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
       return (
@@ -121,7 +121,7 @@ export const columns: ColumnDef<SerializedInvoiceType>[] = [
           onClick={() => column.toggleSorting(sortDirection === "asc")}
           className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
         >
-          Sub Total
+          Grand Total
           {sortDirection === "asc" ? (
             <ArrowUp className="ml-2 h-4 w-4" />
           ) : sortDirection === "desc" ? (
@@ -133,7 +133,7 @@ export const columns: ColumnDef<SerializedInvoiceType>[] = [
       );
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("subTotal"));
+      const amount = parseFloat(row.getValue("grandTotal"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "INR",

@@ -158,7 +158,7 @@ const HandleInvoiceProducts = ({
                                 updated[index].rate * updated[index].quantity;
 
                               updated[index].profitGain =
-                                (updated[index].rate -
+                                (updated[index].sellingPrice -
                                   updated[index].purchasePrice) *
                                 updated[index].quantity;
 
@@ -233,6 +233,7 @@ const HandleInvoiceProducts = ({
                       : "exclusive"
                   );
 
+             
                   updated[index].taxAmount =
                     gstAmount * updated[index].quantity;
 
@@ -240,7 +241,7 @@ const HandleInvoiceProducts = ({
                     updated[index].rate * updated[index].quantity;
 
                   updated[index].profitGain =
-                    (updated[index].rate - updated[index].purchasePrice) *
+                    (updated[index].sellingPrice - updated[index].purchasePrice) *
                     updated[index].quantity;
                   return updated;
                 });
@@ -293,7 +294,7 @@ const HandleInvoiceProducts = ({
                     updated[index].rate * updated[index].quantity;
 
                   updated[index].profitGain =
-                    (updated[index].rate - updated[index].purchasePrice) *
+                    (updated[index].sellingPrice - updated[index].purchasePrice) *
                     updated[index].quantity;
 
                   return updated;
@@ -367,7 +368,7 @@ const HandleInvoiceProducts = ({
                     updated[index].rate * updated[index].quantity;
 
                   updated[index].profitGain =
-                    (updated[index].rate - updated[index].purchasePrice) *
+                    (updated[index].sellingPrice - updated[index].purchasePrice) *
                     updated[index].quantity;
 
                   return updated;
@@ -423,7 +424,7 @@ const HandleInvoiceProducts = ({
                     updated[index].rate * updated[index].quantity;
 
                   updated[index].profitGain =
-                    (updated[index].rate - updated[index].purchasePrice) *
+                    (updated[index].sellingPrice - updated[index].purchasePrice) *
                     updated[index].quantity;
 
                   return updated;

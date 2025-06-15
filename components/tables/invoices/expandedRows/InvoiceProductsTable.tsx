@@ -14,23 +14,21 @@ const column: ColumnDef<SerializedInvoiceProductType>[] = [
   },
 
   {
-    accessorKey: "productImage",
-    header: "Image",
+    accessorKey: "productName",
+    header: "Product",
     cell: ({ row }) => {
       return (
-        <Image
-          src={row.getValue("productImage")}
-          alt="product image"
-          width={50}
-          height={50}
-        />
+        <div className="w-full flex items-center gap-2">
+          <Image
+            src={row.original.productImage}
+            alt="product image"
+            width={50}
+            height={50}
+          />
+          <span>{row.getValue("productName")}</span>
+        </div>
       );
     },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "productName",
-    header: "Product Name",
   },
   {
     accessorKey: "Category",
@@ -72,6 +70,80 @@ const column: ColumnDef<SerializedInvoiceProductType>[] = [
   },
 
   {
+    accessorKey: "quantity",
+    header: () => <div className="text-center">Quantity</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("quantity")}</div>
+    ),
+  },
+
+  {
+    accessorKey: "productMrp",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          MRP
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("productMrp"));
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "INR",
+      }).format(amount);
+
+      return <div className="text-center">{formatted}</div>;
+    },
+  },
+
+  {
+    accessorKey: "discountAmount",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          Discount
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const amount = parseFloat(
+        (
+          parseFloat(row.getValue("discountAmount")) / row.original.quantity
+        ).toString()
+      );
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "INR",
+      }).format(amount);
+
+      return <div className="text-center">{formatted}</div>;
+    },
+  },
+
+  {
     accessorKey: "sellingPrice",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();
@@ -99,6 +171,33 @@ const column: ColumnDef<SerializedInvoiceProductType>[] = [
       }).format(amount);
 
       return <div className="text-center">{formatted}</div>;
+    },
+  },
+
+    {
+    accessorKey: "taxRate",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          Tax Rate
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const taxRate =  row.original.taxRate.split("@")[1]
+
+      return <div className="text-center">{taxRate}</div>;
     },
   },
 
@@ -131,14 +230,6 @@ const column: ColumnDef<SerializedInvoiceProductType>[] = [
 
       return <div className="text-center">{formatted}</div>;
     },
-  },
-
-  {
-    accessorKey: "quantity",
-    header: () => <div className="text-center">Quantity</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("quantity")}</div>
-    ),
   },
 
   {
@@ -179,7 +270,7 @@ const InvoiceProductsTable = ({
   data: SerializedInvoiceProductType[];
 }) => {
   return (
-    <div className="px-6">
+    <div>
       <ProductsTable showPagination={false} columns={column} data={data} />
     </div>
   );

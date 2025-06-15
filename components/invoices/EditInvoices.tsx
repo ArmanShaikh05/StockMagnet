@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { SerializedInvoiceType } from "@/types/serializedTypes";
+
+import { useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
@@ -23,18 +25,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { editInvoiceData } from "@/actions/invoiceActions";
 import {
   InvoiceDataType,
   InvoiceProductFormType,
   ProductFieldErrorsTypes,
 } from "@/types/types";
+import { format } from "date-fns";
 import Link from "next/link";
-import HandleInvoiceProducts from "./HandleInvoiceProducts";
-import { toast } from "sonner";
-import { useBranchStore } from "@/store/branchStore";
-import { createNewInvoice, getLastInvoiceNo } from "@/actions/invoiceActions";
 import { useRouter } from "next/navigation";
-import InvoiceCreateLoading from "../loading/InvoiceCreateLoading";
+import { toast } from "sonner";
+import HandleInvoiceProducts from "./HandleInvoiceProducts";
 
 type ErrorStates = {
   invoiceNoError: string;
@@ -47,64 +48,68 @@ type ErrorStates = {
   paymentStatusError: string;
   creditedAmountError: string;
 };
-
-const CreateInvoice = () => {
-  const { selectedBranch } = useBranchStore();
+const EditInvoices = ({
+  invoiceData,
+  additionalProductData,
+}: {
+  invoiceData: SerializedInvoiceType;
+  additionalProductData: {
+    stockInHand: number;
+    purchasePrice: number;
+  }[];
+}) => {
   const router = useRouter();
 
-  const [pageLoading, setPageLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    (async () => {
-      if (selectedBranch) {
-        setPageLoading(true);
-        const response = await getLastInvoiceNo(selectedBranch.id);
-        setInvoiceNumber(
-          (Number(response?.data?.invoiceNumber) + 1 || 1).toString()
-        );
-        setPageLoading(false);
-      }
-    })();
-  }, [selectedBranch]);
-
-  const [invoiceNumber, setInvoiceNumber] = useState<string>("");
+  const [invoiceNumber, setInvoiceNumber] = useState<string>(
+    invoiceData.invoiceNumber
+  );
   const [invoiceDateDialogOpen, setInvoiceDateDialogOpen] =
     useState<boolean>(false);
-  const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(undefined);
-  const [isGstInvoice, setIsGstInvoice] = useState<boolean>(false);
-  const [gstNumber, setGstNumber] = useState<string>("");
-  const [customerName, setCustomerName] = useState<string>("");
-  const [customerMobile, setCustomerMobile] = useState<string>("");
-  const [customerAddress, setCustomerAddress] = useState<string>("");
-  const [paymentMode, setPaymentMode] = useState<string>("");
-  const [paymentStatus, setPaymentStatus] = useState<string>("");
-  const [creditedAmount, setCreditedAmount] = useState<number>(0);
+  const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(
+    invoiceData.invoiceDate
+  );
+  const [isGstInvoice, setIsGstInvoice] = useState<boolean>(
+    invoiceData.isGstBill
+  );
+  const [gstNumber, setGstNumber] = useState<string>(
+    invoiceData.gstNumber || ""
+  );
+  const [customerName, setCustomerName] = useState<string>(
+    invoiceData.customerName
+  );
+  const [customerMobile, setCustomerMobile] = useState<string>(
+    invoiceData.customerMobile
+  );
+  const [customerAddress, setCustomerAddress] = useState<string>(
+    invoiceData.customerAddress
+  );
+  const [paymentMode, setPaymentMode] = useState<string>(
+    invoiceData.paymentMode
+  );
+  const [paymentStatus, setPaymentStatus] = useState<string>(
+    invoiceData.status
+  );
+  const [creditedAmount, setCreditedAmount] = useState<number>(
+    parseFloat(invoiceData.creditedAmount) || 0
+  );
   const [loading, setLoading] = useState<boolean>(false);
-  const [productsArray, setProductsArray] = useState<InvoiceProductFormType[]>([
-    {
-      productId: "",
-      quantity: 0,
-      sellingPrice: 0,
-      productSno: "",
-      taxRate: "",
-      taxIncludedWithMrp: false,
-      productName: "",
-      productMrp: 0,
-      subTotal: 0,
-      taxAmount: 0,
-      discountAmount: 0,
-      units: "",
-      rate: 0,
-      profitGain: 0,
-      purchasePrice: 0,
-      totalStock: 0,
-      Brand: "",
-      Category: "",
-      productImage: "",
-      BrandColorCode: "",
-      CategoryColorCode: "",
-    },
-  ]);
+  const [productsArray, setProductsArray] = useState<InvoiceProductFormType[]>(
+    invoiceData.products.map((product, index) => {
+      return {
+        ...product,
+        productMrp: parseFloat(product.productMrp),
+        sellingPrice: parseFloat(product.sellingPrice),
+        taxAmount: parseFloat(product.taxAmount || "0"),
+        subTotal: parseFloat(product.subTotal),
+        discountAmount: parseFloat(product.discountAmount || "0"),
+        rate: parseFloat(product.rate),
+        profitGain: parseFloat(product.profitGain),
+        quantity: Number(product.quantity),
+        purchasePrice: additionalProductData[index]?.purchasePrice || 0,
+        totalStock: additionalProductData[index]?.stockInHand || 0,
+      };
+    })
+  );
 
   const [errorStates, setErrorStates] = useState<ErrorStates>({
     invoiceNoError: "",
@@ -129,7 +134,7 @@ const CreateInvoice = () => {
     ]
   );
 
-  const createInvoice = async (
+  const handleEditInvoice = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     try {
@@ -262,7 +267,7 @@ const CreateInvoice = () => {
         return acc + curr.profitGain;
       }, 0);
 
-      const invoiceData: InvoiceDataType = {
+      const dataToSend: InvoiceDataType = {
         invoiceNumber,
         invoiceDate: invoiceDate!,
         customerName,
@@ -284,12 +289,12 @@ const CreateInvoice = () => {
         creditedAmount: creditedAmount,
         profitGain: totalProfitGain,
 
-        branchId: selectedBranch?.id || "",
+        branchId: invoiceData.branchId,
         products: productsArray,
       };
 
       const response: { success: boolean; message: string } =
-        await createNewInvoice(invoiceData);
+        await editInvoiceData(dataToSend, invoiceData.id);
 
       if (response.success) {
         toast.success(response.message);
@@ -307,11 +312,7 @@ const CreateInvoice = () => {
     }
   };
 
-  return pageLoading ? (
-    <div className="w-full h-full">
-      <InvoiceCreateLoading />
-    </div>
-  ) : (
+  return (
     <div className="w-full flex flex-col sm:px-8 gap-8 mt-4">
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 ">
         <div className="w-full flex flex-col gap-2">
@@ -354,7 +355,7 @@ const CreateInvoice = () => {
                     className="w-full text-xs justify-between font-normal"
                   >
                     {invoiceDate
-                      ? invoiceDate.toLocaleDateString()
+                      ? format(invoiceDate, "dd/MM/yyyy")
                       : "Select date"}
                     <Calendar1Icon />
                   </Button>
@@ -626,14 +627,14 @@ const CreateInvoice = () => {
       </div>
 
       <div className="flex flex-col w-full md:flex-row md:items-center md:justify-end gap-4 mt-6">
-        <Button disabled={loading} onClick={(e) => createInvoice(e)}>
+        <Button disabled={loading} onClick={(e) => handleEditInvoice(e)}>
           {loading ? (
             <div className="flex w-full items-center justify-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Creating Invoice</span>
+              <span className="text-sm">Editing Invoice</span>
             </div>
           ) : (
-            "Create Invoice"
+            "Edit Invoice"
           )}
         </Button>
         <Link href={"/dashboard"}>
@@ -646,4 +647,4 @@ const CreateInvoice = () => {
   );
 };
 
-export default CreateInvoice;
+export default EditInvoices;

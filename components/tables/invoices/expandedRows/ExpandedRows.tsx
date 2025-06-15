@@ -7,6 +7,7 @@ import Invoice from "./Invoice";
 import InvoiceProductsTable from "./InvoiceProductsTable";
 import { useState } from "react";
 import DeleteInvoiceDialog from "@/components/invoices/DeleteInvoiceDialog";
+import Link from "next/link";
 
 const ExpandedRows = ({ rowData }: { rowData: SerializedInvoiceType }) => {
   const [showDeleteInvoiceDialog, setShowDeleteInvoiceDialog] =
@@ -36,9 +37,11 @@ const ExpandedRows = ({ rowData }: { rowData: SerializedInvoiceType }) => {
             </TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
-            <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
-              <Pencil size={16} />
-            </div>
+            <Link href={`/edit-invoice/${rowData.id}`}>
+              <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
+                <Pencil size={16} />
+              </div>
+            </Link>
             <div
               className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer"
               onClick={() => handleDeleteInvoice()}

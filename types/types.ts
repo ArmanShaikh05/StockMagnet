@@ -76,6 +76,7 @@ export type CurrentUserType = Prisma.UserGetPayload<{
 }>;
 
 export type InvoiceProductFormType = {
+  id?: string;
   productId: string;
   quantity: number;
   sellingPrice: number;
