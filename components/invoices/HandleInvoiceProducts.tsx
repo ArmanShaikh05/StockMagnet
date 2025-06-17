@@ -194,9 +194,9 @@ const HandleInvoiceProducts = ({
                 </Command>
               </PopoverContent>
             </Popover>
-            {porductsErrorStates[index].productId && (
+            {porductsErrorStates[index]?.productId && (
               <p className="text-xs text-red-500 mt-2">
-                {porductsErrorStates[index].productId}
+                {porductsErrorStates[index]?.productId}
               </p>
             )}
           </div>
@@ -247,9 +247,9 @@ const HandleInvoiceProducts = ({
                 });
               }}
             />
-            {porductsErrorStates[index].quantity && (
+            {porductsErrorStates[index]?.quantity && (
               <p className="text-xs text-red-500 mt-2">
-                {porductsErrorStates[index].quantity}
+                {porductsErrorStates[index]?.quantity}
               </p>
             )}
           </div>
@@ -302,9 +302,9 @@ const HandleInvoiceProducts = ({
               }}
             />
 
-            {porductsErrorStates[index].sellingPrice && (
+            {porductsErrorStates[index]?.sellingPrice && (
               <p className="text-xs text-red-500 mt-2">
-                {porductsErrorStates[index].sellingPrice}
+                {porductsErrorStates[index]?.sellingPrice}
               </p>
             )}
           </div>
@@ -327,9 +327,9 @@ const HandleInvoiceProducts = ({
                 });
               }}
             />
-            {porductsErrorStates[index].productSno && (
+            {porductsErrorStates[index]?.productSno && (
               <p className="text-xs text-red-500 mt-2">
-                {porductsErrorStates[index].productSno}
+                {porductsErrorStates[index]?.productSno}
               </p>
             )}
           </div>
