@@ -1,6 +1,5 @@
 import { Prisma } from "@/lib/generated/prisma";
 
-
 export type CardDataType = {
   icon: React.ElementType;
   title: string;
@@ -103,3 +102,26 @@ export type InvoiceDataType = {
   branchId: string;
   products: InvoiceProductFormType[];
 };
+
+export type RevenueChartDataType = {
+  weekly: {
+    day: string;
+    revenue: number;
+  }[];
+  monthly: {
+    week: string;
+    revenue: number;
+  }[];
+  yearly: {
+    month: string;
+    revenue: number;
+  }[];
+};
+
+export type MonthlyStockSummaryChartType = {
+  month: string;
+  year: string;
+  total: number;
+  sold: number;
+  remaining: number;
+}[];

@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
+import { getBranchRevenueChartData } from "@/actions/chartActions";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -18,45 +17,48 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useBranchStore } from "@/store/branchStore";
+import { RevenueChartDataType } from "@/types/types";
+import { Skeleton } from "../ui/skeleton";
 import RevenueChartRangeDropdown, {
   RangeOption,
 } from "./RevenueChartRangeDropdown";
 
 // Chart Data
-const chartData = {
-  weekly: [
-    { day: "Monday", desktop: 150 },
-    { day: "Tuesday", desktop: 52 },
-    { day: "Wednesday", desktop: 41 },
-    { day: "Thursday", desktop: 65 },
-    { day: "Friday", desktop: 23 },
-    { day: "Saturday", desktop: 18 },
-    { day: "Sunday", desktop: 27 },
-  ],
-  monthly: [
-    { week: "Week 1", desktop: 120 },
-    { week: "Week 2", desktop: 98 },
-    { week: "Week 3", desktop: 132 },
-    { week: "Week 4", desktop: 114 },
-  ],
-  yearly: [
-    { month: "January", desktop: 186 },
-    { month: "February", desktop: 305 },
-    { month: "March", desktop: 237 },
-    { month: "April", desktop: 73 },
-    { month: "May", desktop: 209 },
-    { month: "June", desktop: 214 },
-    { month: "July", desktop: 214 },
-    { month: "August", desktop: 214 },
-    { month: "September", desktop: 214 },
-    { month: "October", desktop: 264 },
-    { month: "November", desktop: 254 },
-    { month: "December", desktop: 304 },
-  ],
-};
+// const chartData = {
+//   weekly: [
+//     { day: "Monday", revenue: 150 },
+//     { day: "Tuesday", revenue: 52 },
+//     { day: "Wednesday", revenue: 41 },
+//     { day: "Thursday", revenue: 65 },
+//     { day: "Friday", revenue: 23 },
+//     { day: "Saturday", revenue: 18 },
+//     { day: "Sunday", revenue: 27 },
+//   ],
+//   monthly: [
+//     { week: "Week 1", revenue: 120 },
+//     { week: "Week 2", revenue: 98 },
+//     { week: "Week 3", revenue: 132 },
+//     { week: "Week 4", revenue: 114 },
+//   ],
+//   yearly: [
+//     { month: "January", revenue: 186 },
+//     { month: "February", revenue: 305 },
+//     { month: "March", revenue: 237 },
+//     { month: "April", revenue: 73 },
+//     { month: "May", revenue: 209 },
+//     { month: "June", revenue: 0 },
+//     { month: "July", revenue: 0 },
+//     { month: "August", revenue: 0 },
+//     { month: "September", revenue: 0 },
+//     { month: "October", revenue: 0 },
+//     { month: "November", revenue: 254 },
+//     { month: "December", revenue: 304 },
+//   ],
+// };
 
 const chartConfig: ChartConfig = {
-  desktop: {
+  revenue: {
     label: "Revenue",
     color: "hsl(var(--chart-2))",
   },
@@ -75,7 +77,54 @@ const keyToDataKey = {
 } as const;
 
 const RevenueChart = () => {
+  const { selectedBranch } = useBranchStore();
+
   const [range, setRange] = useState<RangeOption>("This Year");
+  const [chartData, setChartData] = useState<RevenueChartDataType>({
+    weekly: [
+      { day: "Sunday", revenue: 0 },
+      { day: "Monday", revenue: 0 },
+      { day: "Tuesday", revenue: 0 },
+      { day: "Wednesday", revenue: 0 },
+      { day: "Thursday", revenue: 0 },
+      { day: "Friday", revenue: 0 },
+      { day: "Saturday", revenue: 0 },
+    ],
+    monthly: [
+      { week: "Week 1", revenue: 0 },
+      { week: "Week 2", revenue: 0 },
+      { week: "Week 3", revenue: 0 },
+      { week: "Week 4", revenue: 0 },
+    ],
+    yearly: [
+      { month: "January", revenue: 0 },
+      { month: "February", revenue: 0 },
+      { month: "March", revenue: 0 },
+      { month: "April", revenue: 0 },
+      { month: "May", revenue: 0 },
+      { month: "June", revenue: 0 },
+      { month: "July", revenue: 0 },
+      { month: "August", revenue: 0 },
+      { month: "September", revenue: 0 },
+      { month: "October", revenue: 0 },
+      { month: "November", revenue: 0 },
+      { month: "December", revenue: 0 },
+    ],
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      if (selectedBranch) {
+        setLoading(true);
+        const response = await getBranchRevenueChartData(selectedBranch.id);
+        if (response.data) {
+          setChartData(response.data);
+        }
+        setLoading(false);
+      }
+    })();
+  }, [selectedBranch]);
 
   const { actualChartData, xAxisKey } = useMemo(() => {
     const key = labelToKeyMap[range];
@@ -84,9 +133,11 @@ const RevenueChart = () => {
       actualChartData: chartData[key],
       xAxisKey: dataKey,
     };
-  }, [range]);
+  }, [chartData, range]);
 
-  return (
+  return loading ? (
+    <Skeleton className="w-fu h-[500px]" />
+  ) : (
     <Card className="shadow-lg">
       <CardHeader>
         <div className="flex w-full justify-between">
@@ -111,7 +162,7 @@ const RevenueChart = () => {
               interval={0}
               tickFormatter={(value: string) =>
                 value.startsWith("Week")
-                  ? value.replace("eek ","")
+                  ? value.replace("eek ", "")
                   : value.length > 3
                   ? value.slice(0, 3)
                   : value
@@ -122,27 +173,15 @@ const RevenueChart = () => {
               content={<ChartTooltipContent indicator="line" />}
             />
             <Area
-              dataKey="desktop"
-              type="natural"
-              fill="var(--color-desktop)"
+              dataKey="revenue"
+              type="monotone"
+              fill="var(--color-revenue)"
               fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              stroke="var(--color-revenue)"
             />
           </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 };

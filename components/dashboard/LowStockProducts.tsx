@@ -10,6 +10,7 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import NoLowStock from "../empty/NoLowStock";
+import { ScrollArea } from "../ui/scroll-area";
 
 const ProductCard = ({
   MRP,
@@ -78,7 +79,7 @@ const LowStockProducts = () => {
   }, [selectedBranch]);
 
   return loading ? (
-    <Skeleton className="w-full h-full" />
+    <Skeleton className="w-full h-[500px]" />
   ) : (
     <Card className="shadow-lg">
       <CardContent>
@@ -86,12 +87,14 @@ const LowStockProducts = () => {
           Low Stock Products
         </h2>
         {lowStockProductsData.length > 0 ? (
-          <div className="w-full flex flex-col gap-0 mt-8">
-          {lowStockProductsData.map((product, index) => (
-            <ProductCard key={index} {...product} />
-          ))}
-        </div>
-        ):(
+          <ScrollArea className="h-[500px]">
+            <div className="w-full flex flex-col gap-0 mt-8">
+              {lowStockProductsData.map((product, index) => (
+                <ProductCard key={index} {...product} />
+              ))}
+            </div>
+          </ScrollArea>
+        ) : (
           <div className="w-full h-full flex items-center pt-12">
             <NoLowStock />
           </div>

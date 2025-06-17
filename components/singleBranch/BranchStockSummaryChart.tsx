@@ -1,8 +1,9 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 
+import { getMonthStockSummary } from "@/actions/chartActions";
 import {
   Card,
   CardContent,
@@ -17,14 +18,18 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { MonthlyStockSummaryChartType } from "@/types/types";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Skeleton } from "../ui/skeleton";
 
-const chartData = [
-  { month: "January", year: "2025", new: 1260, sold: 570, remaining: 200 },
-];
+// const chartData = [
+//   { month: "January", year: "2025", total: 1260, sold: 570, remaining: 200 },
+// ];
 
 const chartConfig = {
-  new: {
-    label: "New Stock",
+  total: {
+    label: "Total Stock",
     color: "hsl(var(--chart-1))",
   },
   sold: {
@@ -38,10 +43,34 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const BranchStockSummaryChart = () => {
-  const totalStock =
-    chartData[0].new + chartData[0].sold + chartData[0].remaining;
+  const params = useParams();
+  const branchId = params.branchId as string;
+  console.log(branchId);
+  const [chartData, setChartData] = useState<MonthlyStockSummaryChartType>([
+    { month: "January", year: "2025", total: 0, sold: 0, remaining: 0 },
+  ]);
+  const [percentChange, setPercentChange] = useState<string>("0");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  return (
+  const totalStock = chartData[0].total;
+
+  useEffect(() => {
+    (async () => {
+      if (branchId) {
+        setLoading(true);
+        const response = await getMonthStockSummary(branchId);
+        if (response.data && response.percentChange) {
+          setChartData(response.data);
+          setPercentChange(response.percentChange);
+        }
+        setLoading(false);
+      }
+    })();
+  }, [branchId]);
+
+  return loading ? (
+    <Skeleton className="w-full h-[450px]" />
+  ) : (
     <Card className="flex flex-col shadow-xl">
       <CardHeader className="items-center pb-0">
         <CardTitle>Monthly Stock Summary</CardTitle>
@@ -50,12 +79,8 @@ const BranchStockSummaryChart = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col w-full gap-6 flex-1 items-center pb-0">
-        <div className="w-full grid grid-cols-3 gap-2  place-items-center h-max">
+        <div className="w-full grid grid-cols-2 gap-2  place-items-center h-max">
           <div className="flex flex-col border-l-8 border-[#FF9777] pl-2 h-full">
-            <span className="text-xs font-light">New Stock</span>
-            <span className="text-2xl font-bold">{chartData[0].new}</span>
-          </div>
-          <div className="flex flex-col border-l-8 border-[#39D3F2] pl-2 h-full">
             <span className="text-xs font-light">Sold Stock</span>
             <span className="text-2xl font-bold">{chartData[0].sold}</span>
           </div>
@@ -114,17 +139,9 @@ const BranchStockSummaryChart = () => {
 
             <RadialBar
               dataKey="sold"
-              fill="#39D3F2"
-              stackId="a"
-              cornerRadius={5}
-              className="stroke-transparent stroke-2"
-            />
-
-            <RadialBar
-              dataKey="new"
-              stackId="a"
-              cornerRadius={5}
               fill="#FF9777"
+              stackId="a"
+              cornerRadius={5}
               className="stroke-transparent stroke-2"
             />
           </RadialBarChart>
@@ -132,7 +149,12 @@ const BranchStockSummaryChart = () => {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          Trending up by {percentChange} this month{" "}
+          {Number(percentChange.slice(0, -1) || 0) > 0 ? (
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500" />
+          )}
         </div>
         <div className="leading-none text-muted-foreground">
           Showing the stock summary for the month of {chartData[0].month}
