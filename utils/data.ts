@@ -5,6 +5,8 @@ import type {
   TaxesType,
 } from "@/types/types";
 
+
+// USED FOR RECENT INVOICES IN DASHBOARD, SINGLE BRANCH
 export const InvoicesData: InvoiceTableType[] = [
   {
     id: 1,

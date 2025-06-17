@@ -18,7 +18,7 @@ const column: ColumnDef<SerializedInvoiceProductType>[] = [
     header: "Product",
     cell: ({ row }) => {
       return (
-        <div className="w-full flex items-center gap-2">
+        <div className="w-max flex items-center gap-2">
           <Image
             src={row.original.productImage}
             alt="product image"

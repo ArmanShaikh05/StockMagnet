@@ -365,7 +365,6 @@ export const getSingleInvoiceData = async (invoiceId: string) => {
       additionalProductData.push(serializedAdditionalProductData);
     }
 
-  
     const seriealizedInvoiceData: SerializedInvoiceType = {
       ...invoiceData,
       subTotal: invoiceData.subTotal.toString(),
@@ -834,3 +833,63 @@ export const editInvoiceData = async (
 //     return { success: false, message: "Error editing invoice" };
 //   }
 // };
+
+export const getRecentInvoicesOfBranch = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    if (!branchId) {
+      return { success: false, message: "Branch ID is required" };
+    }
+
+    const allInvoicesOfBranch = await db.invoices.findMany({
+      where: {
+        branchId: branchId,
+      },
+      orderBy: {
+        invoiceNumber: "desc",
+      },
+      include: {
+        products: true,
+      },
+      take: 10,
+    });
+
+    const seriealizedInvoicesData: SerializedInvoiceType[] =
+      allInvoicesOfBranch.map((invoice) => {
+        return {
+          ...invoice,
+          subTotal: invoice.subTotal.toString(),
+          totalTaxAmount: invoice.totalTaxAmount.toString(),
+          totalDiscount: invoice.totalDiscount.toString(),
+          grandTotal: invoice.grandTotal.toString(),
+          amountPaid: invoice.amountPaid.toString(),
+          creditedAmount: invoice.creditedAmount.toString(),
+          profitGain: invoice.profitGain.toString(),
+          products: invoice.products.map((product) => {
+            return {
+              ...product,
+              productMrp: product.productMrp.toString(),
+              rate: product.rate.toString(),
+              sellingPrice: product.sellingPrice.toString(),
+              profitGain: product.profitGain.toString(),
+              taxAmount: product.taxAmount?.toString() || "0",
+              subTotal: product.subTotal.toString(),
+              discountAmount: product.discountAmount?.toString() || "0",
+            };
+          }),
+        };
+      });
+
+    return {
+      success: true,
+      message: "Last Invoice number fetched successfully",
+      data: seriealizedInvoicesData,
+    };
+  } catch (error) {
+    console.error("Error fetching last invoice number:", error);
+    return { success: false, message: "Error fetching last invoice number" };
+  }
+};

@@ -1,5 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma";
 
+// USED IN SINGLE BRANCH
 export type LowStockProductTypes = {
   name: string;
   price: number;

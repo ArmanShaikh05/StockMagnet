@@ -2,7 +2,10 @@
 
 import { Branches } from "@/lib/generated/prisma";
 import db from "@/lib/prisma";
-import { SerializedProductType } from "@/types/serializedTypes";
+import {
+  SerializedLowStockProductType,
+  SerializedProductType,
+} from "@/types/serializedTypes";
 import { deleteImageFromImagekit } from "@/utils/deleteImage";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -406,6 +409,61 @@ export const getProductsDataofBranch = async (branchId: string) => {
       success: true,
       message: "branch products fetched successfully",
       data: serializedDecimalProducts || [],
+    };
+  } catch (error) {
+    console.error("Error fetching branch products data:", error);
+    return {
+      success: false,
+      message: "Error fetching branch products data",
+    };
+  }
+};
+
+export const getLowStockProductsDataofBranch = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    const allProduct = await db.products.findMany({
+      where: {
+        branchId: branchId,
+      },
+      select: {
+        id: true,
+        productImage: true,
+        productName: true,
+        stockInHand: true,
+        minStockQty: true,
+        MRP: true,
+        Brand: {
+          select: {
+            brandName: true,
+            colorCode: true,
+          },
+        },
+      },
+    });
+
+    const lowStockProduct = allProduct.filter(
+      (product) => product.stockInHand < product.minStockQty
+    );
+
+    const serializedLowStockProduct: SerializedLowStockProductType[] =
+      lowStockProduct.map((product) => {
+        return {
+          ...product,
+          MRP: product.MRP.toString(),
+        };
+      });
+
+    return {
+      success: true,
+      message: "branch products fetched successfully",
+      data: serializedLowStockProduct || [],
     };
   } catch (error) {
     console.error("Error fetching branch products data:", error);

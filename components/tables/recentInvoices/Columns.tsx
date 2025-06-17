@@ -2,57 +2,120 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { InvoiceTableType } from "@/types/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { SerializedInvoiceType } from "@/types/serializedTypes";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
+// This type is used to define the shape of our data.
+// You can use a Zod schema here if you want.
 
-export const columns: ColumnDef<InvoiceTableType>[] = [
+export const columns: ColumnDef<SerializedInvoiceType>[] = [
+
   {
-    accessorKey: "id",
+    accessorKey: "invoiceNumber",
     header: "Invoice ID",
     cell: ({ row }) => {
-      return <div>#{row.getValue("id")}</div>;
+      return <div className="pl-2">#{row.getValue("invoiceNumber")}</div>;
     },
   },
 
   {
-    accessorKey: "customer",
+    accessorKey: "customerName",
     header: "Customer Name",
   },
   {
-    accessorKey: "mobile",
-    header: "Mobile No",
-  },
-  {
-    accessorKey: "date",
-    header: "Invoice Date",
-  },
-  {
-    accessorKey: "quantity",
-    header: "Items",
+    accessorKey: "customerMobile",
+    header: () => <div className="text-center">Mobile No</div>,
     cell: ({ row }) => (
-      <div className="text-center">{row.getValue("quantity")}</div>
+      <div className="text-center">{row.original.customerMobile}</div>
     ),
   },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-center">Amount</div>,
+    accessorKey: "invoiceDate",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          Invoice Date
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-center">
+        {new Date(row.getValue("invoiceDate")).toISOString().split("T")[0]}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "totalQuantity",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          Items
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("totalQuantity")}</div>
+    ),
+  },
+  {
+    accessorKey: "grandTotal",
+    header: ({ column }) => {
+      const sortDirection = column.getIsSorted();
+      return (
+        <div
+          onClick={() => column.toggleSorting(sortDirection === "asc")}
+          className="flex items-center justify-center gap-0 cursor-pointer hover:bg-accent hover:text-accent-foreground h-[85%] my-auto pl-2 rounded-xs"
+        >
+          Grand Total
+          {sortDirection === "asc" ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : sortDirection === "desc" ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </div>
+      );
+    },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      const amount = parseFloat(row.getValue("grandTotal"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "INR",
       }).format(amount);
 
-      return <div>{formatted}</div>;
+      return <div className="text-center">{formatted}</div>;
     },
   },
   {
-    accessorKey: "payment",
-    header: "Payment",
+    accessorKey: "paymentMode",
+    header: () => <div className="text-center">Payment</div>,
     cell: ({ row }) => {
-      const payment = row.getValue("payment") as string;
+      const payment = row.getValue("paymentMode") as string;
 
       return (
         <Badge
@@ -71,10 +134,10 @@ export const columns: ColumnDef<InvoiceTableType>[] = [
     },
   },
   {
-    accessorKey: "gstBill",
-    header: "GST Bill",
+    accessorKey: "isGstBill",
+    header: () => <div className="text-center">GST Bill</div>,
     cell: ({ row }) => {
-      const isGstBill = row.getValue("gstBill") as boolean;
+      const isGstBill = row.getValue("isGstBill") as boolean;
 
       return <div className="text-center">{isGstBill ? "Yes" : "No"}</div>;
     },
@@ -88,11 +151,12 @@ export const columns: ColumnDef<InvoiceTableType>[] = [
       return (
         <Badge
           className={cn(
-            status === "Full-Paid"
+            status === "FullPaid"
               ? "bg-green-600"
               : status === "Credited"
               ? "bg-orange-400"
-              : "bg-red-500"
+              : "bg-red-500",
+            "w-full"
           )}
         >
           {status}

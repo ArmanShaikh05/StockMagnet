@@ -150,3 +150,17 @@ export type SerializedInvoiceType = Omit<
   profitGain: string;
   products: SerializedInvoiceProductType[];
 };
+
+// SERIALIZED LOW STOCK PRODUCT
+export type SerializedLowStockProductType = {
+  id: string;
+  productImage: string;
+  productName: string;
+  stockInHand: number;
+  minStockQty: number;
+  MRP: string;
+  Brand: {
+    brandName: string;
+    colorCode: string;
+  };
+};

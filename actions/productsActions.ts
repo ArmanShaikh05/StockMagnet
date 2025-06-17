@@ -378,3 +378,5 @@ export const deleteMultipleProducts = async (productIds: string[]) => {
     return { success: false, message: "Error deleting selected products" };
   }
 };
+
+
