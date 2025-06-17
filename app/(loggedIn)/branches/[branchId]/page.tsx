@@ -70,14 +70,14 @@ const SingleBranchPage = async ({
                 <BranchProfitMargin />
               </div>
               <div className="flex flex-col gap-2">
-                <BranchLowStocks />
+                <BranchLowStocks branchId={branchId} />
                 <PerformanceScore />
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4">
               <BranchStockSummaryChart />
-              <BranchRecentInvoicesTable />
+              <BranchRecentInvoicesTable branchId={branchId} />
             </div>
           </div>
         </div>
