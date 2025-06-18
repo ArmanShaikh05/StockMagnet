@@ -9,6 +9,7 @@ export type CardDataType = {
   theme: "green" | "blue" | "orange" | "red";
 };
 
+// Was used in Revenue Comparison
 export type BranchesType = {
   id: string;
   branchName: string;
@@ -125,3 +126,21 @@ export type MonthlyStockSummaryChartType = {
   sold: number;
   remaining: number;
 }[];
+
+export type BranchesForRevenueComparisonType = {
+  branchName: string;
+  id: string;
+  isPrimary: boolean;
+  stock?: number;
+}[];
+
+export type RevenueChartData = {
+  date: string;
+  [branchLabel: string]: string | number;
+};
+
+export type StockComparisonChartData = {
+  name: string;
+  stock: number;
+  isPrimary: boolean;
+};

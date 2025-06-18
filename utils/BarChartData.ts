@@ -1,8 +1,10 @@
-import { BranchesType } from "@/types/types";
+import { BranchesForRevenueComparisonType } from "@/types/types";
 
 // DATA AND CHART CONFIG GENRATION FOR THE REVENUE COMPARISON CHART IN THE DASHBOARD
 
-export const generateComparisonRevenueData = (branches: BranchesType[]) => {
+export const generateComparisonRevenueData = (
+  branches: BranchesForRevenueComparisonType
+) => {
   const months = [
     "January",
     "February",
@@ -35,7 +37,7 @@ export const generateComparisonRevenueData = (branches: BranchesType[]) => {
 };
 
 export const generateComparisonRevenueChartConfig = (
-  branches: BranchesType[]
+  branches: BranchesForRevenueComparisonType
 ) => {
   const colors = [
     "#FF9777",
@@ -63,13 +65,15 @@ export const generateComparisonRevenueChartConfig = (
   return chartConfig;
 };
 
-export const getBranchesLabel = (branches: BranchesType[]) => {
+export const getBranchesLabel = (
+  branches: BranchesForRevenueComparisonType
+) => {
   return branches.reduce((acc, curr) => {
     const key = curr.branchName.split(" ").join("");
     acc[key] = {
       label: curr.branchName,
       value: key.toLowerCase(),
-      isPrimary: curr.isPrimaryBranch,
+      isPrimary: curr.isPrimary,
     };
     return acc;
   }, {} as Record<string, { label: string; value: string; isPrimary: boolean }>);

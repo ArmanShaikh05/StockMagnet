@@ -1,6 +1,8 @@
-import { BranchesType } from "@/types/types";
+import { StockComparisonChartData } from "@/types/types";
 
-export const getStockComparisonChartData = (branches: BranchesType[]) => {
+export const generateStockComparisonChartData = (
+  branches: StockComparisonChartData[]
+) => {
   const colors = [
     "#FF9777",
     "#39D3F2",
@@ -17,8 +19,8 @@ export const getStockComparisonChartData = (branches: BranchesType[]) => {
   ];
   const chartData = branches.map((branch, index) => {
     return {
-      branch: branch.branchName.split(" ").join(""),
-      stock: Math.floor(Math.random() * 200) + 100,
+      branch: branch.name.split(" ").join(""),
+      stock: branch.stock,
       fill: colors[index % colors.length],
     };
   });
@@ -26,7 +28,7 @@ export const getStockComparisonChartData = (branches: BranchesType[]) => {
   return chartData;
 };
 
-export const getChartConfigData = (branches: BranchesType[]) => {
+export const getChartConfigData = (branches: StockComparisonChartData[]) => {
   const colors = [
     "#FF9777",
     "#39D3F2",
@@ -43,9 +45,9 @@ export const getChartConfigData = (branches: BranchesType[]) => {
   ];
   const chartConfig = branches.reduce(
     (acc, curr, index) => {
-      const key = curr.branchName.split(" ").join("");
+      const key = curr.name.split(" ").join("");
       acc[key] = {
-        label: curr.branchName,
+        label: curr.name,
         colors: colors[index % colors.length],
       };
 

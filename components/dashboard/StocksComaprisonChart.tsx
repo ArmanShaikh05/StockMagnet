@@ -1,13 +1,12 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Pie, PieChart } from "recharts";
 
+import { getStockComparisonChartDataAction } from "@/actions/chartActions";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,12 +18,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { getBranchesLabel } from "@/utils/BarChartData";
-import {
-  getChartConfigData,
-  getStockComparisonChartData,
-} from "@/utils/StocksComaprisonChartData";
-import { mockBranches } from "@/utils/data";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -33,34 +26,76 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useMemo, useState } from "react";
+import { StockComparisonChartData } from "@/types/types";
+import { getBranchesLabel } from "@/utils/BarChartData";
+import {
+  generateStockComparisonChartData,
+  getChartConfigData,
+} from "@/utils/StocksComaprisonChartData";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 export function StocksComparisonChart() {
-  const branchesLabel = getBranchesLabel(mockBranches);
+  const [branchesLabel, setBranchesLabel] = useState<Record<
+    string,
+    {
+      label: string;
+      value: string;
+      isPrimary: boolean;
+      stock?: number;
+    }
+  > | null>(null);
 
-  const [branchesFilter, setBranchesFilter] = useState<string[]>(
-    Object.keys(branchesLabel).map((branch) => {
-      return branchesLabel[branch].value;
-    })
-  );
+  const [branchesFilter, setBranchesFilter] = useState<string[]>([]);
+
+  const [chartResponse, setChartResponse] = useState<
+    StockComparisonChartData[]
+  >([]);
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const response = await getStockComparisonChartDataAction();
+      if (response.data && response.chartData) {
+        const labels = getBranchesLabel(response.data);
+
+        if (labels) {
+          setBranchesLabel(labels);
+          setBranchesFilter(
+            Object.keys(labels).map((branch) => {
+              return labels[branch].value;
+            })
+          );
+        }
+
+        setChartResponse(response.chartData);
+      }
+
+      setLoading(false);
+    })();
+  }, []);
 
   const filteredBranches = useMemo(() => {
-    return mockBranches.filter((branch) => {
-      const branchName = branch.branchName.split(" ").join("").toLowerCase();
+    return chartResponse.filter((branch) => {
+      const branchName = branch.name.split(" ").join("").toLowerCase();
       const filteredBrach =
         branchesFilter.length > 0 ? branchesFilter.includes(branchName) : true;
 
       return filteredBrach;
     });
-  }, [branchesFilter]);
+  }, [branchesFilter, chartResponse]);
 
-  const chartData = getStockComparisonChartData(filteredBranches);
+  const chartData = generateStockComparisonChartData(filteredBranches);
   const chartConfig = getChartConfigData(
     filteredBranches
   ) satisfies ChartConfig;
 
-  return (
+  return loading ? (
+    <Skeleton className="w-full h-[570px]" />
+  ) : (
     <Card className="flex flex-col shadow-xl">
       <CardHeader>
         <div className="w-full flex items-start sm:items-center justify-between relative">
@@ -87,23 +122,28 @@ export function StocksComparisonChart() {
               <DropdownMenuLabel>Appearance</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
-              {Object.keys(branchesLabel).map((branch, index) => (
-                <DropdownMenuCheckboxItem
-                  key={index}
-                  checked={branchesFilter.includes(branchesLabel[branch].value)}
-                  onCheckedChange={(checked) => {
-                    setBranchesFilter((prev) =>
-                      checked
-                        ? [...prev, branchesLabel[branch].value]
-                        : prev.filter((f) => f !== branchesLabel[branch].value)
-                    );
-                  }}
-                  defaultChecked={branchesLabel[branch].isPrimary}
-                  disabled={branchesLabel[branch].isPrimary}
-                >
-                  {branchesLabel[branch].label}
-                </DropdownMenuCheckboxItem>
-              ))}
+              {branchesLabel &&
+                Object.keys(branchesLabel).map((branch, index) => (
+                  <DropdownMenuCheckboxItem
+                    key={index}
+                    checked={branchesFilter.includes(
+                      branchesLabel[branch].value
+                    )}
+                    onCheckedChange={(checked) => {
+                      setBranchesFilter((prev) =>
+                        checked
+                          ? [...prev, branchesLabel[branch].value]
+                          : prev.filter(
+                              (f) => f !== branchesLabel[branch].value
+                            )
+                      );
+                    }}
+                    defaultChecked={branchesLabel[branch].isPrimary}
+                    disabled={branchesLabel[branch].isPrimary}
+                  >
+                    {branchesLabel[branch].label}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -123,14 +163,6 @@ export function StocksComparisonChart() {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
   );
 }

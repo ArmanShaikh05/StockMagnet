@@ -3,7 +3,9 @@
 import db from "@/lib/prisma";
 import {
   MonthlyStockSummaryChartType,
+  RevenueChartData,
   RevenueChartDataType,
+  StockComparisonChartData
 } from "@/types/types";
 import { currentUser } from "@clerk/nextjs/server";
 import {
@@ -262,6 +264,184 @@ export const getMonthStockSummary = async (branchId: string) => {
     return {
       success: false,
       message: "Error fetching monthly stock data",
+    };
+  }
+};
+
+export const getRevenueComparisonChartData = async () => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id) {
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+    }
+
+    const branches = await db.branches.findMany({
+      where: {
+        User: {
+          is: {
+            clerkUserId: user.id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        branchName: true,
+        isPrimary: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    if (!branches || branches.length === 0) {
+      return {
+        success: false,
+        message: "No branches found",
+      };
+    }
+
+    const monthMap = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    // Initialize chart data
+    const chartData: RevenueChartData[] = monthMap.map((month) => ({
+      date: month,
+    }));
+
+    for (const branch of branches) {
+      const branchLabel = branch.branchName
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join("");
+
+      // Add zero for this branch in every month
+      for (const monthData of chartData) {
+        monthData[branchLabel] = 0;
+      }
+
+      const invoices = await db.invoices.findMany({
+        where: {
+          branchId: branch.id,
+        },
+        select: {
+          invoiceDate: true,
+          grandTotal: true,
+        },
+      });
+
+      for (const invoice of invoices) {
+        const month = format(new Date(invoice.invoiceDate), "MMMM");
+        const monthEntry = chartData.find((d) => d.date === month);
+        if (monthEntry) {
+          monthEntry[branchLabel] =
+            Number(monthEntry[branchLabel]) + Number(invoice.grandTotal) || 0;
+        }
+      }
+    }
+
+    return {
+      success: true,
+      message: "Revenue comparison data fetched successfully",
+      data: branches,
+      chartData: chartData,
+    };
+  } catch (error) {
+    console.error("Error fetching revenue comparison data:", error);
+    return {
+      success: false,
+      message: "Error fetching revenue comparison data",
+    };
+  }
+};
+
+export const getStockComparisonChartDataAction = async () => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id) {
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+    }
+
+    const branches = await db.branches.findMany({
+      where: {
+        User: {
+          is: {
+            clerkUserId: user.id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        branchName: true,
+        isPrimary: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    if (!branches || branches.length === 0) {
+      return {
+        success: false,
+        message: "No branches found",
+      };
+    }
+
+    // Initialize chart data
+    const chartData: StockComparisonChartData[] = [];
+
+    for (const branch of branches) {
+      // const branchLabel = branch.branchName
+      //   .split(" ")
+      //   .map(
+      //     (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      //   )
+      //   .join("");
+
+      const productsData = await db.products.aggregate({
+        _sum: { stockInHand: true },
+        where: {
+          branchId: branch.id,
+        },
+      });
+
+      chartData.push({
+        name: branch.branchName,
+        stock: productsData._sum.stockInHand || 0,
+        isPrimary: branch.isPrimary,
+      });
+    }
+
+    return {
+      success: true,
+      message: "Stock comparison data fetched successfully",
+      data: branches,
+      chartData,
+    };
+  } catch (error) {
+    console.error("Error fetching stock comparison data:", error);
+    return {
+      success: false,
+      message: "Error fetching stock comparison data",
     };
   }
 };

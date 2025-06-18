@@ -25,13 +25,6 @@ export const columns: ColumnDef<SerializedInvoiceType>[] = [
     header: "Customer Name",
   },
   {
-    accessorKey: "customerMobile",
-    header: () => <div className="text-center">Mobile No</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.customerMobile}</div>
-    ),
-  },
-  {
     accessorKey: "invoiceDate",
     header: ({ column }) => {
       const sortDirection = column.getIsSorted();

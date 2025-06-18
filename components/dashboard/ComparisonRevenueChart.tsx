@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, XAxis } from "recharts";
 
+import { getRevenueComparisonChartData } from "@/actions/chartActions";
 import {
   Card,
   CardContent,
@@ -26,63 +27,73 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  BranchesForRevenueComparisonType,
+  RevenueChartData,
+} from "@/types/types";
+import {
   generateComparisonRevenueChartConfig,
-  generateComparisonRevenueData,
   getBranchesLabel,
 } from "@/utils/BarChartData";
-import { mockBranches } from "@/utils/data";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { useMemo, useState } from "react";
-// const chartData = [
-//   { date: "January", running: 450, swimming: 300 },
-//   { date: "February", running: 380, swimming: 420 },
-//   { date: "March", running: 520, swimming: 120 },
-//   { date: "April", running: 140, swimming: 550 },
-//   { date: "May", running: 600, swimming: 350 },
-//   { date: "June", running: 480, swimming: 400 },
-//   { date: "July", running: 480, swimming: 400 },
-//   { date: "August", running: 480, swimming: 400 },
-//   { date: "September", running: 480, swimming: 400 },
-//   { date: "October", running: 480, swimming: 400 },
-//   { date: "November", running: 480, swimming: 400 },
-//   { date: "December", running: 480, swimming: 400 },
-// ];
-
-// const chartConfig = {
-//   running: {
-//     label: "Running",
-//     color: "#FF9777",
-//   },
-//   swimming: {
-//     label: "Swimming",
-//     color: "#39D3F2",
-//   },
-// } satisfies ChartConfig;
-
-const branchesLabel = getBranchesLabel(mockBranches);
+import { Skeleton } from "../ui/skeleton";
 
 export function ComparisonRevenueChart() {
-  // console.log(branchesLabel);
-  const [branchesFilter, setBranchesFilter] = useState<string[]>(
-    Object.keys(branchesLabel).map((branch) => {
-      return branchesLabel[branch].value;
-    })
-  );
+  const [branchesLabel, setBranchesLabel] = useState<Record<
+    string,
+    {
+      label: string;
+      value: string;
+      isPrimary: boolean;
+    }
+  > | null>(null);
+
+  const [branchesFilter, setBranchesFilter] = useState<string[]>([]);
+
+  const [branchesData, setBranchesData] =
+    useState<BranchesForRevenueComparisonType>([]);
+
+  const [chartData, setChartData] = useState<RevenueChartData[]>();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const branchResponse = await getRevenueComparisonChartData();
+
+      if (branchResponse.data && branchResponse.chartData) {
+        setBranchesData(branchResponse.data);
+        const labels = getBranchesLabel(branchResponse.data);
+
+        if (labels) {
+          setBranchesLabel(labels);
+          setBranchesFilter(
+            Object.keys(labels).map((branch) => {
+              return labels[branch].value;
+            })
+          );
+        }
+
+        setChartData(branchResponse.chartData);
+      }
+
+      setLoading(false);
+    })();
+  }, []);
 
   const filteredBranches = useMemo(() => {
-    return mockBranches.filter((branch) => {
+    return branchesData.filter((branch) => {
       const branchName = branch.branchName.split(" ").join("").toLowerCase();
       const filteredBrach =
         branchesFilter.length > 0 ? branchesFilter.includes(branchName) : true;
 
       return filteredBrach;
     });
-  }, [branchesFilter]);
+  }, [branchesData, branchesFilter]);
 
-  const chartData = generateComparisonRevenueData(filteredBranches);
   const chartConfig = generateComparisonRevenueChartConfig(filteredBranches);
 
-  return (
+  return loading ? (<Skeleton className="w-full h-[570px]" />) : (
     <Card className="shadow-xl">
       <CardHeader>
         <div className="w-full flex items-start sm:items-center justify-between relative">
@@ -109,23 +120,28 @@ export function ComparisonRevenueChart() {
               <DropdownMenuLabel>Appearance</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
-              {Object.keys(branchesLabel).map((branch, index) => (
-                <DropdownMenuCheckboxItem
-                  key={index}
-                  checked={branchesFilter.includes(branchesLabel[branch].value)}
-                  onCheckedChange={(checked) => {
-                    setBranchesFilter((prev) =>
-                      checked
-                        ? [...prev, branchesLabel[branch].value]
-                        : prev.filter((f) => f !== branchesLabel[branch].value)
-                    );
-                  }}
-                  defaultChecked={branchesLabel[branch].isPrimary}
-                  disabled={branchesLabel[branch].isPrimary}
-                >
-                  {branchesLabel[branch].label}
-                </DropdownMenuCheckboxItem>
-              ))}
+              {branchesLabel &&
+                Object.keys(branchesLabel).map((branch, index) => (
+                  <DropdownMenuCheckboxItem
+                    key={index}
+                    checked={branchesFilter.includes(
+                      branchesLabel[branch].value
+                    )}
+                    onCheckedChange={(checked) => {
+                      setBranchesFilter((prev) =>
+                        checked
+                          ? [...prev, branchesLabel[branch].value]
+                          : prev.filter(
+                              (f) => f !== branchesLabel[branch].value
+                            )
+                      );
+                    }}
+                    defaultChecked={branchesLabel[branch].isPrimary}
+                    disabled={branchesLabel[branch].isPrimary}
+                  >
+                    {branchesLabel[branch].label}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
