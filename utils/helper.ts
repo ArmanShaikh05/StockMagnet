@@ -6,7 +6,6 @@ export function formatToINRCurrency(amount: number) {
   }).format(amount);
 }
 
-
 type GSTCalculationMode = "inclusive" | "exclusive";
 
 interface GSTResult {
@@ -44,4 +43,18 @@ export function calculateGST(
     gstAmount: parseFloat(gstAmount.toFixed(2)),
     finalPrice: parseFloat(finalPrice.toFixed(2)),
   };
+}
+
+export function calculatePercentChange(
+  current: number,
+  previous: number
+): string {
+  if (previous === 0 && current === 0) {
+    return "0%"; // No change
+  } else if (previous === 0 && current > 0) {
+    return "+100%"; // Technically infinite, show a placeholder
+  } else {
+    const percentChange = ((current - previous) / previous) * 100;
+    return `${percentChange > 0 ? "+" : ""}${percentChange.toFixed(2)}%`;
+  }
 }

@@ -45,7 +45,7 @@ const chartConfig = {
 const BranchStockSummaryChart = () => {
   const params = useParams();
   const branchId = params.branchId as string;
-  console.log(branchId);
+
   const [chartData, setChartData] = useState<MonthlyStockSummaryChartType>([
     { month: "January", year: "2025", total: 0, sold: 0, remaining: 0 },
   ]);

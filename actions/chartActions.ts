@@ -3,13 +3,16 @@
 import db from "@/lib/prisma";
 import {
   MonthlyStockSummaryChartType,
+  ProfitGainChartType,
   RevenueChartData,
   RevenueChartDataType,
-  StockComparisonChartData
+  StockComparisonChartData,
 } from "@/types/types";
+import { calculatePercentChange } from "@/utils/helper";
 import { currentUser } from "@clerk/nextjs/server";
 import {
   differenceInCalendarWeeks,
+  eachMonthOfInterval,
   eachWeekOfInterval,
   endOfMonth,
   endOfWeek,
@@ -410,13 +413,6 @@ export const getStockComparisonChartDataAction = async () => {
     const chartData: StockComparisonChartData[] = [];
 
     for (const branch of branches) {
-      // const branchLabel = branch.branchName
-      //   .split(" ")
-      //   .map(
-      //     (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      //   )
-      //   .join("");
-
       const productsData = await db.products.aggregate({
         _sum: { stockInHand: true },
         where: {
@@ -442,6 +438,97 @@ export const getStockComparisonChartDataAction = async () => {
     return {
       success: false,
       message: "Error fetching stock comparison data",
+    };
+  }
+};
+
+export const getProfitMarginChartData = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id) {
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+    }
+
+    if (!branchId) {
+      return {
+        success: false,
+        message: "Branch ID is required",
+      };
+    }
+
+    const allInvoicesOfBranch = await db.invoices.findMany({
+      where: {
+        branchId: branchId,
+      },
+      select: {
+        id: true,
+        profitGain: true,
+        invoiceDate: true,
+      },
+    });
+
+    if (!allInvoicesOfBranch || allInvoicesOfBranch.length === 0) {
+      return {
+        success: false,
+        message: "No invoices found",
+      };
+    }
+
+    // Get Last 6 Months
+
+    const now = new Date();
+    const monthStart = subMonths(startOfMonth(now), 5);
+    const monthEnd = endOfMonth(now);
+
+    const lastSixMonths = eachMonthOfInterval({
+      start: monthStart, // 5 months before this month start
+      end: monthEnd, // current month start
+    }).map((date) => format(date, "MMMM yyyy"));
+
+    // // Initialize chart data
+    const chartData: ProfitGainChartType = lastSixMonths.map((month) => ({
+      month,
+      profitGain: 0,
+    }));
+
+    allInvoicesOfBranch.map((invoice) => {
+      const date = new Date(invoice.invoiceDate);
+
+      if (isWithinInterval(date, { start: monthStart, end: monthEnd })) {
+        const month = format(date, "MMMM yyyy");
+
+        const profitGain = invoice.profitGain;
+
+        for (const data of chartData) {
+          if (data.month === month) {
+            data.profitGain += Number(profitGain);
+          }
+        }
+      }
+    });
+
+    const currentMonthProfit = chartData[chartData.length - 1].profitGain;
+    const previousMonthProfit = chartData[chartData.length - 2].profitGain;
+
+    const changePercent = calculatePercentChange(
+      currentMonthProfit,
+      previousMonthProfit
+    );
+
+    return {
+      success: true,
+      message: "Profit gain data fetched successfully",
+      data: chartData,
+      changePercent,
+    };
+  } catch (error) {
+    console.error("Error fetching profit gain data:", error);
+    return {
+      success: false,
+      message: "Error fetching profit gain data",
     };
   }
 };

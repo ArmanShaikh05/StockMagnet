@@ -9,16 +9,6 @@ export type CardDataType = {
   theme: "green" | "blue" | "orange" | "red";
 };
 
-// Was used in Revenue Comparison
-export type BranchesType = {
-  id: string;
-  branchName: string;
-  branchAddress: string;
-  branchImage: string;
-  createdAt: string;
-  isPrimaryBranch: boolean;
-};
-
 export type PricingDataType = {
   name: string;
   description: string;
@@ -144,3 +134,8 @@ export type StockComparisonChartData = {
   stock: number;
   isPrimary: boolean;
 };
+
+export type ProfitGainChartType = {
+  month: string;
+  profitGain: number;
+}[];
