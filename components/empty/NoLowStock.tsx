@@ -10,10 +10,10 @@ export default function NoLowStock() {
             <PackageX className="h-8 w-8 text-main" />
           </div>
         </div>
-        <h2 className="text-xl font-semibold text-gray-800">
+        <h2 className="text-sm sm:text-xl font-semibold text-gray-800">
           No Low Stock Products
         </h2>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-xs sm:text-sm text-gray-500 mt-2">
           All your inventory items are sufficiently stocked. Keep up the good
           work!
         </p>

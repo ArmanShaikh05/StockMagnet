@@ -1,15 +1,10 @@
-interface BranchMetrics {
-  stockAvailabilityRate: number; // % e.g., 95
-  profitGenerated: number; // e.g., ₹40,000
-  revenueGenerated: number; // e.g., ₹2,00,000
-  numberOfSales: number; // e.g., 800
-}
+import { BranchMetrics } from "@/types/types";
 
 // Set benchmark max values (customize based on your data)
 const BENCHMARKS = {
   maxProfit: 50000,
   maxRevenue: 250000,
-  maxSales: 1000,
+  maxSales: 500,
 };
 
 const metricsWeight = {

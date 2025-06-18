@@ -71,7 +71,7 @@ const SingleBranchPage = async ({
               </div>
               <div className="flex flex-col gap-2">
                 <BranchLowStocks branchId={branchId} />
-                <PerformanceScore />
+                <PerformanceScore branchId={branchId} />
               </div>
             </div>
 

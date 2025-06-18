@@ -473,3 +473,69 @@ export const getLowStockProductsDataofBranch = async (branchId: string) => {
     };
   }
 };
+
+export const getBranchMetrics = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    if (!branchId) {
+      return {
+        success: false,
+        message: "Branch ID is required",
+      };
+    }
+
+    const branchProductsStats = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+      },
+    });
+
+    const branchInvoiceStats = await db.invoices.aggregate({
+      _sum: { totalQuantity: true, profitGain: true, grandTotal: true },
+      where: {
+        branchId: branchId,
+      },
+      _count: true,
+    });
+
+    if (!branchProductsStats || !branchInvoiceStats) {
+      return {
+        success: false,
+        message: "No data found for the branch",
+      };
+    }
+
+    const remainingSold = branchProductsStats._sum.stockInHand || 0;
+    const totalStockSold = branchInvoiceStats._sum.totalQuantity || 0;
+    const totalProfit = branchInvoiceStats._sum.profitGain || 0;
+    const totalRevenue = branchInvoiceStats._sum.grandTotal || 0;
+    const totalSales = branchInvoiceStats._count || 0;
+
+    const metricsData = {
+      stockAvailabilityRate:
+        (remainingSold / (totalStockSold + remainingSold)) * 100,
+      profitGenerated: Number(totalProfit),
+      revenueGenerated: Number(totalRevenue),
+      numberOfSales: totalSales,
+    };
+
+    return {
+      success: true,
+      message: "branch metrics fetched successfully",
+      data: metricsData,
+    };
+  } catch (error) {
+    console.error("Error fetching branch metrics data:", error);
+    return {
+      success: false,
+      message: "Error fetching branch metrics data",
+    };
+  }
+};

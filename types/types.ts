@@ -139,3 +139,10 @@ export type ProfitGainChartType = {
   month: string;
   profitGain: number;
 }[];
+
+export type BranchMetrics = {
+  stockAvailabilityRate: number; // % e.g., 95
+  profitGenerated: number; // e.g., ₹40,000
+  revenueGenerated: number; // e.g., ₹2,00,000
+  numberOfSales: number; // e.g., 800
+};

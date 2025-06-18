@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { getPerformanceScore } from "@/utils/getPerformanceScore";
+import { useEffect, useState } from "react";
+import { getBranchMetrics } from "@/actions/branchActions";
+import { Skeleton } from "../ui/skeleton";
 
 export const description = "A radial chart with stacked sections";
 
@@ -28,20 +31,40 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const branchMetrics = {
-  stockAvailabilityRate: 95,
-  profitGenerated: 40000,
-  revenueGenerated: 200000,
-  numberOfSales: 800,
-};
+export function PerformanceScore({ branchId }: { branchId: string }) {
+  const [chartData, setChartData] = useState<
+    {
+      total: number;
+      score: number;
+    }[]
+  >([
+    {
+      total: 0,
+      score: 0,
+    },
+  ]);
 
-export function PerformanceScore() {
-  const chartData = getPerformanceScore(branchMetrics);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const response = await getBranchMetrics(branchId);
+      if (response.data) {
+        const performanceData = getPerformanceScore(response.data);
+        setChartData(performanceData);
+      }
+      setLoading(false);
+    })();
+  }, [branchId]);
+
   const score = chartData[0].score;
   const fillColor = score > 8 ? "#4CAF50" : score > 5 ? "#FFC107" : "#F44336";
   const perfomance = score > 8 ? "Good" : score > 5 ? "Average" : "Poor";
 
-  return (
+  return loading ? (
+    <Skeleton className="w-full h-[500px]" />
+  ) : (
     <Card className="flex flex-col gap-2 relative">
       <CardHeader className="items-center pb-0 ">
         <CardTitle>Performance Score</CardTitle>
