@@ -229,95 +229,6 @@ export const getAllInvoicesOfBranch = async (branchId: string) => {
   }
 };
 
-export const deleteInvoice = async (invoiceId: string) => {
-  try {
-    const user = await currentUser();
-    if (!user || !user.id)
-      return { success: false, message: "Unauthorized user" };
-
-    if (!invoiceId) {
-      return { success: false, message: "Invoice ID is required" };
-    }
-
-    const invoice = await db.invoices.findUnique({
-      where: {
-        id: invoiceId,
-      },
-      include: {
-        products: true,
-      },
-    });
-
-    if (!invoice) {
-      return { success: false, message: "No Invoice found" };
-    }
-
-    await db.$transaction(async (tx) => {
-      await tx.branches.update({
-        where: { id: invoice.branchId },
-        data: {
-          grossRevenue: {
-            decrement: Number(invoice.grandTotal),
-          },
-          netRevenue: {
-            decrement:
-              Number(invoice.grandTotal) - Number(invoice.totalTaxAmount),
-          },
-        },
-      });
-
-      for (const product of invoice.products) {
-        const existingProduct = await tx.products.findUnique({
-          where: {
-            id: product.productId,
-          },
-        });
-
-        if (!existingProduct) continue;
-
-        await tx.products.update({
-          where: { id: product.productId },
-          data: {
-            stockInHand: existingProduct.stockInHand + product.quantity,
-          },
-        });
-
-        await tx.brand.update({
-          where: { id: existingProduct.brandId },
-          data: {
-            totalRevenue: {
-              decrement: new Prisma.Decimal(product.subTotal),
-            },
-            totalProfit: {
-              decrement: new Prisma.Decimal(product.profitGain),
-            },
-          },
-        });
-
-        await tx.category.update({
-          where: { id: existingProduct.categoryId },
-          data: {
-            totalProfit: {
-              decrement: new Prisma.Decimal(product.profitGain),
-            },
-          },
-        });
-      }
-
-      await tx.invoices.delete({
-        where: {
-          id: invoice.id,
-        },
-      });
-    });
-
-    return { success: true, message: "Invoice deleted successfully" };
-  } catch (error) {
-    console.error("Error deleting invoice:", error);
-    return { success: false, message: "Error deleting invoice" };
-  }
-};
-
 export const getSingleInvoiceData = async (invoiceId: string) => {
   try {
     const user = await currentUser();
@@ -891,6 +802,186 @@ export const getRecentInvoicesOfBranch = async (branchId: string) => {
   } catch (error) {
     console.error("Error fetching last invoice number:", error);
     return { success: false, message: "Error fetching last invoice number" };
+  }
+};
+
+export const deleteInvoice = async (invoiceId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    if (!invoiceId) {
+      return { success: false, message: "Invoice ID is required" };
+    }
+
+    const invoice = await db.invoices.findUnique({
+      where: {
+        id: invoiceId,
+      },
+      include: {
+        products: true,
+      },
+    });
+
+    if (!invoice) {
+      return { success: false, message: "No Invoice found" };
+    }
+
+    await db.$transaction(
+      async (tx) => {
+        await tx.branches.update({
+          where: { id: invoice.branchId },
+          data: {
+            grossRevenue: {
+              decrement: Number(invoice.grandTotal),
+            },
+            netRevenue: {
+              decrement:
+                Number(invoice.grandTotal) - Number(invoice.totalTaxAmount),
+            },
+          },
+        });
+
+        for (const product of invoice.products) {
+          const existingProduct = await tx.products.findUnique({
+            where: {
+              id: product.productId,
+            },
+          });
+
+          if (!existingProduct) continue;
+
+          await tx.products.update({
+            where: { id: product.productId },
+            data: {
+              stockInHand: existingProduct.stockInHand + product.quantity,
+            },
+          });
+
+          await tx.brand.update({
+            where: { id: existingProduct.brandId },
+            data: {
+              totalRevenue: {
+                decrement: new Prisma.Decimal(product.subTotal),
+              },
+              totalProfit: {
+                decrement: new Prisma.Decimal(product.profitGain),
+              },
+            },
+          });
+
+          await tx.category.update({
+            where: { id: existingProduct.categoryId },
+            data: {
+              totalProfit: {
+                decrement: new Prisma.Decimal(product.profitGain),
+              },
+            },
+          });
+        }
+
+        await tx.invoices.delete({
+          where: {
+            id: invoice.id,
+          },
+        });
+      },
+      { timeout: 20000 }
+    );
+
+    return { success: true, message: "Invoice deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting invoice:", error);
+    return { success: false, message: "Error deleting invoice" };
+  }
+};
+
+export const deleteMultipleInvoices = async (invoiceIDs: string[]) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return { success: false, message: "Unauthorized user" };
+
+    // Step 1: Fetch all matching products in one DB call
+    const allInvoiceData = await db.invoices.findMany({
+      where: { id: { in: invoiceIDs } },
+      include: {
+        products: true,
+      },
+    });
+
+    await db.$transaction(
+      async (tx) => {
+        for (const invoice of allInvoiceData) {
+          await tx.branches.update({
+            where: { id: invoice.branchId },
+            data: {
+              grossRevenue: {
+                decrement: Number(invoice.grandTotal),
+              },
+              netRevenue: {
+                decrement:
+                  Number(invoice.grandTotal) - Number(invoice.totalTaxAmount),
+              },
+            },
+          });
+
+          for (const product of invoice.products) {
+            const existingProduct = await tx.products.findUnique({
+              where: {
+                id: product.productId,
+              },
+            });
+
+            if (!existingProduct) continue;
+
+            await tx.products.update({
+              where: { id: product.productId },
+              data: {
+                stockInHand: existingProduct.stockInHand + product.quantity,
+              },
+            });
+
+            await tx.brand.update({
+              where: { id: existingProduct.brandId },
+              data: {
+                totalRevenue: {
+                  decrement: new Prisma.Decimal(product.subTotal),
+                },
+                totalProfit: {
+                  decrement: new Prisma.Decimal(product.profitGain),
+                },
+              },
+            });
+
+            await tx.category.update({
+              where: { id: existingProduct.categoryId },
+              data: {
+                totalProfit: {
+                  decrement: new Prisma.Decimal(product.profitGain),
+                },
+              },
+            });
+          }
+
+          await tx.invoices.delete({
+            where: {
+              id: invoice.id,
+            },
+          });
+        }
+      },
+      { timeout: 20000 }
+    );
+
+    return {
+      success: true,
+      message: "All selected invoices deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting selected invoices from DB:", error);
+    return { success: false, message: "Error deleting selected invoices" };
   }
 };
 

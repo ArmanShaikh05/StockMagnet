@@ -26,6 +26,7 @@ import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { Pagination } from "../Pagination";
 import ExpandedRows from "./expandedRows/ExpandedRows";
+import DeleteAllInvoiceRows from "@/components/invoices/DeleteAllInvoicesRow";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -40,6 +41,10 @@ const FullInvoiceTable = <TValue,>({
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [expanded, setExpanded] = useState<ExpandedState>({});
+
+  const [showDeleteAllDialog, setShowDeleteAllDialog] =
+    useState<boolean>(false);
+  const [selectedRowsId, setSelectedRowsId] = useState<string[]>([]);
 
   const table = useReactTable({
     data,
@@ -70,11 +75,14 @@ const FullInvoiceTable = <TValue,>({
             <Button
               variant={"destructive"}
               className="hover:bg-red-500 "
-              onClick={() =>
-                console.log(
-                  table.getFilteredSelectedRowModel().rows[0].original
-                )
-              }
+              onClick={() => {
+                setSelectedRowsId(
+                  table.getFilteredSelectedRowModel().rows.map((row) => {
+                    return row.original.id;
+                  })
+                );
+                setShowDeleteAllDialog(true);
+              }}
             >
               <Trash2 size={16} />
               <span className="hidden md:block">Delete Selected</span>
@@ -147,6 +155,14 @@ const FullInvoiceTable = <TValue,>({
       <div className="w-full flex justify-end items-center mt-2">
         <Pagination table={table} />
       </div>
+
+      {showDeleteAllDialog && (
+        <DeleteAllInvoiceRows
+          open={showDeleteAllDialog}
+          setOpen={setShowDeleteAllDialog}
+          selectedRowsId={selectedRowsId}
+        />
+      )}
     </div>
   );
 };
