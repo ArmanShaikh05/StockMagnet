@@ -893,3 +893,70 @@ export const getRecentInvoicesOfBranch = async (branchId: string) => {
     return { success: false, message: "Error fetching last invoice number" };
   }
 };
+
+export const getInvoicesCardData = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    if (!branchId) {
+      return {
+        success: false,
+        message: "Branch ID is required",
+      };
+    }
+
+    const totalInvoiceData = await db.invoices.aggregate({
+      _sum: { creditedAmount: true },
+      where: {
+        branchId: branchId,
+      },
+      _count: true,
+    });
+
+    const totalGstBillData = await db.invoices.aggregate({
+      where: {
+        branchId: branchId,
+        isGstBill: true,
+      },
+      _count: true,
+    });
+
+    const totalCreditedBillData = await db.invoices.aggregate({
+      where: {
+        branchId: branchId,
+        status: "Credited",
+      },
+      _count: true,
+    });
+
+    const totalInvoice = totalInvoiceData._count || 0;
+    const totalGstBill = totalGstBillData._count || 0;
+    const totalCreditedBill = totalCreditedBillData._count || 0;
+    const totalCreditedAmount =
+      Number(totalInvoiceData._sum.creditedAmount) || 0;
+
+    const cardsData = {
+      totalInvoice,
+      totalGstBill,
+      totalCreditedBill,
+      totalCreditedAmount,
+    };
+
+    return {
+      success: true,
+      message: "Invoices cards fetched successfully",
+      data: cardsData,
+    };
+  } catch (error) {
+    console.error("Error fetching Invoices cards data:", error);
+    return {
+      success: false,
+      message: "Error fetching Invoices cards data",
+    };
+  }
+};

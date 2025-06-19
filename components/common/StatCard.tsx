@@ -36,6 +36,7 @@ const StatCard = ({
   percentChange,
   positiveChange,
   theme,
+  showPercent = true,
 }: {
   Icon: React.ElementType;
   title: string;
@@ -43,8 +44,11 @@ const StatCard = ({
   percentChange: string;
   positiveChange: boolean;
   theme: "green" | "blue" | "orange" | "red";
+  showPercent?: boolean;
 }) => {
   const colors = themeData[theme];
+
+  console.log(showPercent);
 
   return (
     <Card
@@ -55,7 +59,6 @@ const StatCard = ({
         overflow: "hidden",
         position: "relative",
       }}
-
       className="overflow-hidden relative py-4 px-0"
     >
       <CardContent className="pl-2 sm:pl-6">
@@ -81,27 +84,29 @@ const StatCard = ({
             <p className="text-xs font-medium">{title}</p>
             <div className="flex items-end gap-3 justify-start">
               <h3 className="font-bold text-3xl">{value}</h3>
-              <div className="flex items-center gap-1 pb-1">
-                {positiveChange ? (
-                  <TrendingUp
-                    size={16}
-                    className="text-green-600 font-bold"
-                  />
-                ) : (
-                  <TrendingDown
-                    size={16}
-                    className="text-red-600 font-bold"
-                  />
-                )}
-                <span
-                  className={cn(
-                    "font-bold text-xs",
-                    positiveChange ? "text-green-600" : "text-red-600"
+              {showPercent && (
+                <div className="flex items-center gap-1 pb-1">
+                  {positiveChange ? (
+                    <TrendingUp
+                      size={16}
+                      className="text-green-600 font-bold"
+                    />
+                  ) : (
+                    <TrendingDown
+                      size={16}
+                      className="text-red-600 font-bold"
+                    />
                   )}
-                >
-                  {percentChange}%
-                </span>
-              </div>
+                  <span
+                    className={cn(
+                      "font-bold text-xs",
+                      positiveChange ? "text-green-600" : "text-red-600"
+                    )}
+                  >
+                    {percentChange}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

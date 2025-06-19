@@ -7,7 +7,9 @@ import {
   SerializedProductType,
 } from "@/types/serializedTypes";
 import { deleteImageFromImagekit } from "@/utils/deleteImage";
+import { calculatePercentChange } from "@/utils/helper";
 import { currentUser } from "@clerk/nextjs/server";
+import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 
 export const completeOnboarding = async (data: {
   branchName: string;
@@ -536,6 +538,138 @@ export const getBranchMetrics = async (branchId: string) => {
     return {
       success: false,
       message: "Error fetching branch metrics data",
+    };
+  }
+};
+
+export const getBranchCardData = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    if (!branchId) {
+      return {
+        success: false,
+        message: "Branch ID is required",
+      };
+    }
+
+    const now = new Date();
+    const currentMonthStart = startOfMonth(now);
+    const currentMonthEnd = endOfMonth(now);
+
+    const previousMonthStart = startOfMonth(subMonths(now, 1));
+    const previousMonthEnd = endOfMonth(subMonths(now, 1));
+
+    const previousMonthStock = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+        createdAt: { gte: previousMonthStart, lte: previousMonthEnd },
+      },
+    });
+
+    const currentMonthStock = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+        createdAt: { gte: currentMonthStart, lte: currentMonthEnd },
+      },
+    });
+
+    const previousMonthInvoiceStats = await db.invoices.aggregate({
+      _sum: { totalQuantity: true, profitGain: true, grandTotal: true },
+      where: {
+        branchId: branchId,
+        invoiceDate: {
+          gte: previousMonthStart,
+          lte: previousMonthEnd,
+        },
+      },
+      _count: true,
+    });
+
+    const currentMonthInvoiceStats = await db.invoices.aggregate({
+      _sum: { totalQuantity: true, profitGain: true, grandTotal: true },
+      where: {
+        branchId: branchId,
+        invoiceDate: {
+          gte: currentMonthStart,
+          lte: currentMonthEnd,
+        },
+      },
+      _count: true,
+    });
+
+    if (
+      !previousMonthStock ||
+      !currentMonthStock ||
+      !previousMonthInvoiceStats ||
+      !currentMonthInvoiceStats
+    ) {
+      return {
+        success: false,
+        message: "No data found for the branch",
+      };
+    }
+
+    const currentMonthTotalStock = currentMonthStock._sum.stockInHand || 0;
+    const currentMonthTotalProfit =
+      Number(currentMonthInvoiceStats._sum.profitGain) || 0;
+    const currentMonthTotalRevenue =
+      Number(currentMonthInvoiceStats._sum.grandTotal) || 0;
+    const currentMonthTotalSales = Number(currentMonthInvoiceStats._count) || 0;
+
+    const previousMonthTotalStock = previousMonthStock._sum.stockInHand || 0;
+    const previousMonthTotalProfit =
+      Number(previousMonthInvoiceStats._sum.profitGain) || 0;
+    const previousMonthTotalRevenue =
+      Number(previousMonthInvoiceStats._sum.grandTotal) || 0;
+    const previousMonthTotalSales =
+      Number(previousMonthInvoiceStats._count) || 0;
+
+    const stockPercentChange = calculatePercentChange(
+      currentMonthTotalStock,
+      previousMonthTotalStock
+    );
+    const revenuePercentChange = calculatePercentChange(
+      currentMonthTotalRevenue,
+      previousMonthTotalRevenue
+    );
+    const profitPercentChange = calculatePercentChange(
+      currentMonthTotalProfit,
+      previousMonthTotalProfit
+    );
+    const salesPercentChange = calculatePercentChange(
+      currentMonthTotalSales,
+      previousMonthTotalSales
+    );
+
+    const cardsData = {
+      currentMonthTotalStock,
+      currentMonthTotalProfit,
+      currentMonthTotalRevenue,
+      currentMonthTotalSales,
+      stockPercentChange,
+      revenuePercentChange,
+      profitPercentChange,
+      salesPercentChange,
+    };
+
+    return {
+      success: true,
+      message: "branch cards fetched successfully",
+      data: cardsData,
+    };
+  } catch (error) {
+    console.error("Error fetching branch cards data:", error);
+    return {
+      success: false,
+      message: "Error fetching branch cards data",
     };
   }
 };

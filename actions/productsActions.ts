@@ -379,4 +379,76 @@ export const deleteMultipleProducts = async (productIds: string[]) => {
   }
 };
 
+export const getInventoryCardData = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
 
+    if (!branchId) {
+      return {
+        success: false,
+        message: "Branch ID is required",
+      };
+    }
+
+    const totalStockData = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+      },
+    });
+
+    const totalLowStockData = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+        status: "LOWSTOCK",
+      },
+    });
+
+    const totalAvailableStockData = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+        status: "AVAILABLE",
+      },
+    });
+
+    const totalUnavailableStockData = await db.products.aggregate({
+      _sum: { stockInHand: true },
+      where: {
+        branchId: branchId,
+        status: "UNAVAILABLE",
+      },
+    });
+
+    const totalStock = totalStockData._sum.stockInHand || 0;
+    const totalLowStock = totalLowStockData._sum.stockInHand || 0;
+    const totalAvailableStock = totalAvailableStockData._sum.stockInHand || 0;
+    const totalUnavailableStock =
+      totalUnavailableStockData._sum.stockInHand || 0;
+
+    const cardsData = {
+      totalStock,
+      totalLowStock,
+      totalAvailableStock,
+      totalUnavailableStock,
+    };
+
+    return {
+      success: true,
+      message: "inventory cards fetched successfully",
+      data: cardsData,
+    };
+  } catch (error) {
+    console.error("Error fetching inventory cards data:", error);
+    return {
+      success: false,
+      message: "Error fetching inventory cards data",
+    };
+  }
+};

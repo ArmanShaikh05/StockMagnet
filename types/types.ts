@@ -7,6 +7,7 @@ export type CardDataType = {
   percentChange: string;
   positiveChange: boolean;
   theme: "green" | "blue" | "orange" | "red";
+  showPercent?: boolean;
 };
 
 export type PricingDataType = {
