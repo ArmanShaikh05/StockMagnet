@@ -48,8 +48,6 @@ const StatCard = ({
 }) => {
   const colors = themeData[theme];
 
-  console.log(showPercent);
-
   return (
     <Card
       style={{

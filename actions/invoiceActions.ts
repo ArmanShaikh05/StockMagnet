@@ -1051,3 +1051,66 @@ export const getInvoicesCardData = async (branchId: string) => {
     };
   }
 };
+
+export const getInvoicesDataofBranch = async (branchId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user || !user.id)
+      return {
+        success: false,
+        message: "Unauthorized user",
+      };
+
+    const invoiceData = await db.invoices.findMany({
+      where: {
+        branchId: branchId,
+      },
+      include: {
+        products: true,
+      },
+    });
+
+    if (!invoiceData) {
+      return { success: false, message: "No Invoice found" };
+    }
+
+    const seriealizedInvoiceData: SerializedInvoiceType[] = invoiceData.map(
+      (invoice) => {
+        return {
+          ...invoice,
+          subTotal: invoice.subTotal.toString(),
+          totalTaxAmount: invoice.totalTaxAmount.toString(),
+          totalDiscount: invoice.totalDiscount.toString(),
+          grandTotal: invoice.grandTotal.toString(),
+          amountPaid: invoice.amountPaid.toString(),
+          creditedAmount: invoice.creditedAmount.toString(),
+          profitGain: invoice.profitGain.toString(),
+          products: invoice.products.map((product) => {
+            return {
+              ...product,
+              productMrp: product.productMrp.toString(),
+              rate: product.rate.toString(),
+              sellingPrice: product.sellingPrice.toString(),
+              profitGain: product.profitGain.toString(),
+              taxAmount: product.taxAmount?.toString() || "0",
+              subTotal: product.subTotal.toString(),
+              discountAmount: product.discountAmount?.toString() || "0",
+            };
+          }),
+        };
+      }
+    );
+
+    return {
+      success: true,
+      message: "Invoice data fetched successfully",
+      data: seriealizedInvoiceData,
+    };
+  } catch (error) {
+    console.error("Error fetching branch products data:", error);
+    return {
+      success: false,
+      message: "Error fetching branch products data",
+    };
+  }
+};

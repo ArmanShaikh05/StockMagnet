@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import ToolTip from "../common/ToolTip";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -511,9 +512,12 @@ const AddProductDialog = ({
             )}
           </div>
           <div className="w-full flex flex-col gap-2 px-2 mt-4">
-            <Label htmlFor="hsnCode" className="text-xs">
-              HSN Code
-            </Label>
+            <div className="w-full flex items-center gap-2">
+              <Label htmlFor="hsnCode" className="text-xs">
+                HSN Code
+              </Label>
+              <ToolTip content="A standardized 6-digit code used to classify goods for GST and international trade. Helps in identifying the type of product and applying the correct tax rate." />
+            </div>
             <Input
               type="text"
               id="hsnCode"
@@ -591,9 +595,12 @@ const AddProductDialog = ({
           </div>
 
           <div className="w-full flex flex-col gap-2 px-2 mt-4">
-            <Label htmlFor="stocks" className="text-xs">
-              Stock In Hand
-            </Label>
+            <div className="w-full flex gap-2">
+              <Label htmlFor="stocks" className="text-xs">
+                Stock In Hand
+              </Label>
+              <ToolTip content="Total quantity of the product currently in your inventory." />
+            </div>
             <Input
               type="number"
               id="stocks"
@@ -611,9 +618,12 @@ const AddProductDialog = ({
           </div>
 
           <div className="w-full flex flex-col gap-2 px-2 mt-4">
-            <Label htmlFor="minStockQty" className="text-xs">
-              Min Stock Qty
-            </Label>
+            <div className="flex w-full items-center gap-2">
+              <Label htmlFor="minStockQty" className="text-xs">
+                Min Stock Qty
+              </Label>
+              <ToolTip content="The minimum number of units you want to keep in stock before restocking." />
+            </div>
             <Input
               type="number"
               id="minStockQty"
@@ -710,9 +720,12 @@ const AddProductDialog = ({
           </div>
 
           <div className="w-full flex flex-col gap-2 px-2 mt-4">
-            <Label htmlFor="reorderQty" className="text-xs">
-              Reorder Qty
-            </Label>
+            <div className="w-full flex items-center gap-2">
+              <Label htmlFor="reorderQty" className="text-xs">
+                Reorder Qty
+              </Label>
+              <ToolTip content="The number of units you typically purchase when restocking this product." />
+            </div>
             <Input
               type="number"
               id="reorderQty"
@@ -775,9 +788,12 @@ const AddProductDialog = ({
           </div>
 
           <div className="w-full flex flex-col gap-2 px-2 mt-4">
-            <Label htmlFor="tags" className="text-xs">
-              Tags
-            </Label>
+            <div className="w-full flex items-center gap-2">
+              <Label htmlFor="tags" className="text-xs">
+                Tags
+              </Label>
+              <ToolTip content='Keywords or labels to help categorize and quickly search for this product (e.g., "summer", "electronics", "bestseller").' />
+            </div>
             <Input
               type="text"
               id="tags"
