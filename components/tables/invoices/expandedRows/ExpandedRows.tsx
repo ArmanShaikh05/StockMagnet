@@ -18,6 +18,16 @@ const ExpandedRows = ({ rowData }: { rowData: SerializedInvoiceType }) => {
     setDeleteInvoiceId(rowData.id);
     setShowDeleteInvoiceDialog(true);
   };
+
+  const handleDownload = async () => {
+    const invoiceId = rowData.id;
+    const url = `/api/invoice/${invoiceId}`;
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `invoice-${invoiceId}.pdf`;
+    link.target = "_blank";
+    link.click();
+  };
   return (
     <div>
       <Tabs defaultValue="product">
@@ -48,7 +58,10 @@ const ExpandedRows = ({ rowData }: { rowData: SerializedInvoiceType }) => {
             >
               <Trash2 size={16} />
             </div>
-            <div className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer">
+            <div
+              className="aspect-square w-8 flex justify-center items-center rounded-full hover:bg-main/30 transition duration-200 cursor-pointer"
+              onClick={() => handleDownload()}
+            >
               <Download size={16} />
             </div>
           </div>
