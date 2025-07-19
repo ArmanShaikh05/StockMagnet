@@ -402,24 +402,21 @@ export const getInventoryCardData = async (branchId: string) => {
       },
     });
 
-    const totalLowStockData = await db.products.aggregate({
-      _sum: { stockInHand: true },
+    const totalLowStockData = await db.products.findMany({
       where: {
         branchId: branchId,
         status: "LOWSTOCK",
       },
     });
 
-    const totalAvailableStockData = await db.products.aggregate({
-      _sum: { stockInHand: true },
+    const totalAvailableStockData = await db.products.findMany({
       where: {
         branchId: branchId,
         status: "AVAILABLE",
       },
     });
 
-    const totalUnavailableStockData = await db.products.aggregate({
-      _sum: { stockInHand: true },
+    const totalUnavailableStockData = await db.products.findMany({
       where: {
         branchId: branchId,
         status: "UNAVAILABLE",
@@ -427,10 +424,9 @@ export const getInventoryCardData = async (branchId: string) => {
     });
 
     const totalStock = totalStockData._sum.stockInHand || 0;
-    const totalLowStock = totalLowStockData._sum.stockInHand || 0;
-    const totalAvailableStock = totalAvailableStockData._sum.stockInHand || 0;
-    const totalUnavailableStock =
-      totalUnavailableStockData._sum.stockInHand || 0;
+    const totalLowStock = totalLowStockData.length || 0;
+    const totalAvailableStock = totalAvailableStockData.length || 0;
+    const totalUnavailableStock = totalUnavailableStockData.length || 0;
 
     const cardsData = {
       totalStock,

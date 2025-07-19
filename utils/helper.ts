@@ -58,3 +58,19 @@ export function calculatePercentChange(
     return `${percentChange > 0 ? "+" : ""}${percentChange.toFixed(2)}%`;
   }
 }
+
+export function getCurrentFinancialYear(invoiceNumber: string): string {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0 = Jan, 1 = Feb, ..., 11 = Dec
+
+  // Financial year starts in April
+  const startYear = currentMonth >= 3 ? currentYear : currentYear - 1;
+  const endYear = startYear + 1;
+
+  // Get last two digits of both years
+  const start = startYear.toString().slice(-2);
+  const end = endYear.toString().slice(-2);
+
+  return `FY${start}${end}-${invoiceNumber}`;
+}

@@ -4,6 +4,7 @@ import { Prisma } from "@/lib/generated/prisma";
 import db from "@/lib/prisma";
 import { SerializedInvoiceType } from "@/types/serializedTypes";
 import { InvoiceDataType } from "@/types/types";
+import { getCurrentFinancialYear } from "@/utils/helper";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const createNewInvoice = async (invoiceData: InvoiceDataType) => {
@@ -20,6 +21,10 @@ export const createNewInvoice = async (invoiceData: InvoiceDataType) => {
       return { success: false, message: "At least one product is required" };
     }
 
+    const codedInvoiceNumber = getCurrentFinancialYear(
+      invoiceData.invoiceNumber
+    );
+
     await db.$transaction(async (tx) => {
       const newInvoice = await tx.invoices.create({
         data: {
@@ -31,7 +36,7 @@ export const createNewInvoice = async (invoiceData: InvoiceDataType) => {
           customerMobile: invoiceData.customerMobile,
           grandTotal: new Prisma.Decimal(invoiceData.grandTotal),
           invoiceDate: invoiceData.invoiceDate,
-          invoiceNumber: invoiceData.invoiceNumber,
+          invoiceNumber: codedInvoiceNumber,
           paymentMode:
             invoiceData.paymentMode === "UPI"
               ? "UPI"
@@ -159,10 +164,16 @@ export const getLastInvoiceNo = async (branchId: string) => {
       },
     });
 
+    const actualInvoiceNumber = lastInvoiceNo?.invoiceNumber.includes("-")
+      ? lastInvoiceNo.invoiceNumber.split("-")[1]
+      : lastInvoiceNo?.invoiceNumber;
+
     return {
       success: true,
       message: "Last Invoice number fetched successfully",
-      data: lastInvoiceNo,
+      data: {
+        invoiceNumber: actualInvoiceNumber,
+      },
     };
   } catch (error) {
     console.error("Error fetching last invoice number:", error);
@@ -196,6 +207,9 @@ export const getAllInvoicesOfBranch = async (branchId: string) => {
       allInvoicesOfBranch.map((invoice) => {
         return {
           ...invoice,
+          invoiceNumber: invoice.invoiceNumber.includes("-")
+            ? invoice.invoiceNumber.split("-")[1]
+            : invoice.invoiceNumber,
           subTotal: invoice.subTotal.toString(),
           totalTaxAmount: invoice.totalTaxAmount.toString(),
           totalDiscount: invoice.totalDiscount.toString(),
@@ -278,6 +292,9 @@ export const getSingleInvoiceData = async (invoiceId: string) => {
 
     const seriealizedInvoiceData: SerializedInvoiceType = {
       ...invoiceData,
+      invoiceNumber: invoiceData.invoiceNumber.includes("-")
+        ? invoiceData.invoiceNumber.split("-")[1]
+        : invoiceData.invoiceNumber,
       subTotal: invoiceData.subTotal.toString(),
       totalTaxAmount: invoiceData.totalTaxAmount.toString(),
       totalDiscount: invoiceData.totalDiscount.toString(),
@@ -359,6 +376,10 @@ export const editInvoiceData = async (
 
         const productMap = new Map(productsInfo.map((p) => [p.id, p]));
 
+        const encodedInvoiceNumber = getCurrentFinancialYear(
+          invoiceData.invoiceNumber
+        );
+
         // Update invoice info
         await tx.invoices.update({
           where: { id: invoiceId },
@@ -371,7 +392,7 @@ export const editInvoiceData = async (
             customerMobile: invoiceData.customerMobile,
             grandTotal: new Prisma.Decimal(invoiceData.grandTotal),
             invoiceDate: invoiceData.invoiceDate,
-            invoiceNumber: invoiceData.invoiceNumber,
+            invoiceNumber: encodedInvoiceNumber,
             paymentMode:
               invoiceData.paymentMode === "UPI"
                 ? "UPI"
@@ -530,221 +551,6 @@ export const editInvoiceData = async (
   }
 };
 
-// export const editInvoiceData = async (
-//   invoiceData: InvoiceDataType,
-//   invoiceId: string
-// ) => {
-//   try {
-//     const user = await currentUser();
-//     if (!user || !user.id)
-//       return { success: false, message: "Unauthorized user" };
-
-//     if (!invoiceId) {
-//       return { success: false, message: "Invoice ID is required" };
-//     }
-
-//     if (!invoiceData.branchId) {
-//       return { success: false, message: "Branch ID is required" };
-//     }
-
-//     if (invoiceData.products.length === 0) {
-//       return { success: false, message: "At least one product is required" };
-//     }
-
-//     await db.$transaction(async (tx) => {
-//       const oldInvoice = await tx.invoices.findUnique({
-//         where: {
-//           id: invoiceId,
-//         },
-//         include: {
-//           products: true,
-//         },
-//       });
-
-//       if (!oldInvoice) {
-//         throw new Error("Invoice not found");
-//       }
-
-//       await tx.invoices.update({
-//         where: {
-//           id: invoiceId,
-//         },
-//         data: {
-//           amountPaid: new Prisma.Decimal(invoiceData.amountPaid),
-//           creditedAmount: new Prisma.Decimal(invoiceData.creditedAmount),
-//           branchId: invoiceData.branchId,
-//           customerAddress: invoiceData.customerAddress,
-//           customerName: invoiceData.customerName,
-//           customerMobile: invoiceData.customerMobile,
-//           grandTotal: new Prisma.Decimal(invoiceData.grandTotal),
-//           invoiceDate: invoiceData.invoiceDate,
-//           invoiceNumber: invoiceData.invoiceNumber,
-//           paymentMode:
-//             invoiceData.paymentMode === "UPI"
-//               ? "UPI"
-//               : invoiceData.paymentMode === "Cash"
-//               ? "Cash"
-//               : "Bank",
-//           profitGain: new Prisma.Decimal(invoiceData.profitGain),
-//           isGstBill: invoiceData.isGstBill,
-//           gstNumber: invoiceData.gstNumber,
-//           status:
-//             invoiceData.status === "FullPaid"
-//               ? "FullPaid"
-//               : invoiceData.status === "Credited"
-//               ? "Credited"
-//               : "NotPaid",
-//           subTotal: new Prisma.Decimal(invoiceData.subTotal),
-//           totalDiscount: new Prisma.Decimal(invoiceData.totalDiscount),
-//           totalQuantity: invoiceData.totalQuantity,
-//           totalTaxAmount: new Prisma.Decimal(invoiceData.totalTaxAmount),
-//         },
-//       });
-
-//       // Delete old invoice product and its data
-
-//       await tx.branches.update({
-//         where: { id: oldInvoice.branchId },
-//         data: {
-//           grossRevenue: {
-//             decrement: Number(oldInvoice.grandTotal),
-//           },
-//           netRevenue: {
-//             decrement:
-//               Number(oldInvoice.grandTotal) - Number(oldInvoice.totalTaxAmount),
-//           },
-//         },
-//       });
-
-//       for (const product of oldInvoice.products) {
-//         const existingProduct = await tx.products.findUnique({
-//           where: {
-//             id: product.productId,
-//           },
-//         });
-
-//         if (!existingProduct) continue;
-
-//         await tx.products.update({
-//           where: { id: product.productId },
-//           data: {
-//             stockInHand: existingProduct.stockInHand + product.quantity,
-//           },
-//         });
-
-//         await tx.brand.update({
-//           where: { id: existingProduct.brandId },
-//           data: {
-//             totalRevenue: {
-//               decrement: new Prisma.Decimal(product.subTotal),
-//             },
-//             totalProfit: {
-//               decrement: new Prisma.Decimal(product.profitGain),
-//             },
-//           },
-//         });
-
-//         await tx.category.update({
-//           where: { id: existingProduct.categoryId },
-//           data: {
-//             totalProfit: {
-//               decrement: new Prisma.Decimal(product.profitGain),
-//             },
-//           },
-//         });
-//       }
-
-//       await tx.invoiceProduct.deleteMany({
-//         where: {
-//           invoicesId: invoiceId,
-//         },
-//       });
-
-//       // Recreate all the things with new data
-
-//       await tx.branches.update({
-//         where: { id: invoiceData.branchId },
-//         data: {
-//           grossRevenue: {
-//             increment: invoiceData.grandTotal,
-//           },
-//           netRevenue: {
-//             increment: invoiceData.grandTotal - invoiceData.totalTaxAmount,
-//           },
-//         },
-//       });
-
-//       for (const product of invoiceData.products) {
-//         await tx.invoiceProduct.create({
-//           data: {
-//             productId: product.productId,
-//             productMrp: new Prisma.Decimal(product.productMrp),
-//             productName: product.productName,
-//             productSno: product.productSno,
-//             quantity: product.quantity,
-//             Brand: product.Brand,
-//             Category: product.Category,
-//             BrandColorCode: product.BrandColorCode,
-//             CategoryColorCode: product.CategoryColorCode,
-//             productImage: product.productImage,
-//             rate: new Prisma.Decimal(product.rate),
-//             profitGain: new Prisma.Decimal(product.profitGain),
-//             sellingPrice: new Prisma.Decimal(product.sellingPrice),
-//             taxRate: product.taxRate,
-//             subTotal: new Prisma.Decimal(product.subTotal),
-//             units: product.units,
-//             discountAmount: new Prisma.Decimal(product.discountAmount),
-//             taxIncludedWithMrp: product.taxIncludedWithMrp,
-//             taxAmount: new Prisma.Decimal(product.taxAmount),
-//             invoicesId: invoiceId,
-//           },
-//         });
-
-//         const existingProduct = await tx.products.findUnique({
-//           where: {
-//             id: product.productId,
-//           },
-//         });
-
-//         if (!existingProduct) continue;
-
-//         await tx.products.update({
-//           where: { id: product.productId },
-//           data: {
-//             stockInHand: existingProduct.stockInHand - product.quantity,
-//           },
-//         });
-
-//         await tx.brand.update({
-//           where: { id: existingProduct.brandId },
-//           data: {
-//             totalRevenue: {
-//               increment: new Prisma.Decimal(product.subTotal),
-//             },
-//             totalProfit: {
-//               increment: new Prisma.Decimal(product.profitGain),
-//             },
-//           },
-//         });
-
-//         await tx.category.update({
-//           where: { id: existingProduct.categoryId },
-//           data: {
-//             totalProfit: {
-//               increment: new Prisma.Decimal(product.profitGain),
-//             },
-//           },
-//         });
-//       }
-//     });
-
-//     return { success: true, message: "Invoice edited successfully" };
-//   } catch (error) {
-//     console.error("Error editing invoice:", error);
-//     return { success: false, message: "Error editing invoice" };
-//   }
-// };
-
 export const getRecentInvoicesOfBranch = async (branchId: string) => {
   try {
     const user = await currentUser();
@@ -772,6 +578,9 @@ export const getRecentInvoicesOfBranch = async (branchId: string) => {
       allInvoicesOfBranch.map((invoice) => {
         return {
           ...invoice,
+          invoiceNumber: invoice.invoiceNumber.includes("-")
+            ? invoice.invoiceNumber.split("-")[1]
+            : invoice.invoiceNumber,
           subTotal: invoice.subTotal.toString(),
           totalTaxAmount: invoice.totalTaxAmount.toString(),
           totalDiscount: invoice.totalDiscount.toString(),
@@ -1078,6 +887,9 @@ export const getInvoicesDataofBranch = async (branchId: string) => {
       (invoice) => {
         return {
           ...invoice,
+          invoiceNumber: invoice.invoiceNumber.includes("-")
+            ? invoice.invoiceNumber.split("-")[1]
+            : invoice.invoiceNumber,
           subTotal: invoice.subTotal.toString(),
           totalTaxAmount: invoice.totalTaxAmount.toString(),
           totalDiscount: invoice.totalDiscount.toString(),

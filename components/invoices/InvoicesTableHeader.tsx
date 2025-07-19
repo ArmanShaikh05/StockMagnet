@@ -65,7 +65,7 @@ const InvoicesTableHeader = ({
       <div className="flex w-full sm:max-w-[18rem] items-center gap-2">
         <Input
           type="search"
-          placeholder="Search products"
+          placeholder="Search invoices"
           className="text-sm"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
