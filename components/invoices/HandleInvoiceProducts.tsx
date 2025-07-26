@@ -104,7 +104,7 @@ const HandleInvoiceProducts = ({
                       {productsData.map((item) => (
                         <CommandItem
                           key={item.id}
-                          value={item.id}
+                          value={item.productName}
                           onSelect={(currentValue) => {
                             setProductsArray((prev) => {
                               const updated = [...prev];

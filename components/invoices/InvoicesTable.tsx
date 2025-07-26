@@ -1,4 +1,3 @@
-
 "use client";
 
 import { getAllInvoicesOfBranch } from "@/actions/invoiceActions";
@@ -45,7 +44,15 @@ const InventoryTable = () => {
         ? invoice.customerName
             .toLowerCase()
             .includes(searchString.toLowerCase()) ||
-          invoice.customerMobile.includes(searchString.toLowerCase())
+          invoice.customerMobile.includes(searchString.toLowerCase()) ||
+          invoice.invoiceNumber
+            .toLowerCase()
+            .includes(searchString.toLowerCase()) ||
+          invoice.products.some((product) =>
+            product.productSno
+              .toLowerCase()
+              .includes(searchString.toLowerCase())
+          )
         : true;
 
       const matchesStatus =
