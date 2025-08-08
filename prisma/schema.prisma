@@ -30,24 +30,26 @@ model User {
   Category     Category[]
   Brand        Brand[]
   Units        Units[]
+  Suppliers    Suppliers?
 }
 
 model Branches {
-  id            String     @id @default(cuid())
-  branchName    String
-  branchImage   String
-  imageId       String
-  branchAddress String
-  isPrimary     Boolean    @default(false)
-  User          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  GstNumber     String?
-  products      Products[]
-  Invoices      Invoices[]
-  grossRevenue  Int?       @default(0)
-  netRevenue    Int?       @default(0)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id             String           @id @default(cuid())
+  branchName     String
+  branchImage    String
+  imageId        String
+  branchAddress  String
+  isPrimary      Boolean          @default(false)
+  User           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  GstNumber      String?
+  products       Products[]
+  Invoices       Invoices[]
+  grossRevenue   Int?             @default(0)
+  netRevenue     Int?             @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  PurchaseOrders PurchaseOrders[]
 }
 
 enum Subscription {
@@ -168,32 +170,33 @@ model Units {
 }
 
 model Products {
-  id                 String        @id @default(cuid())
-  productName        String
-  productImage       String
-  imageId            String
-  productSno         String
-  MRP                Decimal
-  purchasePrice      Decimal
-  HSNCode            String?
-  taxRate            String?
-  warrantyMonths     Int?
-  stockInHand        Int
-  minStockQty        Int
-  status             ProductStatus @default(AVAILABLE)
-  tags               String[]
-  taxIncludedWithMrp Boolean       @default(false)
-  reorderQty         Int?
-  branch             Branches      @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  branchId           String
-  category           Category      @relation(fields: [categoryId], references: [id])
-  categoryId         String
-  Brand              Brand         @relation(fields: [brandId], references: [id])
-  brandId            String
-  unit               Units         @relation(fields: [unitId], references: [id])
-  unitId             String
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                   String                 @id @default(cuid())
+  productName          String
+  productImage         String
+  imageId              String
+  productSno           String
+  MRP                  Decimal
+  purchasePrice        Decimal
+  HSNCode              String?
+  taxRate              String?
+  warrantyMonths       Int?
+  stockInHand          Int
+  minStockQty          Int
+  status               ProductStatus          @default(AVAILABLE)
+  tags                 String[]
+  taxIncludedWithMrp   Boolean                @default(false)
+  reorderQty           Int?
+  branch               Branches               @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId             String
+  category             Category               @relation(fields: [categoryId], references: [id])
+  categoryId           String
+  Brand                Brand                  @relation(fields: [brandId], references: [id])
+  brandId              String
+  unit                 Units                  @relation(fields: [unitId], references: [id])
+  unitId               String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  purchaseOrders PurchaseOrderProduct[]
 }
 
 enum ProductStatus {
@@ -213,4 +216,49 @@ model Payments {
   userId         String   @unique
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Suppliers {
+  id             String           @id @default(cuid())
+  name           String
+  email          String?          @unique
+  phone          String
+  address        String
+  state          String
+  gstNumber      String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  PurchaseOrders PurchaseOrders[]
+  user           User             @relation(fields: [userClerkId], references: [clerkUserId], onDelete: Cascade)
+  userClerkId    String           @unique
+}
+
+model PurchaseOrders {
+  id                    String                 @id @default(cuid())
+  supplier              Suppliers              @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierId            String
+  branch                Branches               @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId              String
+  purchaseDate          DateTime
+  invoiceImageUrl       String?
+  invoiceImageId        String?
+  totalItems            Int
+  creditedAmount        Int?
+  paymentStatus         InvoiceStatus
+  supplierInvoiceNumber String?
+  paymentMode           PaymentMode
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  products  PurchaseOrderProduct[]
+}
+
+model PurchaseOrderProduct {
+  id              String         @id @default(cuid())
+  purchaseOrder   PurchaseOrders @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  purchaseOrderId String
+
+  product   Products @relation(fields: [productId], references: [id])
+  productId String
+
+  quantity Int
 }

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Package,
   ReceiptText,
+  ShoppingCart,
 } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -48,6 +49,11 @@ const navData: { title: string; url: string; icon: React.ElementType }[] = [
     title: "Invoices",
     url: "/invoices",
     icon: ReceiptText,
+  },
+  {
+    title: "Purchases",
+    url: "/purchases",
+    icon: ShoppingCart,
   },
   {
     title: "Branches",

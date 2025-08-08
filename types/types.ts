@@ -1,4 +1,5 @@
 import { Prisma } from "@/lib/generated/prisma";
+import { INDIAN_STATES } from "@/utils/data";
 
 export type CardDataType = {
   icon: React.ElementType;
@@ -146,4 +147,32 @@ export type BranchMetrics = {
   profitGenerated: number; // e.g., ₹40,000
   revenueGenerated: number; // e.g., ₹2,00,000
   numberOfSales: number; // e.g., 800
+};
+
+export type IndianStatesTypes = (typeof INDIAN_STATES)[number];
+
+export type PurchaseOrderProductsType = {
+  productId: string;
+  quantity: number;
+  productImage: string;
+  productName: string;
+};
+
+export type PurchaseOrderProductsErrorsTypes = {
+  productId?: string;
+  quantity?: string;
+};
+
+export type PurchaseOrderData = {
+  invoiceNumber: string;
+  purchaseDate: Date;
+  branchId: string;
+  supplier: string;
+  products: PurchaseOrderProductsType[];
+  paymentMode: string;
+  status: string;
+  creditedAmount: number;
+  invoiceImageId: string;
+  invoiceImageURL: string;
+  totalQuantity: number;
 };

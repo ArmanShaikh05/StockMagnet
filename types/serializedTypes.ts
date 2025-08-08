@@ -164,3 +164,42 @@ export type SerializedLowStockProductType = {
     colorCode: string;
   };
 };
+
+// Serialized Purchase Order Types
+
+export type SerializedPurchaseOrderProductType = {
+  quantity: number;
+  purchasePrice: string;
+  MRP: string;
+  discountAmount?: string;
+} & Omit<
+  Prisma.ProductsGetPayload<{
+    include: {
+      category: { select: { categoryName: true; colorCode: true } };
+      Brand: { select: { brandName: true; colorCode: true } };
+    };
+  }>,
+  "MRP" | "purchasePrice"
+>;
+
+export type SerializedPurchaseOrderDataType = Omit<
+  Prisma.PurchaseOrdersGetPayload<{
+    include: {
+      products: {
+        include: {
+          product: {
+            include: {
+              category: { select: { categoryName: true; colorCode: true } };
+              Brand: { select: { brandName: true; colorCode: true } };
+            };
+          };
+        };
+      };
+      supplier: true;
+      branch: true;
+    };
+  }>,
+  "products"
+> & {
+  products: SerializedPurchaseOrderProductType[];
+};
