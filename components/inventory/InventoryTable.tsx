@@ -62,12 +62,11 @@ const InventoryTable = () => {
   const filteredData = useMemo(() => {
     return productsData.filter((product) => {
       const matchesSearch = searchString
-        ? product.productName.toLowerCase().includes(searchString.toLowerCase())
-        : true;
-
-      const matchesTag = searchString
-        ? product.tags?.some((tag) =>
-            tag.toLowerCase().includes(searchString.toLowerCase())
+        ? product.productName
+            .toLowerCase()
+            .includes(searchString.toLowerCase().trim()) ||
+          product.tags?.some((tag) =>
+            tag.toLowerCase().includes(searchString.toLowerCase().trim())
           )
         : true;
 
@@ -86,13 +85,7 @@ const InventoryTable = () => {
           ? categoryFilters.includes(product.category.categoryName)
           : true;
 
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesBrand &&
-        matchesCategory &&
-        matchesTag
-      );
+      return matchesSearch && matchesStatus && matchesBrand && matchesCategory;
     });
   }, [
     brandFilters,

@@ -153,7 +153,7 @@ export const getAllPurchaseOrderDataOfBranch = async (branchId: string) => {
         branchId: branchId,
       },
       orderBy: {
-        createdAt: "desc",
+        purchaseDate: "desc",
       },
       include: {
         products: {
